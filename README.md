@@ -7,6 +7,7 @@ The repository hosting the code for the [Skule Voting](https://vote.skule.ca) we
 - [Getting Started](#getting-started)
     * [Python Environment](#python-environment)
     * [Environment Variables](#environment-variables)
+    * [Running the development server](#running-the-development-server)
 
 ## Requirements
 - Python 3.8 or higher
@@ -55,3 +56,37 @@ In order to run the django and react development servers locally (or run tests),
 | DB_PORT        |                                   | 5432              | Port the postgres server is open on.                                              |
 | DB_NAME        |                                   | hackathon_site    | Postgres database name.                                                           |
 | **REACT_APP_DEV_SERVER_URL** | http://localhost:8000 |                 | Path to the django development server, used by React. Update the port if you aren't using the default 8000. |
+
+
+### Running the development server
+#### Database
+Before the development server can be ran, the database must be running. This project is configured to use [PostgreSQL](https://www.postgresql.org/). 
+
+You may install Postgres on your machine if you wish, but we recommend running it locally using docker. A docker-compose service is available in [development/docker-compose.yml](/home/graham/ieee/hackathon-template/README.md). To run the database:
+```bash
+$ docker-compose -f development/docker-compose.yml up -d
+```
+
+To shut down the database:
+```bash
+$ docker-compose -f development/docker-compose.yml down
+```
+
+The postgres container uses a volume mounted to `development/.postgres-data/` for persistent data storage, so you can safely stop the service without losing any data in your local database.
+
+A note about security: by default, the Postgres service is run with [trust authentication](https://www.postgresql.org/docs/current/auth-trust.html) for convenience, so no passwords are required even if they are set. You should not store any sensitive information in your local database, or broadcast your database host publicly with these settings.
+
+#### Database migrations
+[Migrations](https://docs.djangoproject.com/en/3.0/topics/migrations/) are Django's way of managing changes to the database structure. Before you run the development server, you should run any unapplied migrations; this should be done every time you pull an update to the codebase, not just the first time you set up:
+```bash
+$ cd skule_vote
+$ python manage.py migrate
+```
+
+#### Run the development server
+Finally, you can run the development server, by default on port 8000. From above, you should already be in the top-level `hackathon_site` directory:
+```bash
+$ python manage.py runserver
+```
+
+If you would like to run on a port other than 8000, specify a port number after `runserver`.

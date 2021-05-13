@@ -8,6 +8,7 @@ The repository hosting the code for the [Skule Voting](https://vote.skule.ca) we
     * [Python Environment](#python-environment)
     * [Environment Variables](#environment-variables)
     * [Running the development server](#running-the-development-server)
+    * [Creating users locally](#creating-users-locally)
 
 ## Requirements
 - Python 3.8 or higher
@@ -58,6 +59,12 @@ In order to run the django and react development servers locally (or run tests),
 | **REACT_APP_DEV_SERVER_URL** | http://localhost:8000 |                 | Path to the django development server, used by React. Update the port if you aren't using the default 8000. |
 
 
+If you are using miniconda, you can add these to your environment such that each time you `conda activate skule_vote`, the variables will be sourced as well. To do this run (while the skule_vote environment is activated):
+```bash
+$ conda env config vars set DEBUG=1
+```
+where you can substitube `DEBUG=1` for any environment variable you desire.
+
 ### Running the development server
 #### Database
 Before the development server can be ran, the database must be running. This project is configured to use [PostgreSQL](https://www.postgresql.org/). 
@@ -90,3 +97,14 @@ $ python manage.py runserver
 ```
 
 If you would like to run on a port other than 8000, specify a port number after `runserver`.
+
+### Creating users locally
+In order to access most of the functionality of the site (the React dashboard or otherwise), you will need to have user accounts to test with. 
+
+To start, create an admin user. This will give you access to the admin site, and will bypass all Django permissions checks:
+
+```bash
+$ python manage.py createsuperuser 
+```
+
+Once a superuser is created (and the Django dev server is running), you can log in to the admin site at `http://localhost:8000/admin`. Note that creating a superuser does not give it a first or last name, so you should set those from the admin site otherwise some parts of the site may behave weird. Our regular sign up flow also assumes that username and email are the same, so we recommend creating your superuser accordingly.

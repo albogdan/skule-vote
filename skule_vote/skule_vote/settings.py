@@ -29,6 +29,7 @@ DEBUG = bool(int(os.environ.get("DEBUG", 0)))
 
 if DEBUG:
     ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+    INTERNAL_IPS = ["localhost", "127.0.0.1"]
 
 else:
     ALLOWED_HOSTS = ["vote.skule.ca"]
@@ -42,6 +43,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
+    "rest_framework.authtoken",
+    "dj_rest_auth",
+    "drf_yasg",
 ]
 
 MIDDLEWARE = [
@@ -122,6 +127,9 @@ USE_L10N = True
 
 USE_TZ = True
 
+# Swagger
+# https://drf-yasg.readthedocs.io/en/stable/settings.html
+SWAGGER_SETTINGS = {"DEFAULT_MODEL_RENDERING": "example", "DEEP_LINKING": True}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/

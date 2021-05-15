@@ -1,0 +1,57 @@
+name: CI/CD
+
+on:
+  pull_request_target:
+    branches: '**'
+
+jobs:
+  backend-checks:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: skule_vote
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{github.event.pull_request.head.ref}}
+          repository: $${{github.event.pull_request.head.repo.full_name}}
+      - name: Setup Python 3.9
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Check formatting with Black
+        run: |
+          # Stop the build if there are any formatting issues picked up by Black
+          black --check .
+      - name: Unit Tests
+        env:
+          SECRET_KEY: ${{secrets.DJANGO_SECRET_KEY}}
+          DEBUG: 0
+        run: python manage.py test --settings=skule_vote.settings.ci
+
+  frontend-checks:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: skule_vote/frontend/ui
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{github.event.pull_request.head.ref}}
+          repository: $${{github.event.pull_request.head.repo.full_name}}
+      - name: Use Node.js 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+      - name: Install dependencies
+        run: yarn install
+      - name: Prettier Formatting Check
+        run: yarn prettier --check 'src/**/*.(scss|js)'
+      - name: Unit Tests
+        run: yarn test --watchAll=false

@@ -15,13 +15,34 @@ const AppPaper = withStyles({
 const App = () => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const [darkState, setDarkState] = useState(prefersDarkMode);
-  console.log(prefersDarkMode);
 
   const theme = React.useMemo(
     () =>
       createMuiTheme({
         typography: {
           fontFamily: `"Gill Sans", "Gill Sans MT", "Lato", sans-serif`,
+
+          h1: {
+            fontSize: 45,
+            fontWeight: 300,
+            "@media (max-width:600px)": {
+              fontSize: 32,
+            },
+          },
+          h2: {
+            fontSize: 32,
+            fontWeight: 500,
+            "@media (max-width:600px)": {
+              fontSize: 24,
+            },
+          },
+          body1: {
+            fontSize: 20,
+            fontWeight: 300,
+            "@media (max-width:600px)": {
+              fontSize: 16,
+            },
+          },
         },
         palette: {
           type: darkState ? "dark" : "light",
@@ -61,7 +82,9 @@ const App = () => {
             padding: 50,
           }}
         >
-          <Typography variant="h1">This is a dark mode test</Typography>
+          <Typography variant="h1">h1: This is a dark mode test</Typography>
+          <Typography variant="h2">h2: Font should shrink on mobile</Typography>
+          <Typography variant="body1">body1: WEEEEE</Typography>
           <Button
             color="primary"
             variant="contained"

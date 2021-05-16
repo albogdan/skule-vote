@@ -96,23 +96,23 @@ class Candidate(models.Model):
     )
     disqualified_link = models.URLField(
         null=True,
-        help_text="Enter a link to the disqualification ruling. (Optional)",
+        help_text="(Optional) Enter a link to the disqualification ruling.",
         blank=True,
     )
     disqualified_blurb = models.TextField(
         null=True,
-        help_text="Enter a short about the Candidate's disqualification. (Optional)",
+        help_text="(Optional) Enter a short about the Candidate's disqualification.",
         blank=True,
     )
 
     rule_violation_message = models.TextField(
         null=True,
-        help_text="Enter a rule violation message for this Candidate. (Optional)",
+        help_text="(Optional) Enter a rule violation message for this Candidate.",
         blank=True,
     )
     rule_violation_link = models.URLField(
         null=True,
-        help_text="Enter a link to more information about the rule violation. (Optional)",
+        help_text="(Optional) Enter a link to more information about the rule violation.",
         blank=True,
     )
 
@@ -266,7 +266,9 @@ class Eligibility(models.Model):
 
 
 class Message(models.Model):
-    message = models.TextField(null=False, help_text="Message.")
+    message = models.TextField(
+        null=False, help_text="This message will be displayed overhead the website."
+    )
     election_session = models.ForeignKey(
         ElectionSession, related_name="messages", null=False, on_delete=models.CASCADE
     )

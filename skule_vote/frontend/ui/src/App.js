@@ -84,9 +84,9 @@ const App = () => {
           info: {
             main: "#3B6482",
           },
-        },
-        background: {
-          default: darkState ? "#212121" : "#EFEFEF",
+          background: {
+            default: darkState ? "#212121 !important" : "#EFEFEF !important",
+          },
         },
       }),
     [darkState]

@@ -4,13 +4,16 @@ import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import { Link } from "react-router-dom";
 import Brightness6Icon from "@material-ui/icons/Brightness6";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
 import { responsive } from "assets/breakpoints";
 
 const SkuleVote = styled.h1`
-  font-weight: 700;
+  font-weight: 600;
   font-size: 16px;
   white-space: nowrap;
+  margin-right: 16px;
 `;
 
 const Nav = styled.div`
@@ -19,6 +22,7 @@ const Nav = styled.div`
   button {
     color: white;
     padding: 20px 15px;
+    border-radius: 0;
     @media ${responsive.smDown} {
       padding: 16px 12px;
     }
@@ -34,23 +38,21 @@ const FlexToolbar = styled(Toolbar)`
 `;
 
 const Header = ({ isDark, toggleDark }) => {
-  const darkLightModeButton = isDark ? (
-    <Button
-      aria-label="Light mode"
-      startIcon={<Brightness6Icon />}
-      onClick={() => toggleDark()}
-    >
-      Light mode
-    </Button>
+  const isMobile = useMediaQuery(responsive.smDown);
+  const darkLightModeButton = isMobile ? (
+    <IconButton aria-label="Dark/Light mode" onClick={() => toggleDark()}>
+      <Brightness6Icon />
+    </IconButton>
   ) : (
     <Button
-      aria-label="Dark mode"
+      aria-label={isDark ? "Light mode" : "Dark mode"}
       startIcon={<Brightness6Icon />}
       onClick={() => toggleDark()}
     >
-      Dark mode
+      {isDark ? "Light mode" : "Dark mode"}
     </Button>
   );
+
   return (
     <AppBar color={!isDark ? "primary" : "inherit"} position="sticky">
       <FlexToolbar>

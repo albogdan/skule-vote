@@ -140,3 +140,9 @@ React tests are handled by [Jest](https://jestjs.io/). To run the full suite of 
 $ cd hackathon_site/dashboard/frontend
 $ yarn test
 ```
+
+### Styling the Frontend
+
+The UI app uses [Material UI](https://material-ui.com/) for styling and components. There is no usage of CSS or SCSS as we use Material UI's [in-library styling system](https://material-ui.com/styles/basics/). Classes are created with the [makeStyles](https://material-ui.com/styles/api/#makestyles-styles-options-hook) hook. Global colors, fonts, and dark mode configuration are set using Material UI's [Palette](https://material-ui.com/customization/palette/) in `App.js`.
+
+To edit the colors, font-sizes, and font-families (which we don't recommend unless EngSoc has rebranded), simply edit the `createMuiTheme` object in `App.js`. While the colors for `primary` and `secondary` are part of EngSoc's official colour scheme, the colors for `error`, `warning`, `success`, and `info` are not in order to be WCAG 2.0 color compliant.

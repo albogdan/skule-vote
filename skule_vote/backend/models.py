@@ -82,8 +82,12 @@ class Candidate(models.Model):
         null=False,
         help_text="Which Election is this Candidate running in?",
     )
-    blurb = models.TextField(null=False, help_text="Enter the Candidate's blurb.")
-    preamble = models.TextField(null=False, help_text="Enter the Candidate's preamble.")
+    blurb = models.TextField(
+        null=True, blank=True, help_text="Enter the Candidate's blurb."
+    )
+    preamble = models.TextField(
+        null=True, blank=True, help_text="Enter the Candidate's preamble."
+    )
 
     disqualified_status = models.BooleanField(
         null=False,

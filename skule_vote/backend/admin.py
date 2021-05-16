@@ -23,7 +23,15 @@ class ElectionAdmin(admin.ModelAdmin):
 
 @admin.register(Candidate)
 class CandidateAdmin(admin.ModelAdmin):
-    pass
+    list_display = ("candidate_name", "election", "election_session")
+    sortable_by = (
+        "candidate_name",
+        "election",
+    )
+    list_filter = ("election",)
+
+    def election_session(self, obj):
+        return obj.election.election_session
 
 
 @admin.register(Voter)

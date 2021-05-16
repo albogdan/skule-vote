@@ -23,7 +23,7 @@
     "eject": "react-scripts eject",
     "in": "yarn install --frozen-lockfile",
     "pretty": "yarn prettier --write 'src/**/*.(scss|js)'",
-    "precheck": "yarn pretty && yarn test -u -o"
+    "precheck": "yarn pretty && yarn test -o -u --watchAll=false"
   },
   "eslintConfig": {
     "extends": [

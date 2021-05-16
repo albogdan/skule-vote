@@ -5,10 +5,12 @@ import Toolbar from "@material-ui/core/Toolbar";
 import { Link } from "react-router-dom";
 import Brightness6Icon from "@material-ui/icons/Brightness6";
 import Button from "@material-ui/core/Button";
+import { responsive } from "assets/breakpoints";
 
 const SkuleVote = styled.h1`
-  font-weight: bold;
+  font-weight: 700;
   font-size: 16px;
+  white-space: nowrap;
 `;
 
 const Nav = styled.div`
@@ -17,6 +19,9 @@ const Nav = styled.div`
   button {
     color: white;
     padding: 20px 15px;
+    @media ${responsive.smDown} {
+      padding: 16px 12px;
+    }
   }
   a {
     text-decoration: none;
@@ -64,11 +69,5 @@ const Header = ({ isDark, toggleDark }) => {
     </AppBar>
   );
 };
-
-// const mapStateToProps = (state) => ({
-//   pathname: state.router.location.pathname,
-// });
-
-// const Header = connect(mapStateToProps)(UnconnectedHeader);
 
 export default Header;

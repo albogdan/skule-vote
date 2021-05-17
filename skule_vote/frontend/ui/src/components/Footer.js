@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 import Paper from "@material-ui/core/Paper";
-import { useTheme } from "@material-ui/core/styles";
 import { ReactComponent as EngSocCrestBlack } from "images/EngSocCrestBlack.svg";
 import { ReactComponent as EngSocCrestWhite } from "images/EngSocCrestWhite.svg";
 import { responsive } from "assets/breakpoints";
@@ -91,7 +90,11 @@ const Footer = ({ isLanding = true, isDark }) => {
       <FooterPaper>
         <div>
           <CrestDiv>
-            {isDark ? <WhiteCrest /> : <BlackCrest />}
+            {isDark ? (
+              <WhiteCrest data-testid="whiteCrest" />
+            ) : (
+              <BlackCrest data-testid="blackCrest" />
+            )}
             <Address>
               <Typography variant="body1">
                 University of Toronto Engineering Society

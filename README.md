@@ -143,6 +143,32 @@ $ yarn test
 
 ### Styling the Frontend
 
-The UI app uses [Material UI](https://material-ui.com/) for styling and components. There is no usage of CSS or SCSS as we use Material UI's [in-library styling system](https://material-ui.com/styles/basics/). Classes are created with the [makeStyles](https://material-ui.com/styles/api/#makestyles-styles-options-hook) hook. Global colors, fonts, and dark mode configuration are set using Material UI's [Palette](https://material-ui.com/customization/palette/) in `App.js`.
+The UI app uses [Material UI](https://material-ui.com/) for styling and components. There is no usage of CSS or SCSS as we use a mixture of Material UI's [Palette](https://material-ui.com/customization/palette/) and the library [styled-components](https://styled-components.com/). Global colors, fonts, and dark mode configuration are set using Palette in `App.js` while general component styling is done with styled-components.
 
-To edit the colors, font-sizes, and font-families (which we don't recommend unless EngSoc has rebranded), simply edit the `createMuiTheme` object in `App.js`. While the colors for `primary` and `secondary` are part of EngSoc's official colour scheme, the colors for `error`, `warning`, `success`, and `info` are not in order to be WCAG 2.0 color compliant.
+To edit the globally-set colors, font-sizes, and font-families (which we don't recommend unless EngSoc has rebranded), simply edit the `createMuiTheme` object in `App.js`. While the colors for `primary` and `secondary` are part of EngSoc's official colour scheme, the colors for `error`, `warning`, `success`, and `info` are not in order to be WCAG 2.0 color compliant.
+
+#### Media Queries and Responsiveness
+
+Predetermined breakpoints are set in `assets/breakpoints.js`. These values correspond to Material UI's breakpoints in their components. Do not change these predetermined values as it will cause inconsistency with breakpoints in Material UI which are out of our control.
+
+To use the breakpoints, instead of...
+
+```bash
+const Wrapper = styled.div`
+  padding: 20px 15px;
+  @media (max-width: 600px) {
+    padding: 16px 12px;
+  }
+`;
+```
+
+...import `responsive` from `breakpoints.js` and use like...
+
+```bash
+const Wrapper = styled.div`
+  padding: 20px 15px;
+  @media ${responsive.smDown} {
+    padding: 16px 12px;
+  }
+`;
+```

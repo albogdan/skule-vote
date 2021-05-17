@@ -40,13 +40,17 @@ const FlexToolbar = styled(Toolbar)`
 const Header = ({ isDark, toggleDark }) => {
   const isMobile = useMediaQuery(responsive.smDown);
   const darkLightModeButton = isMobile ? (
-    <IconButton aria-label="Dark/Light mode" onClick={() => toggleDark()}>
+    <IconButton
+      aria-label="Dark/Light mode"
+      onClick={() => toggleDark()}
+      data-testid="darkLightModeIcon"
+    >
       <Brightness6Icon />
     </IconButton>
   ) : (
     <Button
       aria-label={isDark ? "Light mode" : "Dark mode"}
-      startIcon={<Brightness6Icon />}
+      startIcon={<Brightness6Icon data-testid="darkLightModeIcon" />}
       onClick={() => toggleDark()}
     >
       {isDark ? "Light mode" : "Dark mode"}
@@ -60,7 +64,7 @@ const Header = ({ isDark, toggleDark }) => {
         <Nav>
           {darkLightModeButton}
           <nav>
-            <Link to={"/what-ever-login-is"}>
+            <Link to={"/elections"}>
               <Button aria-label="Vote">Vote</Button>
             </Link>
           </nav>

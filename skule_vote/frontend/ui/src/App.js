@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import { createMuiTheme, withStyles } from "@material-ui/core/styles";
+import { createMuiTheme } from "@material-ui/core/styles";
 import { ThemeProvider } from "@material-ui/styles";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import { Route, BrowserRouter, Redirect, Switch } from "react-router-dom";

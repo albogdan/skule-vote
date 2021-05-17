@@ -4,7 +4,7 @@ import Footer from "components/Footer";
 
 describe("<Footer />", () => {
   it("renders landing footer with white crest on dark mode", () => {
-    const { getByText, getByTestId } = render(
+    const { getByText, getByTestId, queryByTestId } = render(
       <Footer isLanding={true} isDark={true} />
     );
     expect(
@@ -12,10 +12,11 @@ describe("<Footer />", () => {
     ).toBeInTheDocument();
     expect(getByText(/This website was designed/)).toBeInTheDocument();
     expect(getByTestId("whiteCrest")).toBeInTheDocument();
+    expect(queryByTestId("blackCrest")).not.toBeInTheDocument();
   });
 
   it("renders landing footer with black crest on light mode", () => {
-    const { getByText, getByTestId } = render(
+    const { getByText, getByTestId, queryByTestId } = render(
       <Footer isLanding={true} isDark={false} />
     );
     expect(
@@ -23,6 +24,7 @@ describe("<Footer />", () => {
     ).toBeInTheDocument();
     expect(getByText(/This website was designed/)).toBeInTheDocument();
     expect(getByTestId("blackCrest")).toBeInTheDocument();
+    expect(queryByTestId("whiteCrest")).not.toBeInTheDocument();
   });
 
   it("renders small footer", () => {

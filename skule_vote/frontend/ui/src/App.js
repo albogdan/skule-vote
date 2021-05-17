@@ -10,6 +10,7 @@ import LandingPage from "pages/LandingPage";
 import NotFound from "pages/NotFound";
 import Footer from "components/Footer";
 import Header from "components/Header";
+import { responsive } from "assets/breakpoints";
 
 const AppWrapper = styled.div`
   min-height: 100vh;
@@ -18,6 +19,16 @@ const AppWrapper = styled.div`
   justify-content: space-between;
   * {
     box-sizing: border-box;
+  }
+  a {
+    text-decoration: none;
+    color: ${(props) =>
+      props.isDark
+        ? props.theme.palette.secondary.main
+        : props.theme.palette.primary.main};
+    &:hover {
+      text-decoration: underline;
+    }
   }
 `;
 
@@ -28,6 +39,9 @@ const AppBody = styled.div`
   max-width: 1200px;
   margin: auto;
   padding: 0 32px;
+  @media ${responsive.smDown} {
+    padding: 0 12px;
+  }
 `;
 
 const App = () => {
@@ -57,10 +71,10 @@ const App = () => {
             },
           },
           body1: {
-            fontSize: 16,
+            fontSize: 18,
             fontWeight: 300,
             "@media (max-width:600px)": {
-              fontSize: 14,
+              fontSize: 16,
             },
           },
         },
@@ -96,7 +110,7 @@ const App = () => {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <BrowserRouter>
-        <AppWrapper>
+        <AppWrapper theme={theme} isDark={darkState}>
           <div>
             <Header isDark={darkState} toggleDark={toggleDark} />
             <AppBody>
@@ -108,7 +122,7 @@ const App = () => {
               </Switch>
             </AppBody>
           </div>
-          <Footer />
+          <Footer isDark={darkState} />
         </AppWrapper>
       </BrowserRouter>
     </ThemeProvider>

@@ -79,6 +79,9 @@ const BlackCrest = styled(EngSocCrestBlack)`
 
 const SmallFooter = styled(FooterPaper)`
   text-align: center;
+  > p {
+    margin-bottom: 8px;
+  }
 `;
 
 const Footer = ({ isLanding = true, isDark }) => {

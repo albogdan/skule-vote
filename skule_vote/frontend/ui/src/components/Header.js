@@ -14,21 +14,21 @@ const SkuleVote = styled.h1`
   font-size: 16px;
   white-space: nowrap;
   margin-right: 16px;
+  color: white;
 `;
 
 const Nav = styled.div`
   display: flex;
   white-space: nowrap;
-  button {
-    color: white;
-    padding: 20px 15px;
-    border-radius: 0;
-    @media ${responsive.smDown} {
-      padding: 16px 12px;
-    }
-  }
-  a {
-    text-decoration: none;
+`;
+
+const NavBtn = styled(Button)`
+  font-size: 14px;
+  color: white;
+  padding: 20px 15px;
+  border-radius: 0;
+  @media ${responsive.smDown} {
+    padding: 16px 12px;
   }
 `;
 
@@ -48,28 +48,30 @@ const Header = ({ isDark, toggleDark }) => {
       <Brightness6Icon />
     </IconButton>
   ) : (
-    <Button
+    <NavBtn
       aria-label={isDark ? "Light mode" : "Dark mode"}
       startIcon={<Brightness6Icon data-testid="darkLightModeIcon" />}
       onClick={() => toggleDark()}
     >
       {isDark ? "Light mode" : "Dark mode"}
-    </Button>
+    </NavBtn>
   );
 
   return (
     <AppBar color={!isDark ? "primary" : "inherit"} position="sticky">
       <FlexToolbar>
-        <SkuleVote>Skule Vote</SkuleVote>
+        <Link to={"/"}>
+          <SkuleVote>Skule Vote</SkuleVote>
+        </Link>
         <Nav>
           {darkLightModeButton}
           <nav>
             <Link to={"/elections"}>
-              <Button aria-label="Vote">Vote</Button>
+              <NavBtn aria-label="Vote">Vote</NavBtn>
             </Link>
           </nav>
-          <Button aria-label="Check status">Check status</Button>
-          <Button aria-label="Logout">Logout</Button>
+          <NavBtn aria-label="Check status">Check status</NavBtn>
+          <NavBtn aria-label="Logout">Logout</NavBtn>
         </Nav>
       </FlexToolbar>
     </AppBar>

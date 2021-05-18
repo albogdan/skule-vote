@@ -23,9 +23,9 @@ class ElectionSessionAdmin(admin.ModelAdmin):
     )
 
     fieldsets = (
-        ("Name your Election Session.", {"fields": ("election_session_name",)}),
+        ("Name of Election Session.", {"fields": ("election_session_name",)}),
         (
-            "Define when the Election is happening.",
+            "Set the timeline of your Election Session.",
             {"fields": ("start_time", "end_time")},
         ),
     )
@@ -46,8 +46,8 @@ class ElectionAdmin(admin.ModelAdmin):
     list_filter = ("election_session", "category")
 
     fieldsets = (
-        ("Name your Election.", {"fields": ("election_name",)}),
-        ("Choose an Election Session.", {"fields": ("election_session",)}),
+        ("Name of Election.", {"fields": ("election_name",)}),
+        ("Choose the Election Session this falls under.", {"fields": ("election_session",)}),
         ("Define Election parameters.", {"fields": ("seats_available", "category")}),
     )
 
@@ -67,11 +67,11 @@ class CandidateAdmin(admin.ModelAdmin):
     list_filter = ("election", "election__election_session")
 
     fieldsets = (
-        ("Name your Candidate.", {"fields": ("candidate_name",)}),
+        ("Name of Candidate.", {"fields": ("candidate_name",)}),
         ("Choose an Election.", {"fields": ("election",)}),
-        ("Enter Candidate's writing.", {"fields": ("blurb", "preamble")}),
+        ("Enter Candidate's voter statement.", {"fields": ("blurb", "preamble")}),
         (
-            "(Optional) Enter information about the Candidate being disqualified.",
+            "(Optional) Display Candidate's disqualification ruling on the ballot.",
             {
                 "fields": (
                     "disqualified_status",
@@ -81,8 +81,8 @@ class CandidateAdmin(admin.ModelAdmin):
             },
         ),
         (
-            "(Optional) Enter information about the Candidate violating a rule.",
-            {"fields": ("rule_violation_message", "rule_violation_link")},
+            "(Optional) Display Candidate's rule violation on the ballot.",
+            {"fields": ("rule_violation_link", "rule_violation_message",)},
         ),
     )
     search_fields = ["candidate_name"]
@@ -128,7 +128,7 @@ class MessageAdmin(admin.ModelAdmin):
     search_fields = ["message"]
 
     fieldsets = (
-        ("Enter your message.", {"fields": ("message",)}),
+        ("Enter your message to be displayed on the webpage.", {"fields": ("message",)}),
         (
             "Select which Election Session this message applies to.",
             {"fields": ("election_session",)},

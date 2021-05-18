@@ -17,6 +17,7 @@ class CandidateSerializer(serializers.ModelSerializer):
             "rule_violation_link",
         )
 
+
 class ElectionSerializer(serializers.ModelSerializer):
     # This will query all candidates for a given election and nest their serialized representation in the
     # "candidates" field as a list

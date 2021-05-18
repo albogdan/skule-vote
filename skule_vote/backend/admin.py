@@ -72,7 +72,7 @@ class CandidateAdmin(admin.ModelAdmin):
     fieldsets = (
         ("Name of Candidate.", {"fields": ("candidate_name",)}),
         ("Choose an Election.", {"fields": ("election",)}),
-        ("Enter Candidate's voter statement.", {"fields": ("blurb", "preamble")}),
+        ("Enter Candidate's statement.", {"fields": ("statement",)}),
         (
             "(Optional) Display Candidate's disqualification ruling on the ballot.",
             {
@@ -116,11 +116,17 @@ class BallotAdmin(admin.ModelAdmin):
 class EligibilityAdmin(admin.ModelAdmin):
     list_display = (
         "election",
+        "get_election_id",
         "get_election_session",
         "created_at",
         "updated_at",
     )
     list_filter = ("election__election_session",)
+
+    def get_election_id(self, obj):
+        return obj.election.id
+
+    get_election_id.short_description = "Election ID"
 
     def get_election_session(self, obj):
         return obj.election.election_session

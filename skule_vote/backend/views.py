@@ -2,6 +2,10 @@ import hashlib
 
 from django.conf import settings
 import django.core.signing
+from django.http import HttpResponse
+from django.db.models import Q
+from rest_framework import generics, exceptions
+
 from backend.models import (
     Election,
     ElectionSession,
@@ -10,14 +14,39 @@ from backend.models import (
     Voter,
     Ballot,
 )
-
-from django.http import HttpResponse
-
-from rest_framework import generics, exceptions
 from backend.serializers import ElectionSerializer
 
+
+def get_eligible_election_query(voter):
+    q = Election.objects.all()
+
+    # A voter isn't eligible to vote in an election where they have already voted
+    q = q.exclude(ballots__voter=voter)
+
+    # Filter based on student fulltime/parttime status
+    q = q.filter(
+        Q(eligibilities__status_eligible=voter.student_status)
+        | Q(eligibilities__status_eligible="full_and_part_time")
+    )
+
+    # For pey students we don't check year and vice versa
+    if voter.pey:
+        q = q.filter(eligibilities__pey_eligible=True)
+    else:
+        kwargs = {f"eligibilities__year_{voter.study_year}_eligible": True}
+        q = q.filter(**kwargs)
+
+    # Finally filter based on discipline
+    kwargs = {f"eligibilities__{voter.discipline.lower()}_eligible": True}
+    q = q.filter(**kwargs)
+
+    return q
+
+
+# http://127.0.0.1:8000/api/backend/cookie/?isstudent=True&isregistered=True&isundergrad=True&primaryorg=APSE&yofstudy=1&campus=blah&postcd=AEENG&attendance=FT&assocorg=null&pid=asdflkjwerwwf
 def CookieView(request):
 
+    # Read query string
     student = request.GET.get("isstudent")
     registered = request.GET.get("isregistered")
     undergrad = request.GET.get("isundergrad")
@@ -29,19 +58,63 @@ def CookieView(request):
     assocorg = request.GET.get("assocorg")
     pid = request.GET.get("pid")
 
-    check_string = student + registered + undergrad + primaryorg + yofstudy + campus + postcd + attendance + assocorg + pid + settings.UOFT_SECRET_KEY
-    h = hashlib.md5()
-    h.update(check_string)
-    check_hash = h.hexdigest()
+    # Verify data integrity
+    # check_string = (
+    #     student
+    #     + registered
+    #     + undergrad
+    #     + primaryorg
+    #     + yofstudy
+    #     + campus
+    #     + postcd
+    #     + attendance
+    #     + assocorg
+    #     + pid
+    #     + settings.UOFT_SECRET_KEY
+    # )
+    # h = hashlib.md5()
+    # h.update(check_string)
+    # check_hash = h.hexdigest()
+    #
+    # if check_hash != request.GET.get("hash"):
+    #     return HttpResponse(status=401)
 
-    if check_hash != request.GET.get("hash"):
+    # Verify basic eligibility for EngSoc elections
+    eligible = (
+        student == "True"
+        and registered == "True"
+        and primaryorg == "APSE"
+        and undergrad == "True"
+    )
+    if not eligible:
         return HttpResponse(status=401)
 
+    try:
+        # previous voter -> update the info in DB
+        voter = Voter.objects.get(student_number_hash=pid)
+        voter.pey = assocorg == "AEPEY"  # either AEPEY or null
+        voter.study_year = int(yofstudy)
+        voter.engineering_student = primaryorg == "APSE"
+        voter.discipline = postcd[2:5]  # corresponds to DISCIPLINE_CHOICES
+
+        # No need to check for unregistered. We would have returned 401 by now
+        voter.student_status = "full_time" if attendance == "FT" else "part_time"
+
+        voter.save()
+
+    except Voter.DoesNotExist:  # new voter -> add to DB
+        voter = Voter(
+            student_number_hash=pid,
+            pey=(assocorg == "AEPEY"),
+            study_year=int(yofstudy),
+            engineering_student=(primaryorg == "APSE"),
+            discipline=postcd[2:5],
+            student_status="full_time" if attendance == "FT" else "part_time",
+        )
+        voter.save()
+
     res = HttpResponse(status=200)
-    res.set_signed_cookie("discipline", discipline)
-    res.set_signed_cookie("year", year)
-    res.set_signed_cookie("status", status)
-    res.set_signed_cookie("pey", pey)
+    res.set_signed_cookie("student_number_hash", pid)
     return res
 
 
@@ -53,38 +126,11 @@ class ElectionListView(generics.ListAPIView):
 
     def get_queryset(self):
         try:
-            discipline = self.request.get_signed_cookie("discipline")
-            year = self.request.get_signed_cookie("year")
-            status = self.request.get_signed_cookie("status")
-            pey = self.request.get_signed_cookie("pey")
+            student_number_hash = self.request.get_signed_cookie("student_number_hash")
+            print(student_number_hash)
         except (django.core.signing.BadSignature, KeyError):
             raise exceptions.NotAuthenticated
-        print(pey==True)
-        discipline = "trackone"
-        year = "first-year"
-        status = "fulltime"
-        pey = False
 
-        return self.get_eligible_election_query(discipline, year, status, pey)
+        voter = Voter.objects.get(student_number_hash=student_number_hash)
 
-
-    @staticmethod
-    def get_eligible_election_query(discipline, year, status, pey):
-        print(Election.objects.filter(
-            eligibilities__eng_eligible=(discipline == TRACKONE),
-            eligibilities__che_eligible=(discipline == CHEMICAL),
-            eligibilities__civ_eligible=(discipline == CIVIL),
-            eligibilities__ele_eligible=(discipline == ELECTRICAL),
-            eligibilities__cpe_eligible=(discipline == COMPUTER),
-            eligibilities__esc_eligible=(discipline == ENGSCI),
-            eligibilities__ind_eligible=(discipline == INDY),
-            eligibilities__lme_eligible=(discipline == MINERAL),
-            eligibilities__mec_eligible=(discipline == MECHANICAL),
-            eligibilities__mms_eligible=(discipline == MSE),
-            eligibilities__first_year_eligible=(year == 1),
-            eligibilities__second_year_eligible=(year == 2),
-            eligibilities__third_year_eligible=(year == 3),
-            eligibilities__fourth_year_eligible=(year == 4),
-            eligibilities__pey_eligible=(pey == True),
-        ))
-        return Election.objects.all()
+        return get_eligible_election_query(voter)

@@ -13,12 +13,48 @@ from backend.models import (
 
 @admin.register(ElectionSession)
 class ElectionSessionAdmin(admin.ModelAdmin):
-    pass
+    list_display = (
+        "election_session_name",
+        "id",
+        "start_time",
+        "end_time",
+        "created_at",
+        "updated_at",
+    )
+
+    fieldsets = (
+        ("Name of Election Session.", {"fields": ("election_session_name",)}),
+        (
+            "Set the timeline of your Election Session.",
+            {"fields": ("start_time", "end_time")},
+        ),
+    )
+
+    search_fields = ["election_session_name"]
 
 
 @admin.register(Election)
 class ElectionAdmin(admin.ModelAdmin):
-    pass
+    list_display = (
+        "election_name",
+        "id",
+        "election_session",
+        "category",
+        "created_at",
+        "updated_at",
+    )
+    list_filter = ("election_session", "category")
+
+    fieldsets = (
+        ("Name of Election.", {"fields": ("election_name",)}),
+        (
+            "Choose the Election Session this falls under.",
+            {"fields": ("election_session",)},
+        ),
+        ("Define Election parameters.", {"fields": ("seats_available", "category")}),
+    )
+
+    search_fields = ["election_name"]
 
 
 @admin.register(Candidate)
@@ -31,7 +67,33 @@ class CandidateAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
     )
-    list_filter = ("election",)
+    list_filter = ("election", "election__election_session")
+
+    fieldsets = (
+        ("Name of Candidate.", {"fields": ("candidate_name",)}),
+        ("Choose an Election.", {"fields": ("election",)}),
+        ("Enter Candidate's voter statement.", {"fields": ("blurb", "preamble")}),
+        (
+            "(Optional) Display Candidate's disqualification ruling on the ballot.",
+            {
+                "fields": (
+                    "disqualified_status",
+                    "disqualified_link",
+                    "disqualified_blurb",
+                )
+            },
+        ),
+        (
+            "(Optional) Display Candidate's rule violation on the ballot.",
+            {
+                "fields": (
+                    "rule_violation_link",
+                    "rule_violation_message",
+                )
+            },
+        ),
+    )
+    search_fields = ["candidate_name"]
 
     def get_election_session(self, obj):
         return obj.election.election_session
@@ -52,9 +114,43 @@ class BallotAdmin(admin.ModelAdmin):
 
 @admin.register(Eligibility)
 class EligibilityAdmin(admin.ModelAdmin):
-    pass
+    list_display = (
+        "election",
+        "get_election_session",
+        "created_at",
+        "updated_at",
+    )
+    list_filter = ("election__election_session",)
+
+    def get_election_session(self, obj):
+        return obj.election.election_session
+
+    get_election_session.short_description = "Election Session"
+    get_election_session.admin_order_field = "election"
 
 
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
-    pass
+    list_display = ("election_session", "get_short_message", "active", "hideable")
+    list_filter = ("election_session", "active")
+    search_fields = ["message"]
+
+    fieldsets = (
+        (
+            "Enter your message to be displayed on the webpage.",
+            {"fields": ("message",)},
+        ),
+        (
+            "Select which Election Session this message applies to.",
+            {"fields": ("election_session",)},
+        ),
+        (
+            "Define whether the message is active (visible) and whether it is hideable by the user.",
+            {"fields": ("active", "hideable")},
+        ),
+    )
+
+    def get_short_message(self, obj):
+        return f"{obj.message[:64]}..."
+
+    get_short_message.short_description = "Message"

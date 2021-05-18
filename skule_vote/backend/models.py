@@ -94,14 +94,16 @@ class Election(models.Model):
 
 class Candidate(models.Model):
     candidate_name = models.CharField(
-        max_length=100, null=False, help_text="What is the name of the Candidate?"
+        max_length=100,
+        null=False,
+        help_text="What is the name of the Candidate or Referendum?",
     )
     election = models.ForeignKey(
         Election,
         related_name="candidates",
         on_delete=models.CASCADE,
         null=False,
-        help_text="Which Election is this Candidate running in?",
+        help_text="Which Election is this Candidate/Referendum a part of?",
     )
     statement = models.TextField(
         null=True, blank=True, help_text="Enter Candidate or Referendum statement."
@@ -110,27 +112,27 @@ class Candidate(models.Model):
     disqualified_status = models.BooleanField(
         null=False,
         default=False,
-        help_text="Has the Candidate been disqualified? (Default is False)",
+        help_text="Has the Candidate been disqualified? (Default is False). Ignore for Referenda.",
     )
     disqualified_link = models.URLField(
         null=True,
-        help_text="(Optional) Enter a link to the disqualification ruling.",
+        help_text="(Optional) Enter a link to the disqualification ruling. Ignore for Referenda.",
         blank=True,
     )
     disqualified_message = models.TextField(
         null=True,
-        help_text="(Optional) Enter a disqualification ruling message for this Candidate.",
+        help_text="(Optional) Enter a disqualification ruling message for this Candidate. Ignore for Referenda.",
         blank=True,
     )
 
     rule_violation_message = models.TextField(
         null=True,
-        help_text="(Optional) Enter a rule violation message for this Candidate.",
+        help_text="(Optional) Enter a rule violation message for this Candidate. Ignore for Referenda.",
         blank=True,
     )
     rule_violation_link = models.URLField(
         null=True,
-        help_text="(Optional) Enter a link to the rule violation ruling.",
+        help_text="(Optional) Enter a link to the rule violation ruling. Ignore for Referenda.",
         blank=True,
     )
 

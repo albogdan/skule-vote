@@ -70,7 +70,7 @@ class CandidateAdmin(admin.ModelAdmin):
     list_filter = ("election", "election__election_session")
 
     fieldsets = (
-        ("Name of Candidate.", {"fields": ("candidate_name",)}),
+        ("Name of Candidate or Referendum.", {"fields": ("candidate_name",)}),
         ("Choose an Election.", {"fields": ("election",)}),
         ("Enter Candidate or Referendum statement.", {"fields": ("statement",)}),
         (

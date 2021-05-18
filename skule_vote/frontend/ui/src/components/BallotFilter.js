@@ -59,9 +59,9 @@ const BallotFilter = ({ filterCategory, setFilterCategory }) => {
       <FilterItemWrapper palette={theme.palette} isDark={isDark}>
         {listOfCategories.map((category, i) => (
           <FilterItem
-            palette={theme.palette}
-            active={filterCategory === category}
-            isDark={isDark}
+            $palette={theme.palette}
+            $active={filterCategory === category}
+            $isDark={isDark}
             key={i}
             onClick={() => setFilterCategory(category)}
           >

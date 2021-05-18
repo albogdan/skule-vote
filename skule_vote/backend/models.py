@@ -194,7 +194,7 @@ class Eligibility(models.Model):
         ("full_and_part_time", "Full and Part Time"),
     ]
 
-    election = models.ForeignKey(
+    election = models.OneToOneField(
         Election,
         related_name="eligibilities",
         null=False,

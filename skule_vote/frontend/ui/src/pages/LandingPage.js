@@ -73,7 +73,7 @@ const LandingPage = () => {
   return (
     <>
       <LandingDiv>
-        <SkuleLogo />
+        <SkuleLogo data-testid="skuleLogo" />
         <LandingDivText>
           <Typography variant="h1">Welcome to SkuleVote</Typography>
           <Typography variant="body1">

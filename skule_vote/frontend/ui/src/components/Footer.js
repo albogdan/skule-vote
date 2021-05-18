@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import Paper from "@material-ui/core/Paper";
+import { useLocation } from "react-router-dom";
 import { ReactComponent as EngSocCrestBlack } from "images/EngSocCrestBlack.svg";
 import { ReactComponent as EngSocCrestWhite } from "images/EngSocCrestWhite.svg";
 import { responsive } from "assets/breakpoints";
@@ -90,9 +91,11 @@ const EmailLink = styled.a`
   }
 `;
 
-const Footer = ({ isLanding = true, isDark }) => {
+const Footer = ({ isDark }) => {
   const today = new Date();
   const year = today.getFullYear();
+  const location = useLocation();
+  const isLanding = location.pathname === "/";
 
   if (isLanding) {
     return (

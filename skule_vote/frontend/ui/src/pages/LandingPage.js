@@ -12,7 +12,7 @@ const SkuleLogo = styled(SkuleLogoBlue)`
   width: 100%;
   height: auto;
   margin-right: 64px;
-  @media ${responsive.smDown} {
+  @media ${responsive.mdDown} {
     margin-right: 0;
     margin-bottom: 16px;
     max-width: 300px;
@@ -23,7 +23,7 @@ const LandingDiv = styled.div`
   display: flex;
   max-width: 1000px;
   margin: 100px 0;
-  @media ${responsive.smDown} {
+  @media ${responsive.mdDown} {
     flex-direction: column;
     align-items: center;
     margin: 64px 0;
@@ -40,7 +40,7 @@ const LandingDivText = styled.div`
   > :last-child {
     margin-top: 32px;
   }
-  @media ${responsive.smDown} {
+  @media ${responsive.mdDown} {
     align-items: center;
     text-align: center;
     > :last-child {

@@ -47,7 +47,10 @@ class ElectionAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ("Name of Election.", {"fields": ("election_name",)}),
-        ("Choose the Election Session this falls under.", {"fields": ("election_session",)}),
+        (
+            "Choose the Election Session this falls under.",
+            {"fields": ("election_session",)},
+        ),
         ("Define Election parameters.", {"fields": ("seats_available", "category")}),
     )
 
@@ -82,7 +85,12 @@ class CandidateAdmin(admin.ModelAdmin):
         ),
         (
             "(Optional) Display Candidate's rule violation on the ballot.",
-            {"fields": ("rule_violation_link", "rule_violation_message",)},
+            {
+                "fields": (
+                    "rule_violation_link",
+                    "rule_violation_message",
+                )
+            },
         ),
     )
     search_fields = ["candidate_name"]
@@ -128,7 +136,10 @@ class MessageAdmin(admin.ModelAdmin):
     search_fields = ["message"]
 
     fieldsets = (
-        ("Enter your message to be displayed on the webpage.", {"fields": ("message",)}),
+        (
+            "Enter your message to be displayed on the webpage.",
+            {"fields": ("message",)},
+        ),
         (
             "Select which Election Session this message applies to.",
             {"fields": ("election_session",)},

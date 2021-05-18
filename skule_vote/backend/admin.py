@@ -72,9 +72,9 @@ class CandidateAdmin(admin.ModelAdmin):
     fieldsets = (
         ("Name of Candidate.", {"fields": ("candidate_name",)}),
         ("Choose an Election.", {"fields": ("election",)}),
-        ("Enter Candidate's statement.", {"fields": ("statement",)}),
+        ("Enter Candidate or Referendum statement.", {"fields": ("statement",)}),
         (
-            "(Optional) Display Candidate's disqualification ruling on the ballot.",
+            "(Optional) Display Candidate's disqualification ruling on the ballot. Ignore for Referenda.",
             {
                 "fields": (
                     "disqualified_status",
@@ -84,7 +84,7 @@ class CandidateAdmin(admin.ModelAdmin):
             },
         ),
         (
-            "(Optional) Display Candidate's rule violation on the ballot.",
+            "(Optional) Display Candidate's rule violation on the ballot. Ignore for Referenda.",
             {
                 "fields": (
                     "rule_violation_link",

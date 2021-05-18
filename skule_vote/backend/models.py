@@ -104,7 +104,7 @@ class Candidate(models.Model):
         help_text="Which Election is this Candidate running in?",
     )
     statement = models.TextField(
-        null=True, blank=True, help_text="Enter the Candidate's statement."
+        null=True, blank=True, help_text="Enter Candidate or Referendum statement."
     )
 
     disqualified_status = models.BooleanField(

@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import Brightness6Icon from "@material-ui/icons/Brightness6";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import Button from "@material-ui/core/Button";
@@ -39,6 +39,8 @@ const FlexToolbar = styled(Toolbar)`
 
 const Header = ({ isDark, toggleDark }) => {
   const isMobile = useMediaQuery(responsive.smDown);
+  const location = useLocation();
+
   const darkLightModeButton = isMobile ? (
     <IconButton
       aria-label="Dark/Light mode"
@@ -65,12 +67,15 @@ const Header = ({ isDark, toggleDark }) => {
         </Link>
         <Nav>
           {darkLightModeButton}
-          <nav>
-            <Link to={"/elections"}>
-              <Button aria-label="Vote">Vote</Button>
-            </Link>
-          </nav>
-          <Button aria-label="Check status">Check status</Button>
+          {location.pathname === "/elections" ? (
+            <Button aria-label="Check status">Check status</Button>
+          ) : (
+            <nav>
+              <Link to={"/elections"}>
+                <Button aria-label="Vote">Vote</Button>
+              </Link>
+            </nav>
+          )}
           <Button aria-label="Logout">Logout</Button>
         </Nav>
       </FlexToolbar>

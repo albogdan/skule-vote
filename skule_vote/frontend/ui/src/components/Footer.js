@@ -84,6 +84,12 @@ const SmallFooter = styled(FooterPaper)`
   }
 `;
 
+const EmailLink = styled.a`
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
 const Footer = ({ isLanding = true, isDark }) => {
   const today = new Date();
   const year = today.getFullYear();
@@ -128,7 +134,7 @@ const Footer = ({ isLanding = true, isDark }) => {
             <Typography variant="body1">© {year} Skule™.</Typography>
             <Typography variant="body1">
               Question? Please email the CRO at{" "}
-              <a href="mailto:cro@skule.ca">cro@skule.ca</a>.
+              <EmailLink href="mailto:cro@skule.ca">cro@skule.ca</EmailLink>.
             </Typography>
           </Acknowledgement>
         </div>

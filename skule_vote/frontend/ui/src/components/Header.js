@@ -14,6 +14,7 @@ const SkuleVote = styled.h1`
   font-size: 16px;
   white-space: nowrap;
   margin-right: 16px;
+  color: white;
 `;
 
 const Nav = styled.div`
@@ -21,14 +22,13 @@ const Nav = styled.div`
   white-space: nowrap;
   button {
     color: white;
-    padding: 20px 15px;
+    padding: 18px 15px;
     border-radius: 0;
+    font-size: 16px;
     @media ${responsive.smDown} {
+      font-size: 14px;
       padding: 16px 12px;
     }
-  }
-  a {
-    text-decoration: none;
   }
 `;
 
@@ -60,7 +60,9 @@ const Header = ({ isDark, toggleDark }) => {
   return (
     <AppBar color={!isDark ? "primary" : "inherit"} position="sticky">
       <FlexToolbar>
-        <SkuleVote>Skule Vote</SkuleVote>
+        <Link to={"/"}>
+          <SkuleVote>Skule Vote</SkuleVote>
+        </Link>
         <Nav>
           {darkLightModeButton}
           <nav>

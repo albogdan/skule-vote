@@ -26,9 +26,6 @@ const AppWrapper = styled.div`
       props.isDark
         ? props.theme.palette.secondary.main
         : props.theme.palette.primary.main};
-    &:hover {
-      text-decoration: underline;
-    }
   }
 `;
 
@@ -75,6 +72,17 @@ const App = () => {
             fontWeight: 300,
             "@media (max-width:600px)": {
               fontSize: 16,
+            },
+          },
+        },
+        overrides: {
+          MuiButton: {
+            root: {
+              fontSize: 18,
+              fontWeight: 300,
+              "@media (max-width:600px)": {
+                fontSize: 16,
+              },
             },
           },
         },

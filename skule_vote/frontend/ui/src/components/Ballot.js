@@ -18,6 +18,7 @@ const BallotPaper = styled(Paper)`
     font-weight: 400;
   }
   &:hover {
+    opacity: 0.9;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.14), 0px 3px 4px rgba(0, 0, 0, 0.12);
   }
   @media ${responsive.smDown} {
@@ -27,7 +28,7 @@ const BallotPaper = styled(Paper)`
 
 const Subtitle = styled(Typography)`
   margin-top: 4px;
-  color: rgba(0, 0, 0, 0.57);
+  opacity: 0.57;
 `;
 
 const Ballot = ({ title, numCandidates }) => {

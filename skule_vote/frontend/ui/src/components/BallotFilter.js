@@ -61,6 +61,7 @@ const BallotFilter = ({ filterCategory, setFilterCategory }) => {
           <FilterItem
             palette={theme.palette}
             active={filterCategory === category}
+            isDark={isDark}
             key={i}
             onClick={() => setFilterCategory(category)}
           >

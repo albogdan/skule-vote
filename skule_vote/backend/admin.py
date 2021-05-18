@@ -79,7 +79,7 @@ class CandidateAdmin(admin.ModelAdmin):
                 "fields": (
                     "disqualified_status",
                     "disqualified_link",
-                    "disqualified_blurb",
+                    "disqualified_message",
                 )
             },
         ),

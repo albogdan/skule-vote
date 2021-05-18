@@ -10,5 +10,9 @@ describe("<LandingPage />", () => {
     expect(getByText("Election Details")).toBeInTheDocument();
     expect(getByText(/Single Transferable Vote system/i)).toBeInTheDocument();
     expect(getByTestId("skuleLogo")).toBeInTheDocument();
+    expect(getByText("Vote").closest("a")).toHaveAttribute(
+      "href",
+      "/elections"
+    );
   });
 });

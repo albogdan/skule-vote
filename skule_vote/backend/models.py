@@ -117,7 +117,7 @@ class Candidate(models.Model):
         help_text="(Optional) Enter a link to the disqualification ruling.",
         blank=True,
     )
-    disqualified_blurb = models.TextField(
+    disqualified_message = models.TextField(
         null=True,
         help_text="(Optional) Enter a disqualification ruling message for this Candidate.",
         blank=True,

@@ -20,15 +20,15 @@ const SkuleVote = styled.h1`
 const Nav = styled.div`
   display: flex;
   white-space: nowrap;
-`;
-
-const NavBtn = styled(Button)`
-  font-size: 14px;
-  color: white;
-  padding: 20px 15px;
-  border-radius: 0;
-  @media ${responsive.smDown} {
-    padding: 16px 12px;
+  button {
+    color: white;
+    padding: 18px 15px;
+    border-radius: 0;
+    font-size: 16px;
+    @media ${responsive.smDown} {
+      font-size: 14px;
+      padding: 16px 12px;
+    }
   }
 `;
 
@@ -48,13 +48,13 @@ const Header = ({ isDark, toggleDark }) => {
       <Brightness6Icon />
     </IconButton>
   ) : (
-    <NavBtn
+    <Button
       aria-label={isDark ? "Light mode" : "Dark mode"}
       startIcon={<Brightness6Icon data-testid="darkLightModeIcon" />}
       onClick={() => toggleDark()}
     >
       {isDark ? "Light mode" : "Dark mode"}
-    </NavBtn>
+    </Button>
   );
 
   return (
@@ -67,11 +67,11 @@ const Header = ({ isDark, toggleDark }) => {
           {darkLightModeButton}
           <nav>
             <Link to={"/elections"}>
-              <NavBtn aria-label="Vote">Vote</NavBtn>
+              <Button aria-label="Vote">Vote</Button>
             </Link>
           </nav>
-          <NavBtn aria-label="Check status">Check status</NavBtn>
-          <NavBtn aria-label="Logout">Logout</NavBtn>
+          <Button aria-label="Check status">Check status</Button>
+          <Button aria-label="Logout">Logout</Button>
         </Nav>
       </FlexToolbar>
     </AppBar>

@@ -36,6 +36,9 @@ const AppBody = styled.div`
   max-width: 1200px;
   margin: auto;
   padding: 0 32px;
+  @media ${responsive.mdDown} {
+    padding: 0 16px;
+  }
   @media ${responsive.smDown} {
     padding: 0 12px;
   }
@@ -61,7 +64,7 @@ const App = () => {
             },
           },
           h2: {
-            fontSize: 32,
+            fontSize: 24,
             fontWeight: 300,
             "@media (max-width:600px)": {
               fontSize: 24,

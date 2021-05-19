@@ -1,6 +1,6 @@
 import React from "react";
 import { render, fireEvent } from "@testing-library/react";
-import BallotFilter from "components/BallotFilter";
+import BallotFilter, { BallotFilterDrawer } from "components/BallotFilter";
 import { listOfCategories } from "pages/ElectionPage";
 
 describe("<BallotFilter />", () => {
@@ -12,14 +12,32 @@ describe("<BallotFilter />", () => {
     expect(getByText("Filter")).toBeInTheDocument();
   });
 
-  it("called setFilterCategory when an item is clicked", () => {
-    const setFilterCategorySpy = jest.fn();
+  it("called setAndCloseFilter when an item is clicked", () => {
+    const setAndCloseFilterSpy = jest.fn();
     const { getByText } = render(
-      <BallotFilter setFilterCategory={setFilterCategorySpy} />
+      <BallotFilter setAndCloseFilter={setAndCloseFilterSpy} />
     );
 
     const button = getByText("Officers");
     fireEvent.click(button);
-    expect(setFilterCategorySpy).toHaveBeenCalled();
+    expect(setAndCloseFilterSpy).toHaveBeenCalled();
+  });
+});
+
+describe("<BallotFilterDrawer />", () => {
+  it("renders BallotFilterDrawer", () => {
+    const { getByText } = render(<BallotFilterDrawer drawerOpen={true} />);
+    for (let c of listOfCategories) {
+      expect(getByText(c)).toBeInTheDocument();
+    }
+    expect(getByText("Filter")).toBeInTheDocument();
+  });
+  it("calls toggleDrawer when close icon is clicked", () => {
+    const toggleDrawerSpy = jest.fn();
+    const { getByTestId } = render(
+      <BallotFilterDrawer toggleDrawer={toggleDrawerSpy} drawerOpen={true} />
+    );
+    fireEvent.click(getByTestId("drawerClose"));
+    expect(toggleDrawerSpy).toHaveBeenCalled();
   });
 });

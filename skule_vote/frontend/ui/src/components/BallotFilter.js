@@ -67,21 +67,19 @@ export const BallotFilterDrawer = ({
   toggleDrawer,
   filterCategory,
   setAndCloseFilter,
-}) => {
-  return (
-    <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer}>
-      <IconButtonDiv>
-        <IconButton onClick={toggleDrawer} role="close">
-          <ClearIcon />
-        </IconButton>
-      </IconButtonDiv>
-      <BallotFilter
-        filterCategory={filterCategory}
-        setAndCloseFilter={setAndCloseFilter}
-      />
-    </Drawer>
-  );
-};
+}) => (
+  <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer}>
+    <IconButtonDiv>
+      <IconButton data-testid="drawerClose" onClick={toggleDrawer} role="close">
+        <ClearIcon />
+      </IconButton>
+    </IconButtonDiv>
+    <BallotFilter
+      filterCategory={filterCategory}
+      setAndCloseFilter={setAndCloseFilter}
+    />
+  </Drawer>
+);
 
 const BallotFilter = ({ filterCategory, setAndCloseFilter }) => {
   const theme = useTheme();

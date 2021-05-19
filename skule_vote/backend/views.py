@@ -95,7 +95,7 @@ def CookieView(request):
             # previous voter -> update the info in DB
             voter = Voter.objects.get(student_number_hash=pid)
             voter.pey = assocorg == "AEPEY"  # either AEPEY or null
-            voter.study_year = int(yofstudy)
+            voter.study_year = 3 if yofstudy is None else int(yofstudy)
             voter.engineering_student = primaryorg == "APSE"
             voter.discipline = postcd[2:5]  # corresponds to DISCIPLINE_CHOICES
 
@@ -108,7 +108,7 @@ def CookieView(request):
             voter = Voter(
                 student_number_hash=pid,
                 pey=(assocorg == "AEPEY"),
-                study_year=int(yofstudy),
+                study_year=(3 if yofstudy is None else int(yofstudy)),
                 engineering_student=(primaryorg == "APSE"),
                 discipline=postcd[2:5],
                 student_status="full_time" if attendance == "FT" else "part_time",

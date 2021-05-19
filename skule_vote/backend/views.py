@@ -2,7 +2,8 @@ import hashlib
 
 from django.conf import settings
 import django.core.signing
-from django.http import HttpResponse
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
 from django.db.models import Q
 from rest_framework import generics, exceptions
 
@@ -43,79 +44,82 @@ def get_eligible_election_query(voter):
     return q
 
 
-# http://127.0.0.1:8000/api/backend/cookie/?isstudent=True&isregistered=True&isundergrad=True&primaryorg=APSE&yofstudy=1&campus=blah&postcd=AEENG&attendance=FT&assocorg=null&pid=asdflkjwerwwf
 def CookieView(request):
 
-    # Read query string
-    student = request.GET.get("isstudent")
-    registered = request.GET.get("isregistered")
-    undergrad = request.GET.get("isundergrad")
-    primaryorg = request.GET.get("primaryorg")
-    yofstudy = request.GET.get("yofstudy")
-    campus = request.GET.get("campus")
-    postcd = request.GET.get("postcd")
-    attendance = request.GET.get("attendance")
-    assocorg = request.GET.get("assocorg")
-    pid = request.GET.get("pid")
+    if request.method == "POST":
+        # Read query string
+        print(request.POST)
+        student = request.POST.get("isstudent")
+        registered = request.POST.get("isregistered")
+        undergrad = request.POST.get("isundergrad")
+        primaryorg = request.POST.get("primaryorg")
+        yofstudy = request.POST.get("yofstudy")
+        campus = request.POST.get("campus")
+        postcd = request.POST.get("postcd")
+        attendance = request.POST.get("attendance")
+        assocorg = request.POST.get("assocorg")
+        pid = request.POST.get("pid")
 
-    # Verify data integrity
-    # check_string = (
-    #     student
-    #     + registered
-    #     + undergrad
-    #     + primaryorg
-    #     + yofstudy
-    #     + campus
-    #     + postcd
-    #     + attendance
-    #     + assocorg
-    #     + pid
-    #     + settings.UOFT_SECRET_KEY
-    # )
-    # h = hashlib.md5()
-    # h.update(check_string)
-    # check_hash = h.hexdigest()
-    #
-    # if check_hash != request.GET.get("hash"):
-    #     return HttpResponse(status=401)
+        # Verify data integrity
+        # check_string = (
+        #     student
+        #     + registered
+        #     + undergrad
+        #     + primaryorg
+        #     + yofstudy
+        #     + campus
+        #     + postcd
+        #     + attendance
+        #     + assocorg
+        #     + pid
+        #     + settings.UOFT_SECRET_KEY
+        # )
+        # h = hashlib.md5()
+        # h.update(check_string)
+        # check_hash = h.hexdigest()
+        #
+        # if check_hash != request.GET.get("hash"):
+        #     return HttpResponse(status=401)
 
-    # Verify basic eligibility for EngSoc elections
-    eligible = (
-        student == "True"
-        and registered == "True"
-        and primaryorg == "APSE"
-        and undergrad == "True"
-    )
-    if not eligible:
-        return HttpResponse(status=401)
-
-    try:
-        # previous voter -> update the info in DB
-        voter = Voter.objects.get(student_number_hash=pid)
-        voter.pey = assocorg == "AEPEY"  # either AEPEY or null
-        voter.study_year = int(yofstudy)
-        voter.engineering_student = primaryorg == "APSE"
-        voter.discipline = postcd[2:5]  # corresponds to DISCIPLINE_CHOICES
-
-        # No need to check for unregistered. We would have returned 401 by now
-        voter.student_status = "full_time" if attendance == "FT" else "part_time"
-
-        voter.save()
-
-    except Voter.DoesNotExist:  # new voter -> add to DB
-        voter = Voter(
-            student_number_hash=pid,
-            pey=(assocorg == "AEPEY"),
-            study_year=int(yofstudy),
-            engineering_student=(primaryorg == "APSE"),
-            discipline=postcd[2:5],
-            student_status="full_time" if attendance == "FT" else "part_time",
+        # Verify basic eligibility for EngSoc elections
+        eligible = (
+            student == "True"
+            and registered == "True"
+            and primaryorg == "APSE"
+            and undergrad == "True"
         )
-        voter.save()
+        if not eligible:
+            return HttpResponse(status=401)
 
-    res = HttpResponse(status=200)
-    res.set_signed_cookie("student_number_hash", pid)
-    return res
+        try:
+            # previous voter -> update the info in DB
+            voter = Voter.objects.get(student_number_hash=pid)
+            voter.pey = assocorg == "AEPEY"  # either AEPEY or null
+            voter.study_year = int(yofstudy)
+            voter.engineering_student = primaryorg == "APSE"
+            voter.discipline = postcd[2:5]  # corresponds to DISCIPLINE_CHOICES
+
+            # No need to check for unregistered. We would have returned 401 by now
+            voter.student_status = "full_time" if attendance == "FT" else "part_time"
+
+            voter.save()
+
+        except Voter.DoesNotExist:  # new voter -> add to DB
+            voter = Voter(
+                student_number_hash=pid,
+                pey=(assocorg == "AEPEY"),
+                study_year=int(yofstudy),
+                engineering_student=(primaryorg == "APSE"),
+                discipline=postcd[2:5],
+                student_status="full_time" if attendance == "FT" else "part_time",
+            )
+            voter.save()
+
+        res = HttpResponseRedirect("/api/backend/elections")
+        res.set_signed_cookie("student_number_hash", pid)
+        return res
+    elif request.method == "GET":
+        return render(request, "cookieform.html")
 
 
 class ElectionListView(generics.ListAPIView):

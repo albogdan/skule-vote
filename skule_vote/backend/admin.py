@@ -60,7 +60,7 @@ class ElectionAdmin(admin.ModelAdmin):
 @admin.register(Candidate)
 class CandidateAdmin(admin.ModelAdmin):
     list_display = (
-        "candidate_name",
+        "name",
         "id",
         "election",
         "get_election_session",
@@ -70,7 +70,7 @@ class CandidateAdmin(admin.ModelAdmin):
     list_filter = ("election", "election__election_session")
 
     fieldsets = (
-        ("Name of Candidate or Referendum.", {"fields": ("candidate_name",)}),
+        ("Name of Candidate or Referendum.", {"fields": ("name",)}),
         ("Choose an Election.", {"fields": ("election",)}),
         ("Enter Candidate or Referendum statement.", {"fields": ("statement",)}),
         (
@@ -93,7 +93,7 @@ class CandidateAdmin(admin.ModelAdmin):
             },
         ),
     )
-    search_fields = ["candidate_name"]
+    search_fields = ["name"]
 
     def get_election_session(self, obj):
         return obj.election.election_session

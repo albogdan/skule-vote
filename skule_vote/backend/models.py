@@ -93,7 +93,7 @@ class Election(models.Model):
 
 
 class Candidate(models.Model):
-    candidate_name = models.CharField(
+    name = models.CharField(
         max_length=100,
         null=False,
         help_text="What is the name of the Candidate or Referendum?",
@@ -140,7 +140,7 @@ class Candidate(models.Model):
     updated_at = models.DateTimeField(auto_now=True, null=False)
 
     def __str__(self):
-        return f"{self.candidate_name}"
+        return f"{self.name}"
 
 
 class Voter(models.Model):

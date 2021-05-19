@@ -60,7 +60,7 @@ class ElectionAdmin(admin.ModelAdmin):
 @admin.register(Candidate)
 class CandidateAdmin(admin.ModelAdmin):
     list_display = (
-        "candidate_name",
+        "name",
         "id",
         "election",
         "get_election_session",
@@ -70,21 +70,21 @@ class CandidateAdmin(admin.ModelAdmin):
     list_filter = ("election", "election__election_session")
 
     fieldsets = (
-        ("Name of Candidate.", {"fields": ("candidate_name",)}),
+        ("Name of Candidate or Referendum.", {"fields": ("name",)}),
         ("Choose an Election.", {"fields": ("election",)}),
-        ("Enter Candidate's voter statement.", {"fields": ("blurb", "preamble")}),
+        ("Enter Candidate or Referendum statement.", {"fields": ("statement",)}),
         (
-            "(Optional) Display Candidate's disqualification ruling on the ballot.",
+            "(Optional) Display Candidate's disqualification ruling on the ballot. Ignore for Referenda.",
             {
                 "fields": (
                     "disqualified_status",
                     "disqualified_link",
-                    "disqualified_blurb",
+                    "disqualified_message",
                 )
             },
         ),
         (
-            "(Optional) Display Candidate's rule violation on the ballot.",
+            "(Optional) Display Candidate's rule violation on the ballot. Ignore for Referenda.",
             {
                 "fields": (
                     "rule_violation_link",
@@ -93,7 +93,7 @@ class CandidateAdmin(admin.ModelAdmin):
             },
         ),
     )
-    search_fields = ["candidate_name"]
+    search_fields = ["name"]
 
     def get_election_session(self, obj):
         return obj.election.election_session
@@ -116,11 +116,17 @@ class BallotAdmin(admin.ModelAdmin):
 class EligibilityAdmin(admin.ModelAdmin):
     list_display = (
         "election",
+        "get_election_id",
         "get_election_session",
         "created_at",
         "updated_at",
     )
     list_filter = ("election__election_session",)
+
+    def get_election_id(self, obj):
+        return obj.election.id
+
+    get_election_id.short_description = "Election ID"
 
     def get_election_session(self, obj):
         return obj.election.election_session

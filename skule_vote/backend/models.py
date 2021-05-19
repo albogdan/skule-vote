@@ -2,6 +2,27 @@ from django.db import models
 from django.core import validators
 
 
+DISCIPLINE_CHOICES = [
+    ("ENG", "Track One Engineering"),
+    ("CHE", "Chemical Engineering"),
+    ("CIV", "Civil Engineering"),
+    ("ELE", "Electrical Engineering"),
+    ("CPE", "Computer Engineering"),
+    ("ESC", "Engineering Science"),
+    ("IND", "Industrial Engineering"),
+    ("LME", "Mineral Engineering"),
+    ("MEC", "Mechanical Engineering"),
+    ("MMS", "Materials Science Engineering"),
+]
+
+STUDY_YEAR_CHOICES = [
+    (1, "First Year"),
+    (2, "Second Year"),
+    (3, "Third Year"),
+    (4, "Fourth Year"),
+]
+
+
 class ElectionSession(models.Model):
     class Meta:
         verbose_name_plural = "Election Sessions"
@@ -72,47 +93,46 @@ class Election(models.Model):
 
 
 class Candidate(models.Model):
-    candidate_name = models.CharField(
-        max_length=100, null=False, help_text="What is the name of the Candidate?"
+    name = models.CharField(
+        max_length=100,
+        null=False,
+        help_text="What is the name of the Candidate or Referendum?",
     )
     election = models.ForeignKey(
         Election,
         related_name="candidates",
         on_delete=models.CASCADE,
         null=False,
-        help_text="Which Election is this Candidate running in?",
+        help_text="Which Election is this Candidate/Referendum a part of?",
     )
-    blurb = models.TextField(
-        null=True, blank=True, help_text="Enter the Candidate's blurb."
-    )
-    preamble = models.TextField(
-        null=True, blank=True, help_text="Enter the Candidate's preamble."
+    statement = models.TextField(
+        null=True, blank=True, help_text="Enter Candidate or Referendum statement."
     )
 
     disqualified_status = models.BooleanField(
         null=False,
         default=False,
-        help_text="Is the Candidate disqualified? (Default is False)",
+        help_text="Has the Candidate been disqualified? (Default is False). Ignore for Referenda.",
     )
     disqualified_link = models.URLField(
         null=True,
-        help_text="(Optional) Enter a link to the disqualification ruling.",
+        help_text="(Optional) Enter a link to the disqualification ruling. Ignore for Referenda.",
         blank=True,
     )
-    disqualified_blurb = models.TextField(
+    disqualified_message = models.TextField(
         null=True,
-        help_text="(Optional) Enter a short about the Candidate's disqualification.",
+        help_text="(Optional) Enter a disqualification ruling message for this Candidate. Ignore for Referenda.",
         blank=True,
     )
 
     rule_violation_message = models.TextField(
         null=True,
-        help_text="(Optional) Enter a rule violation message for this Candidate.",
+        help_text="(Optional) Enter a rule violation message for this Candidate. Ignore for Referenda.",
         blank=True,
     )
     rule_violation_link = models.URLField(
         null=True,
-        help_text="(Optional) Enter a link to more information about the rule violation.",
+        help_text="(Optional) Enter a link to the rule violation ruling. Ignore for Referenda.",
         blank=True,
     )
 
@@ -120,31 +140,10 @@ class Candidate(models.Model):
     updated_at = models.DateTimeField(auto_now=True, null=False)
 
     def __str__(self):
-        return f"{self.candidate_name}"
+        return f"{self.name}"
 
 
 class Voter(models.Model):
-    DISCIPLINE_CHOICES = [
-        ("NE", "Non Degree"),
-        ("ENG", "Track One Engineering"),
-        ("CHE", "Chemical Engineering"),
-        ("CIV", "Civil Engineering"),
-        ("ELE", "Electrical Engineering"),
-        ("CPE", "Computer Engineering"),
-        ("ESC", "Engineering Science"),
-        ("IND", "Industrial Engineering"),
-        ("LME", "Mineral Engineering"),
-        ("MEC", "Mechanical Engineering"),
-        ("MMS", "Materials Science Engineering"),
-    ]
-
-    STUDY_YEAR_CHOICES = [
-        (1, "First Year"),
-        (2, "Second Year"),
-        (3, "Third Year"),
-        (4, "Fourth Year"),
-    ]
-
     STATUS_CHOICES = [("full_time", "Full Time"), ("part_time", "Part Time")]
 
     student_number_hash = models.CharField(max_length=16, null=False)
@@ -235,16 +234,16 @@ class Eligibility(models.Model):
         verbose_name="Materials Science Engineering Eligible?",
     )
 
-    first_year_eligible = models.BooleanField(
+    year_1_eligible = models.BooleanField(
         null=False, default=False, verbose_name="First Years Eligible?"
     )
-    second_year_eligible = models.BooleanField(
+    year_2_eligible = models.BooleanField(
         null=False, default=False, verbose_name="Second Years Eligible?"
     )
-    third_year_eligible = models.BooleanField(
+    year_3_eligible = models.BooleanField(
         null=False, default=False, verbose_name="Third Years Eligible?"
     )
-    fourth_year_eligible = models.BooleanField(
+    year_4_eligible = models.BooleanField(
         null=False, default=False, verbose_name="Fourth Years Eligible?"
     )
 

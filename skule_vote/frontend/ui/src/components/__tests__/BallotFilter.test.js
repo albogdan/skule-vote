@@ -18,7 +18,7 @@ describe("<BallotFilter />", () => {
       <BallotFilter setAndCloseFilter={setAndCloseFilterSpy} />
     );
 
-    const button = getByText("Officers");
+    const button = getByText("Officer");
     fireEvent.click(button);
     expect(setAndCloseFilterSpy).toHaveBeenCalled();
   });

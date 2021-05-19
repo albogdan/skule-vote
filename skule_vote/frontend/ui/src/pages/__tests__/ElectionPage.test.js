@@ -9,7 +9,8 @@ describe("<ElectionPage />", () => {
       <ElectionPage listOfElections={mockElections} />
     );
     expect(getByText("Elections")).toBeInTheDocument();
-    expect(getAllByText(/Filter/i)).toHaveLength(3);
+    expect(getAllByText("Filter")).toHaveLength(2);
+    expect(getByText("Selected Filter: All")).toBeInTheDocument();
     for (let e of mockElections) {
       expect(getByText(e.electionName)).toBeInTheDocument();
     }

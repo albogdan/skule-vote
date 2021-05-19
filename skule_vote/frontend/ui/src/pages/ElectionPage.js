@@ -41,19 +41,21 @@ const BallotDiv = styled.div`
 const FilterBtnDiv = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   margin-bottom: 32px;
   max-width: 400px;
   width: 100%;
   p {
     margin-left: 16px;
     font-weight: 400;
+    text-align: right;
   }
 `;
 
 export const listOfCategories = [
   "All",
   "Referenda",
-  "Officers",
+  "Officer",
   "Board of Directors",
   "Discipline Club",
   "Class Representatives",
@@ -105,7 +107,9 @@ const ElectionPage = ({ listOfElections = mockElections }) => {
             >
               Filter
             </Button>
-            <Typography variant="body1">Filter: {filterCategory}</Typography>
+            <Typography variant="body1">
+              Selected Filter: {filterCategory}
+            </Typography>
           </FilterBtnDiv>
         </Hidden>
         <BallotDiv>

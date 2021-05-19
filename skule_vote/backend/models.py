@@ -72,7 +72,7 @@ class Election(models.Model):
         null=False,
         validators=[
             validators.MinValueValidator(
-                1, message="There must be at least one position open"
+                1, message="There must be at least one Election open."
             )
         ],
         help_text="How many seats are there in this election?",

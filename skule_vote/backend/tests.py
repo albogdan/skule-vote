@@ -200,6 +200,7 @@ class GetElectionsTestCase(SetupElectionsMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_class_reps(self):
+        # All class reps are in the db, but each student is eligible to vote for exactly one!
         for discipline_code, discipline_name in DISCIPLINE_CHOICES:
             if discipline_code == "ENG":
                 voter_dict = urlencode_cookie_request(year=1, discipline="ENG")
@@ -258,6 +259,7 @@ class GetElectionsTestCase(SetupElectionsMixin, APITestCase):
             self.assertTrue("PEY" in class_reps[0]["election_name"])
 
     def test_parttime_chair(self):
+        # Part time students of any discipline and year are eligible
         for attendance_code, expected in [("PT", True), ("FT", False)]:
             for discipline_code, discipline_name in DISCIPLINE_CHOICES:
                 if discipline_code == "ENG":
@@ -271,12 +273,14 @@ class GetElectionsTestCase(SetupElectionsMixin, APITestCase):
 
                     response = self.client.get(self.elections_view)
                     pt_chair = [
-                        elec
-                        for elec in response.json()
-                        if elec["category"] == "other"
-                        and elec["election_name"] == "Part-Time Chair"
+                        elec for elec in response.json() if elec["category"] == "other"
                     ]
-                    self.assertEqual(len(pt_chair), 1 if expected else 0)
+
+                    if expected:
+                        self.assertEqual(len(pt_chair), 1)
+                        self.assertEqual(pt_chair[0]["election_name"], "Part-Time Chair")
+                    else:
+                        self.assertEqual(len(pt_chair), 0)
                     continue
 
                 for year, year_name in STUDY_YEAR_CHOICES:
@@ -292,14 +296,17 @@ class GetElectionsTestCase(SetupElectionsMixin, APITestCase):
 
                     response = self.client.get(self.elections_view)
                     pt_chair = [
-                        elec
-                        for elec in response.json()
-                        if elec["category"] == "other"
-                        and elec["election_name"] == "Part-Time Chair"
+                        elec for elec in response.json() if elec["category"] == "other"
                     ]
-                    self.assertEqual(len(pt_chair), 1 if expected else 0)
+
+                    if expected:
+                        self.assertEqual(len(pt_chair), 1)
+                        self.assertEqual(pt_chair[0]["election_name"], "Part-Time Chair")
+                    else:
+                        self.assertEqual(len(pt_chair), 0)
 
     def test_officer(self):
+        # All students are eligible
         for attendance_code in ["PT", "FT"]:
             for discipline_code, discipline_name in DISCIPLINE_CHOICES:
                 if discipline_code == "ENG":
@@ -316,7 +323,6 @@ class GetElectionsTestCase(SetupElectionsMixin, APITestCase):
                         elec
                         for elec in response.json()
                         if elec["category"] == "officer"
-                        and elec["election_name"] == "President"
                     ]
                     self.assertEqual(len(pres), 1)
                     continue
@@ -337,11 +343,11 @@ class GetElectionsTestCase(SetupElectionsMixin, APITestCase):
                         elec
                         for elec in response.json()
                         if elec["category"] == "officer"
-                        and elec["election_name"] == "President"
                     ]
                     self.assertEqual(len(pres), 1)
 
     def test_referendum(self):
+        # All students are eligible
         for attendance_code in ["PT", "FT"]:
             for discipline_code, discipline_name in DISCIPLINE_CHOICES:
                 if discipline_code == "ENG":
@@ -358,7 +364,6 @@ class GetElectionsTestCase(SetupElectionsMixin, APITestCase):
                         elec
                         for elec in response.json()
                         if elec["category"] == "referenda"
-                        and elec["election_name"] == "Random Club Levy"
                     ]
                     self.assertEqual(len(referendum), 1)
                     continue
@@ -379,7 +384,6 @@ class GetElectionsTestCase(SetupElectionsMixin, APITestCase):
                         elec
                         for elec in response.json()
                         if elec["category"] == "referenda"
-                        and elec["election_name"] == "Random Club Levy"
                     ]
                     self.assertEqual(len(referendum), 1)
 
@@ -401,7 +405,7 @@ class GetElectionsTestCase(SetupElectionsMixin, APITestCase):
                     self.assertEqual(response.status_code, status.HTTP_200_OK)
 
                     response = self.client.get(self.elections_view)
-                    election_name = (
+                    expected_election_name = (
                         "ECE Club Chair"
                         if discipline_code in ["CPE", "ELE"]
                         else f"{discipline_name} Club Chair"
@@ -410,6 +414,6 @@ class GetElectionsTestCase(SetupElectionsMixin, APITestCase):
                         elec
                         for elec in response.json()
                         if elec["category"] == "discipline_club"
-                        and elec["election_name"] == election_name
                     ]
                     self.assertEqual(len(chair), 1)
+                    self.assertEqual(chair[0]["election_name"], expected_election_name)

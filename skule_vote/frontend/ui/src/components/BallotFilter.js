@@ -3,6 +3,9 @@ import styled from "styled-components";
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
+import ClearIcon from "@material-ui/icons/Clear";
+import IconButton from "@material-ui/core/IconButton";
+import Drawer from "@material-ui/core/Drawer";
 import { useTheme } from "@material-ui/core/styles";
 import Divider from "@material-ui/core/Divider";
 import { listOfCategories } from "pages/ElectionPage";
@@ -26,6 +29,10 @@ const BallotFilterPaper = styled(Paper)`
     margin-right: 16px;
     width: 250px;
   }
+  @media ${responsive.smDown} {
+    padding-top: 0;
+    margin-right: 0;
+  }
 `;
 
 const FilterItem = styled(Button)`
@@ -34,7 +41,7 @@ const FilterItem = styled(Button)`
   border-radius: 0;
   text-transform: capitalize;
   background-color: ${(props) =>
-    props.active && (props.isDark ? props.palette.primary.main : "#DDECF6")};
+    props.$active && (props.$isDark ? props.$palette.primary.main : "#DDECF6")};
 `;
 
 const FilterItemWrapper = styled.div`
@@ -48,7 +55,33 @@ const FilterItemWrapper = styled.div`
   }
 `;
 
-const BallotFilter = ({ filterCategory, setFilterCategory }) => {
+const IconButtonDiv = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  width: 100;
+  margin: 4px;
+`;
+
+export const BallotFilterDrawer = ({
+  drawerOpen,
+  toggleDrawer,
+  filterCategory,
+  setAndCloseFilter,
+}) => (
+  <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer}>
+    <IconButtonDiv>
+      <IconButton data-testid="drawerClose" onClick={toggleDrawer} role="close">
+        <ClearIcon />
+      </IconButton>
+    </IconButtonDiv>
+    <BallotFilter
+      filterCategory={filterCategory}
+      setAndCloseFilter={setAndCloseFilter}
+    />
+  </Drawer>
+);
+
+const BallotFilter = ({ filterCategory, setAndCloseFilter }) => {
   const theme = useTheme();
   const isDark = theme.palette.type === "dark";
 
@@ -63,7 +96,7 @@ const BallotFilter = ({ filterCategory, setFilterCategory }) => {
             $active={filterCategory === category}
             $isDark={isDark}
             key={i}
-            onClick={() => setFilterCategory(category)}
+            onClick={() => setAndCloseFilter(category)}
           >
             <Typography variant="body1">{category}</Typography>
           </FilterItem>

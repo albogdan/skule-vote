@@ -57,10 +57,10 @@ describe("<NoBallot />", () => {
   });
 
   it("renders NoBallot message if filterCategory is any other type of election", () => {
-    const { getByText } = render(<NoBallot filterCategory="Officers" />);
+    const { getByText } = render(<NoBallot filterCategory="Officer" />);
     expect(
       getByText(
-        "There are no Officers elections that you are currently eligible to vote in."
+        "There are no Officer elections that you are currently eligible to vote in."
       )
     ).toBeInTheDocument();
   });

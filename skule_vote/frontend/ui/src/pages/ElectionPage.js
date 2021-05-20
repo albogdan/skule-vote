@@ -5,13 +5,15 @@ import Hidden from "@material-ui/core/Hidden";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import Button from "@material-ui/core/Button";
 import FilterListIcon from "@material-ui/icons/FilterList";
-import BallotFilter, { BallotFilterDrawer } from "components/BallotFilter";
-import Ballot, { NoBallot } from "components/Ballot";
+import ElectionsFilter, {
+  ElectionsFilterDrawer,
+} from "components/ElectionsFilter";
+import ElectionCard, { NoElectionsCard } from "components/ElectionCard";
 import { Spacer } from "assets/layout";
 import { mockElections } from "assets/mocks";
 import { responsive } from "assets/breakpoints";
 
-const BallotWrapper = styled.div`
+const ElectionsWrapper = styled.div`
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -27,7 +29,7 @@ const BallotWrapper = styled.div`
   }
 `;
 
-const BallotDiv = styled.div`
+const CardDiv = styled.div`
   display: flex;
   flex-direction: column;
 
@@ -67,8 +69,8 @@ const ElectionPage = ({ listOfElections = mockElections }) => {
 
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [filterCategory, setFilterCategory] = React.useState("All");
-  let filteredListOfElections = listOfElections.filter((ballot) =>
-    filterCategory === "All" ? true : filterCategory === ballot.category
+  let filteredListOfElections = listOfElections.filter((election) =>
+    filterCategory === "All" ? true : filterCategory === election.category
   );
 
   const toggleDrawer = () => {
@@ -81,7 +83,7 @@ const ElectionPage = ({ listOfElections = mockElections }) => {
 
   return (
     <>
-      <BallotFilterDrawer
+      <ElectionsFilterDrawer
         drawerOpen={drawerOpen}
         toggleDrawer={toggleDrawer}
         filterCategory={filterCategory}
@@ -89,9 +91,9 @@ const ElectionPage = ({ listOfElections = mockElections }) => {
       />
       <Spacer y={isMobile ? 32 : 64} />
       <Typography variant="h1">Elections</Typography>
-      <BallotWrapper>
+      <ElectionsWrapper>
         <Hidden implementation="css" xsDown>
-          <BallotFilter
+          <ElectionsFilter
             filterCategory={filterCategory}
             setAndCloseFilter={setAndCloseFilter}
           />
@@ -112,19 +114,19 @@ const ElectionPage = ({ listOfElections = mockElections }) => {
             </Typography>
           </FilterBtnDiv>
         </Hidden>
-        <BallotDiv>
-          {filteredListOfElections.map((ballot, i) => (
-            <Ballot
+        <CardDiv>
+          {filteredListOfElections.map((election, i) => (
+            <ElectionCard
               key={i}
-              title={ballot.electionName}
-              numCandidates={ballot.numCandidates}
+              title={election.electionName}
+              numCandidates={election.numCandidates}
             />
           ))}
           {filteredListOfElections.length === 0 && (
-            <NoBallot filterCategory={filterCategory} />
+            <NoElectionsCard filterCategory={filterCategory} />
           )}
-        </BallotDiv>
-      </BallotWrapper>
+        </CardDiv>
+      </ElectionsWrapper>
     </>
   );
 };

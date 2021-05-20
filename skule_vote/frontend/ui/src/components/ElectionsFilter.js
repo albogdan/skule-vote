@@ -11,7 +11,7 @@ import Divider from "@material-ui/core/Divider";
 import { listOfCategories } from "pages/ElectionPage";
 import { responsive } from "assets/breakpoints";
 
-const BallotFilterPaper = styled(Paper)`
+const ElectionsFilterPaper = styled(Paper)`
   display: flex;
   flex-direction: column;
   width: 275px;
@@ -62,7 +62,7 @@ const IconButtonDiv = styled.div`
   margin: 4px;
 `;
 
-export const BallotFilterDrawer = ({
+export const ElectionsFilterDrawer = ({
   drawerOpen,
   toggleDrawer,
   filterCategory,
@@ -74,19 +74,19 @@ export const BallotFilterDrawer = ({
         <ClearIcon />
       </IconButton>
     </IconButtonDiv>
-    <BallotFilter
+    <ElectionsFilter
       filterCategory={filterCategory}
       setAndCloseFilter={setAndCloseFilter}
     />
   </Drawer>
 );
 
-const BallotFilter = ({ filterCategory, setAndCloseFilter }) => {
+const ElectionsFilter = ({ filterCategory, setAndCloseFilter }) => {
   const theme = useTheme();
   const isDark = theme.palette.type === "dark";
 
   return (
-    <BallotFilterPaper>
+    <ElectionsFilterPaper>
       <Typography variant="h2">Filter</Typography>
       <Divider />
       <FilterItemWrapper palette={theme.palette} isDark={isDark}>
@@ -102,8 +102,8 @@ const BallotFilter = ({ filterCategory, setAndCloseFilter }) => {
           </FilterItem>
         ))}
       </FilterItemWrapper>
-    </BallotFilterPaper>
+    </ElectionsFilterPaper>
   );
 };
 
-export default BallotFilter;
+export default ElectionsFilter;

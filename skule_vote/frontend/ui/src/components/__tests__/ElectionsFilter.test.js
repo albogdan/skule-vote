@@ -1,11 +1,13 @@
 import React from "react";
 import { render, fireEvent } from "@testing-library/react";
-import BallotFilter, { BallotFilterDrawer } from "components/BallotFilter";
+import ElectionsFilter, {
+  ElectionsFilterDrawer,
+} from "components/ElectionsFilter";
 import { listOfCategories } from "pages/ElectionPage";
 
-describe("<BallotFilter />", () => {
-  it("renders BallotFilter", () => {
-    const { getByText } = render(<BallotFilter />);
+describe("<ElectionsFilter />", () => {
+  it("renders ElectionsFilter", () => {
+    const { getByText } = render(<ElectionsFilter />);
     for (let c of listOfCategories) {
       expect(getByText(c)).toBeInTheDocument();
     }
@@ -15,7 +17,7 @@ describe("<BallotFilter />", () => {
   it("called setAndCloseFilter when an item is clicked", () => {
     const setAndCloseFilterSpy = jest.fn();
     const { getByText } = render(
-      <BallotFilter setAndCloseFilter={setAndCloseFilterSpy} />
+      <ElectionsFilter setAndCloseFilter={setAndCloseFilterSpy} />
     );
 
     const button = getByText("Officer");
@@ -24,9 +26,9 @@ describe("<BallotFilter />", () => {
   });
 });
 
-describe("<BallotFilterDrawer />", () => {
-  it("renders BallotFilterDrawer", () => {
-    const { getByText } = render(<BallotFilterDrawer drawerOpen={true} />);
+describe("<ElectionsFilterDrawer />", () => {
+  it("renders ElectionsFilterDrawer", () => {
+    const { getByText } = render(<ElectionsFilterDrawer drawerOpen={true} />);
     for (let c of listOfCategories) {
       expect(getByText(c)).toBeInTheDocument();
     }
@@ -35,7 +37,7 @@ describe("<BallotFilterDrawer />", () => {
   it("calls toggleDrawer when close icon is clicked", () => {
     const toggleDrawerSpy = jest.fn();
     const { getByTestId } = render(
-      <BallotFilterDrawer toggleDrawer={toggleDrawerSpy} drawerOpen={true} />
+      <ElectionsFilterDrawer toggleDrawer={toggleDrawerSpy} drawerOpen={true} />
     );
     fireEvent.click(getByTestId("drawerClose"));
     expect(toggleDrawerSpy).toHaveBeenCalled();

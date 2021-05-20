@@ -278,7 +278,9 @@ class GetElectionsTestCase(SetupElectionsMixin, APITestCase):
 
                     if expected:
                         self.assertEqual(len(pt_chair), 1)
-                        self.assertEqual(pt_chair[0]["election_name"], "Part-Time Chair")
+                        self.assertEqual(
+                            pt_chair[0]["election_name"], "Part-Time Chair"
+                        )
                     else:
                         self.assertEqual(len(pt_chair), 0)
                     continue
@@ -301,7 +303,9 @@ class GetElectionsTestCase(SetupElectionsMixin, APITestCase):
 
                     if expected:
                         self.assertEqual(len(pt_chair), 1)
-                        self.assertEqual(pt_chair[0]["election_name"], "Part-Time Chair")
+                        self.assertEqual(
+                            pt_chair[0]["election_name"], "Part-Time Chair"
+                        )
                     else:
                         self.assertEqual(len(pt_chair), 0)
 

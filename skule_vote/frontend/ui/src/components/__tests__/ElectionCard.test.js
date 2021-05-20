@@ -1,45 +1,45 @@
 import React from "react";
 import { render } from "@testing-library/react";
-import Ballot, { NoBallot } from "components/Ballot";
+import ElectionCard, { NoElectionsCard } from "components/ElectionCard";
 
-describe("<Ballot />", () => {
-  it("renders Ballot with given position and >1 number of candidates", () => {
+describe("<ElectionCard />", () => {
+  it("renders ElectionCard with given position and >1 number of candidates", () => {
     const title = "VP Student Life";
     const numCandidates = 3;
 
     const { getByText } = render(
-      <Ballot title={title} numCandidates={numCandidates} />
+      <ElectionCard title={title} numCandidates={numCandidates} />
     );
     expect(getByText(title)).toBeInTheDocument();
     expect(getByText(`${numCandidates} Candidates`)).toBeInTheDocument();
   });
 
-  it("renders Ballot with given position and 1 candidate", () => {
+  it("renders ElectionCard with given position and 1 candidate", () => {
     const title = "VP Communications";
     const numCandidates = 1;
 
     const { getByText } = render(
-      <Ballot title={title} numCandidates={numCandidates} />
+      <ElectionCard title={title} numCandidates={numCandidates} />
     );
     expect(getByText(title)).toBeInTheDocument();
     expect(getByText(`${numCandidates} Candidate`)).toBeInTheDocument();
   });
 
-  it("renders Ballot with given referenda", () => {
+  it("renders ElectionCard with given referenda", () => {
     const title = "Referenda 1";
     const numCandidates = 0;
 
     const { getByText, queryByText } = render(
-      <Ballot title={title} numCandidates={numCandidates} />
+      <ElectionCard title={title} numCandidates={numCandidates} />
     );
     expect(getByText(title)).toBeInTheDocument();
     expect(queryByText(/Candidate/i)).not.toBeInTheDocument();
   });
 });
 
-describe("<NoBallot />", () => {
-  it("renders NoBallot message if filterCategory is All", () => {
-    const { getByText } = render(<NoBallot filterCategory="All" />);
+describe("<NoElectionsCard />", () => {
+  it("renders NoElectionsCard message if filterCategory is All", () => {
+    const { getByText } = render(<NoElectionsCard filterCategory="All" />);
     expect(
       getByText(
         "There are no elections that you are currently eligible to vote in."
@@ -47,8 +47,10 @@ describe("<NoBallot />", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders NoBallot message if filterCategory is Referenda", () => {
-    const { getByText } = render(<NoBallot filterCategory="Referenda" />);
+  it("renders NoElectionsCard message if filterCategory is Referenda", () => {
+    const { getByText } = render(
+      <NoElectionsCard filterCategory="Referenda" />
+    );
     expect(
       getByText(
         "There are no Referenda that you are currently eligible to vote in."
@@ -56,8 +58,8 @@ describe("<NoBallot />", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders NoBallot message if filterCategory is any other type of election", () => {
-    const { getByText } = render(<NoBallot filterCategory="Officer" />);
+  it("renders NoElectionsCard message if filterCategory is any other type of election", () => {
+    const { getByText } = render(<NoElectionsCard filterCategory="Officer" />);
     expect(
       getByText(
         "There are no Officer elections that you are currently eligible to vote in."

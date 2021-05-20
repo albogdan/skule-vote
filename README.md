@@ -145,7 +145,7 @@ $ yarn test
 
 The UI app uses [Material UI](https://material-ui.com/) for styling and components. There is no usage of CSS or SCSS as we use a mixture of Material UI's [Palette](https://material-ui.com/customization/palette/) and the library [styled-components](https://styled-components.com/). Global colors, fonts, and dark mode configuration are set using Palette in `App.js` while general component styling is done with styled-components.
 
-To edit the globally-set colors, font-sizes, and font-families (which we don't recommend unless EngSoc has rebranded), simply edit the `createMuiTheme` object in `App.js`. While the colors for `primary` and `secondary` are part of EngSoc's official colour scheme, the colors for `error`, `warning`, `success`, and `info` are not in order to be WCAG 2.0 color compliant.
+To edit the globally-set colors, font-sizes, and font-families (which we don't recommend unless EngSoc has rebranded), simply edit the `createMuiTheme` object in `App.js`. The colors for `primary` and `secondary` are part of EngSoc's official colour scheme.
 
 #### Media Queries and Responsiveness
 

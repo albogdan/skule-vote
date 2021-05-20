@@ -4,7 +4,7 @@ import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 import { responsive } from "assets/breakpoints";
 
-const BallotPaper = styled(Paper)`
+const Card = styled(Paper)`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -31,7 +31,7 @@ const Subtitle = styled(Typography)`
   opacity: 0.57;
 `;
 
-const Ballot = ({ title, numCandidates }) => {
+const ElectionCard = ({ title, numCandidates }) => {
   let subtitle;
   if (numCandidates > 1) {
     subtitle = `${numCandidates} Candidates`;
@@ -39,14 +39,14 @@ const Ballot = ({ title, numCandidates }) => {
     subtitle = `${numCandidates} Candidate`;
   }
   return (
-    <BallotPaper>
+    <Card>
       <Typography variant="body1">{title}</Typography>
       {subtitle && <Subtitle variant="body2">{subtitle}</Subtitle>}
-    </BallotPaper>
+    </Card>
   );
 };
 
-export const NoBallot = ({ filterCategory }) => {
+export const NoElectionsCard = ({ filterCategory }) => {
   const message =
     filterCategory === "All"
       ? "There are no elections that you are currently eligible to vote in."
@@ -55,10 +55,10 @@ export const NoBallot = ({ filterCategory }) => {
         } that you are currently eligible to vote in.`;
 
   return (
-    <BallotPaper>
+    <Card>
       <Typography variant="body1">{message}</Typography>
-    </BallotPaper>
+    </Card>
   );
 };
 
-export default Ballot;
+export default ElectionCard;

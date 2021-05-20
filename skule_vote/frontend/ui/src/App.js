@@ -97,18 +97,6 @@ const App = () => {
           secondary: {
             main: darkState ? "#C8EDFF" : "#3B6482",
           },
-          error: {
-            main: "#980606",
-          },
-          warning: {
-            main: "#AC5403",
-          },
-          success: {
-            main: "#207250",
-          },
-          info: {
-            main: "#3B6482",
-          },
           background: {
             default: darkState ? "#212121 !important" : "#EFEFEF !important",
           },

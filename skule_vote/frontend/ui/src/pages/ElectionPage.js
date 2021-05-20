@@ -3,21 +3,33 @@ import styled from "styled-components";
 import Typography from "@material-ui/core/Typography";
 import Hidden from "@material-ui/core/Hidden";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
-import BallotFilter from "components/BallotFilter";
-import Ballot, { NoBallot } from "components/Ballot";
+import Button from "@material-ui/core/Button";
+import FilterListIcon from "@material-ui/icons/FilterList";
+import ElectionsFilter, {
+  ElectionsFilterDrawer,
+} from "components/ElectionsFilter";
+import ElectionCard, { NoElectionsCard } from "components/ElectionCard";
 import { Spacer } from "assets/layout";
 import { mockElections } from "assets/mocks";
 import { responsive } from "assets/breakpoints";
 
-const BallotWrapper = styled.div`
+const ElectionsWrapper = styled.div`
   display: flex;
   align-items: flex-start;
   justify-content: center;
   margin-top: 32px;
   width: 100%;
+  @media ${responsive.smDown} {
+    flex-direction: column;
+    align-items: center;
+    max-width: 400px;
+    div {
+      width: 100%;
+    }
+  }
 `;
 
-const BallotDiv = styled.div`
+const CardDiv = styled.div`
   display: flex;
   flex-direction: column;
 
@@ -28,10 +40,24 @@ const BallotDiv = styled.div`
   }
 `;
 
+const FilterBtnDiv = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  max-width: 400px;
+  width: 100%;
+  p {
+    margin-left: 16px;
+    font-weight: 400;
+    text-align: right;
+  }
+`;
+
 export const listOfCategories = [
   "All",
   "Referenda",
-  "Officers",
+  "Officer",
   "Board of Directors",
   "Discipline Club",
   "Class Representatives",
@@ -41,35 +67,66 @@ export const listOfCategories = [
 const ElectionPage = ({ listOfElections = mockElections }) => {
   const isMobile = useMediaQuery(responsive.smDown);
 
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [filterCategory, setFilterCategory] = React.useState("All");
-  let filteredListOfElections = listOfElections.filter((ballot) =>
-    filterCategory === "All" ? true : filterCategory === ballot.category
+  let filteredListOfElections = listOfElections.filter((election) =>
+    filterCategory === "All" ? true : filterCategory === election.category
   );
+
+  const toggleDrawer = () => {
+    setDrawerOpen(!drawerOpen);
+  };
+  const setAndCloseFilter = (category) => {
+    setFilterCategory(category);
+    setDrawerOpen(false);
+  };
 
   return (
     <>
+      <ElectionsFilterDrawer
+        drawerOpen={drawerOpen}
+        toggleDrawer={toggleDrawer}
+        filterCategory={filterCategory}
+        setAndCloseFilter={setAndCloseFilter}
+      />
       <Spacer y={isMobile ? 32 : 64} />
       <Typography variant="h1">Elections</Typography>
-      <BallotWrapper>
+      <ElectionsWrapper>
         <Hidden implementation="css" xsDown>
-          <BallotFilter
+          <ElectionsFilter
             filterCategory={filterCategory}
-            setFilterCategory={setFilterCategory}
+            setAndCloseFilter={setAndCloseFilter}
           />
         </Hidden>
-        <BallotDiv>
-          {filteredListOfElections.map((ballot, i) => (
-            <Ballot
+        <Hidden implementation="css" smUp>
+          <FilterBtnDiv>
+            <Button
+              variant="outlined"
+              color="secondary"
+              disableElevation
+              startIcon={<FilterListIcon />}
+              onClick={toggleDrawer}
+            >
+              Filter
+            </Button>
+            <Typography variant="body1">
+              Selected Filter: {filterCategory}
+            </Typography>
+          </FilterBtnDiv>
+        </Hidden>
+        <CardDiv>
+          {filteredListOfElections.map((election, i) => (
+            <ElectionCard
               key={i}
-              title={ballot.electionName}
-              numCandidates={ballot.numCandidates}
+              title={election.electionName}
+              numCandidates={election.numCandidates}
             />
           ))}
           {filteredListOfElections.length === 0 && (
-            <NoBallot filterCategory={filterCategory} />
+            <NoElectionsCard filterCategory={filterCategory} />
           )}
-        </BallotDiv>
-      </BallotWrapper>
+        </CardDiv>
+      </ElectionsWrapper>
     </>
   );
 };

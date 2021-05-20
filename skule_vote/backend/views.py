@@ -18,32 +18,6 @@ from backend.models import (
 from backend.serializers import ElectionSerializer
 
 
-def get_eligible_election_query(voter):
-    q = Election.objects.all()
-
-    # A voter isn't eligible to vote in an election where they have already voted
-    q = q.exclude(ballots__voter=voter)
-
-    # Filter based on student fulltime/parttime status
-    q = q.filter(
-        Q(eligibilities__status_eligible=voter.student_status)
-        | Q(eligibilities__status_eligible="full_and_part_time")
-    )
-
-    # For pey students we don't check year and vice versa
-    if voter.pey:
-        q = q.filter(eligibilities__pey_eligible=True)
-    else:
-        kwargs = {f"eligibilities__year_{voter.study_year}_eligible": True}
-        q = q.filter(**kwargs)
-
-    # Finally filter based on discipline
-    kwargs = {f"eligibilities__{voter.discipline.lower()}_eligible": True}
-    q = q.filter(**kwargs)
-
-    return q
-
-
 def CookieView(request):
 
     if request.method == "POST":
@@ -135,10 +109,31 @@ class ElectionListView(generics.ListAPIView):
     def get_queryset(self):
         try:
             student_number_hash = self.request.get_signed_cookie("student_number_hash")
-            print(student_number_hash)
         except (django.core.signing.BadSignature, KeyError):
             raise exceptions.NotAuthenticated
 
         voter = Voter.objects.get(student_number_hash=student_number_hash)
 
-        return get_eligible_election_query(voter)
+        q = Election.objects.all()
+
+        # A voter isn't eligible to vote in an election where they have already voted
+        q = q.exclude(ballots__voter=voter)
+
+        # Filter based on student fulltime/parttime status
+        q = q.filter(
+            Q(eligibilities__status_eligible=voter.student_status)
+            | Q(eligibilities__status_eligible="full_and_part_time")
+        )
+
+        # For pey students we don't check year and vice versa
+        if voter.pey:
+            q = q.filter(eligibilities__pey_eligible=True)
+        else:
+            kwargs = {f"eligibilities__year_{voter.study_year}_eligible": True}
+            q = q.filter(**kwargs)
+
+        # Finally filter based on discipline
+        kwargs = {f"eligibilities__{voter.discipline.lower()}_eligible": True}
+        q = q.filter(**kwargs)
+
+        return q

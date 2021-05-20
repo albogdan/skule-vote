@@ -54,7 +54,7 @@ class SetupElectionsMixin:
                     f"{discipline_tuple[0].lower()}_eligible": True,
                 }
                 elgibility = Eligibility(
-                    election=election, status_eligible="full_and_part_time", ** kwargs
+                    election=election, status_eligible="full_and_part_time", **kwargs
                 )
                 elgibility.save()
 

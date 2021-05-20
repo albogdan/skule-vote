@@ -7,6 +7,7 @@ import Button from "@material-ui/core/Button";
 import FilterListIcon from "@material-ui/icons/FilterList";
 import BallotFilter, { BallotFilterDrawer } from "components/BallotFilter";
 import Ballot, { NoBallot } from "components/Ballot";
+import { CustomAlert } from "components/Alerts";
 import { Spacer } from "assets/layout";
 import { mockElections } from "assets/mocks";
 import { responsive } from "assets/breakpoints";
@@ -52,6 +53,16 @@ const FilterBtnDiv = styled.div`
   }
 `;
 
+const AlertsDiv = styled.div`
+  display: flex;
+  flex-direction: column;
+  max-width: 800px;
+  width: 100%;
+  > :not(:last-child) {
+    margin-bottom: 8px;
+  }
+`;
+
 export const listOfCategories = [
   "All",
   "Referenda",
@@ -87,7 +98,26 @@ const ElectionPage = ({ listOfElections = mockElections }) => {
         filterCategory={filterCategory}
         setAndCloseFilter={setAndCloseFilter}
       />
-      <Spacer y={isMobile ? 32 : 64} />
+      <Spacer y={isMobile ? 12 : 16} />
+      <AlertsDiv>
+        <CustomAlert
+          type="warning"
+          message="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisinuli."
+        />
+        <CustomAlert
+          type="info"
+          message="Elections close on Friday, May 12, 11:59PM EST."
+        />
+        <CustomAlert
+          type="success"
+          message="Your vote has successfully been cast."
+        />
+        <CustomAlert
+          type="error"
+          message="Unable with vote due to Error: blah"
+        />
+      </AlertsDiv>
+      <Spacer y={isMobile ? 20 : 48} />
       <Typography variant="h1">Elections</Typography>
       <BallotWrapper>
         <Hidden implementation="css" xsDown>

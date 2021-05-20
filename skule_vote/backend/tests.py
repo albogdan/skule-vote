@@ -137,6 +137,33 @@ class GetCookieTestCase(APITestCase):
         with self.assertRaises(Voter.DoesNotExist):
             Voter.objects.get(student_number_hash=voter_dict["pid"])
 
+    def test_update_voter(self):
+        voter_dict = urlencode_cookie_request(year=1, pey=False, discipline="ENG")
+        response = self.client.post(self.cookie_view, voter_dict, follow=True)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            self.client.cookies["student_number_hash"].value.split(":")[0],
+            voter_dict["pid"],
+        )
+
+        # Change year and discipline of the voter
+        voter_dict["postcd"] = "AEELEBLAH"
+        voter_dict["yofstudy"] = "3"
+        response = self.client.post(self.cookie_view, voter_dict, follow=True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            self.client.cookies["student_number_hash"].value.split(":")[0],
+            voter_dict["pid"],
+        )
+
+        voter = Voter.objects.get(student_number_hash=voter_dict["pid"])
+        self.assertEqual(voter.student_status, "full_time")
+        self.assertEqual(voter.study_year, 3)
+        self.assertEqual(voter.pey, False)
+        self.assertEqual(voter.discipline, "ELE")
+        self.assertEqual(voter.engineering_student, True)
+
 
 class GetElectionsTestCase(SetupElectionsMixin, APITestCase):
     def setUp(self):

@@ -14,7 +14,7 @@ const fillColorMap = {
 
 const AlertDiv = styled.div`
   > div {
-    ${(props) => !props.isDark && `background-color: ${props.fill}`};
+    ${(props) => !props.isDark && `background-color: ${props.$fill}`};
     width: 100%;
     font-size: 16px;
   }
@@ -23,22 +23,22 @@ const AlertDiv = styled.div`
 export const CustomAlert = ({ message, type, action }) => {
   const theme = useTheme();
   if (!["info", "warning", "success", "error"].includes(type)) {
-    return;
+    return null;
   }
   const isDark = theme.palette.type === "dark";
   const CloseBtn = (
     <IconButton
-      aria-label="close"
+      aria-label="closeAlert"
       color="inherit"
       size="small"
       onClick={action}
     >
-      <CloseIcon fontSize="inherit" />
+      <CloseIcon data-testid="closeAlert" fontSize="inherit" />
     </IconButton>
   );
 
   return (
-    <AlertDiv fill={fillColorMap[type]} isDark={isDark}>
+    <AlertDiv $fill={fillColorMap[type]} isDark={isDark}>
       <Alert variant="outlined" severity={type} action={action && CloseBtn}>
         {message}
       </Alert>

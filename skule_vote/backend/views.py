@@ -2,7 +2,7 @@ import hashlib
 
 from django.conf import settings
 import django.core.signing
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.db.models import Q
 from rest_framework import generics, exceptions
@@ -48,7 +48,6 @@ def CookieView(request):
 
     if request.method == "POST":
         # Read query string
-        print(request.POST)
         student = request.POST.get("isstudent")
         registered = request.POST.get("isregistered")
         undergrad = request.POST.get("isundergrad")
@@ -97,7 +96,10 @@ def CookieView(request):
             voter.pey = assocorg == "AEPEY"  # either AEPEY or null
             voter.study_year = 3 if yofstudy is None else int(yofstudy)
             voter.engineering_student = primaryorg == "APSE"
-            voter.discipline = postcd[2:5]  # corresponds to DISCIPLINE_CHOICES
+
+            # The university will send us the POSt code
+            # This substring determines the engineering discipline and corresponds to DISCIPLINE_CHOICES
+            voter.discipline = postcd[2:5]
 
             # No need to check for unregistered. We would have returned 401 by now
             voter.student_status = "full_time" if attendance == "FT" else "part_time"
@@ -115,7 +117,7 @@ def CookieView(request):
             )
             voter.save()
 
-        res = HttpResponseRedirect("/api/backend/elections")
+        res = HttpResponseRedirect("/api/elections")
         res.set_signed_cookie("student_number_hash", pid)
         return res
     elif request.method == "GET":

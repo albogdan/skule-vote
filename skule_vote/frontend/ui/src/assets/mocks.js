@@ -66,3 +66,23 @@ export const mockElections = [
     category: "Discipline Club",
   },
 ];
+
+export const MockBallotReferenda = {
+  electionName: "Referedum 1",
+  numCandidates: 0,
+  election_id: 0,
+  category: "Referenda",
+};
+export const MockBallotPresident = {
+  electionName: "Referedum 2",
+  numCandidates: 1,
+  election_id: 1,
+  category: "Referenda",
+};
+export const MockBallotVP = {
+  electionName: "VP Finance",
+  numCandidates: 1,
+  election_id: 3,
+  category: "Officer",
+  candidates: [{ candidateName: "Lisa", statement: "Blah" }],
+};

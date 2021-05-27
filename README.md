@@ -183,7 +183,7 @@ The admin site can be found at `/admin` (for login credentials enquire with the 
 ### Method 1: Using a CSV File (Recommended)
 To use this method, when you go to the `admin` site and add an `ElectionSession` you must add an `ElectionSession` with a `name`, `start_date` and `end_date`, and CSV files for each section of `election`, `candidate` and `eligibility`. These CSV files have certain constraints that must be obeyed. Note that there are templates for these files in the `/csv_files` folder of this repo. The constraints are as follows:
    - The header (first row) of each CSV file must be the same as the ones in the `/csv_files` templates.
-   - Within a single CSV file all rows must be of equal length.
+   - Within a single CSV file all rows must be of equal length (have the same number of comma separated values).
    - Election and Eligibility CSVs must have the same number of rows, since they are 1-to-1.
    - The Election names in the Eligibilities and Candidates CSVs must match the ones in the Elections CSV.
    - Within the Elections CSV:

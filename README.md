@@ -193,6 +193,8 @@ To use this method, when you go to the `admin` site and add an `ElectionSession`
        * All of the eligible fields must be integers and either `1 (True)` or `0 (False)`.
        * Eligibilities `status_eligible` fields must be one of `[Full Time, Part Time, Full and Part Time]`.
 
+**Note**: All the CSV files must be uploaded at once, or none at all. If this is not met then an error will be shown and nothing will happen.
+
 **Note**: if you upload CSVs successfully and realize you made a mistake, you can just re-upload the updated CSVs to the same `ElectionSession`. All of the previous `Elections`, `Candidates` and `Eligibilities` *connected to that `ElectionSession`* will be deleted and new ones will be created from the new CSV.
 
 **Note**: once an ElectionSession has started you *cannot* edit it to change its `name`, `start_date`, or upload any new CSV files. Any changes required for `Elections`, `Candidates` and `Eligibilities` must be made manually. You *can* change the `ElectionSession's` `end_date` once it has started, also manually.

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import styled from "styled-components";
 import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
@@ -85,7 +85,7 @@ const ButtonDiv = styled.div`
       margin-left: 16px;
     }
   }
-  @media ${responsive.xsDown} {
+  @media (max-width: 460px) {
     flex-direction: column;
     align-items: flex-start;
     div {
@@ -98,6 +98,12 @@ const ButtonDiv = styled.div`
         margin-left: 0;
       }
     }
+  }
+`;
+
+const ErrorText = styled(Typography)`
+  > p {
+    ${(props) => props.$isDark && "color: #fbdfdf !important;"}
   }
 `;
 
@@ -143,27 +149,24 @@ const BallotRulingAlert = ({ ruling, link }) => {
 // Candidate names and statements
 // isReferendum: boolean, candidates: Array<{}>,
 const Statements = ({ isReferendum, candidates }) => (
-  <React.Fragment key="statements">
+  <>
     {!isReferendum && (
       <Typography variant="h2">Candidates &amp; Statements</Typography>
     )}
     {candidates.map(
       (candidate) =>
         candidate.statement != null && (
-          <>
+          <Fragment key={candidate.id}>
             {!isReferendum && (
-              <Typography variant="h3" key={`name-${candidate.id}`}>
-                {candidate.candidateName}
-              </Typography>
+              <Typography variant="h3">{candidate.candidateName}</Typography>
             )}
             {candidate.disqualificationRuling && (
               <>
                 <BallotRulingAlert
                   ruling={candidate.disqualificationRuling}
                   link={candidate.disqualificationLink}
-                  key={`disqualification-${candidate.id}`}
                 />
-                <Spacer y={4} key={`spacer-rq-${candidate.id}`} />
+                <Spacer y={4} />
               </>
             )}
             {candidate.ruleViolationRuling && (
@@ -171,22 +174,20 @@ const Statements = ({ isReferendum, candidates }) => (
                 <BallotRulingAlert
                   ruling={candidate.ruleViolationRuling}
                   link={candidate.ruleViolationLink}
-                  key={`rule-violation-${candidate.id}`}
                 />
-                <Spacer y={4} key={`spacer-rv-${candidate.id}`} />
+                <Spacer y={4} />
               </>
             )}
-            <Typography variant="body1" key={`statement-${candidate.id}`}>
-              {candidate.statement}
-            </Typography>
-          </>
+            <Typography variant="body1">{candidate.statement}</Typography>
+          </Fragment>
         )
     )}
-  </React.Fragment>
+  </>
 );
 
 // i: number, candidates: Array<{}>, ranking: {[number]: number}, isReferendum: boolean, changeRanking: func
 const Selector = ({ i, candidates, ranking, isReferendum, changeRanking }) => {
+  const theme = useTheme();
   const [selectVal, setSelectVal] = React.useState(ranking[i] ?? "");
   const handleRankOnchange = (event) => {
     setSelectVal(event.target.value);
@@ -212,7 +213,9 @@ const Selector = ({ i, candidates, ranking, isReferendum, changeRanking }) => {
       key={i}
       error={duplicateSelected || outOfOrder}
     >
-      <InputLabel id={`rank-${i}-label`}>{label}</InputLabel>
+      <InputLabel id={`rank-${i}-label`} color="secondary">
+        {label}
+      </InputLabel>
       <Select
         labelId={`rank-${i}-label`}
         id={`rank-${i}-select`}
@@ -231,10 +234,16 @@ const Selector = ({ i, candidates, ranking, isReferendum, changeRanking }) => {
         ))}
       </Select>
       {duplicateSelected && (
-        <FormHelperText>Same candidate selected multiple times</FormHelperText>
+        <ErrorText variant="subtitle2" $isDark={theme.palette.type === "dark"}>
+          <FormHelperText>
+            Same candidate selected multiple times
+          </FormHelperText>
+        </ErrorText>
       )}
       {outOfOrder && (
-        <FormHelperText>Choices not performed in order</FormHelperText>
+        <ErrorText variant="subtitle2" $isDark={theme.palette.type === "dark"}>
+          <FormHelperText>Choices not performed in order</FormHelperText>
+        </ErrorText>
       )}
     </FormControl>
   );
@@ -425,6 +434,7 @@ export const BallotModal = ({
               variant="contained"
               color="primary"
               onClick={() => castBallot()}
+              // checks if choices are not in order or there are duplicate votes for the same person
               disabled={
                 parseInt(Object.keys(ranking).slice(-1)[0], 10) !==
                   rankingLen - 1 ||

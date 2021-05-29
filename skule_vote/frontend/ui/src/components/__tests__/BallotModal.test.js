@@ -78,6 +78,7 @@ describe("<BallotModal />", () => {
 
     expect(getByText(referendum.electionName)).toBeInTheDocument();
     expect(getByText(referendum.candidates[0].statement)).toBeInTheDocument();
+    expect(queryByText("Candidates & Statements")).not.toBeInTheDocument();
     expect(getByText("Ballot")).toBeInTheDocument();
     expect(getByText(/Please select as many/i)).toBeInTheDocument();
     expect(
@@ -109,6 +110,7 @@ describe("<BallotModal />", () => {
 
     expect(getByText(president.electionName)).toBeInTheDocument();
     expect(getByText(president.candidates[0].statement)).toBeInTheDocument();
+    expect(getByText("Candidates & Statements")).toBeInTheDocument();
     expect(
       getByLabelText(/Do you support this candidate?/i)
     ).toBeInTheDocument();
@@ -130,6 +132,7 @@ describe("<BallotModal />", () => {
     );
 
     expect(getByText(vp.electionName)).toBeInTheDocument();
+    expect(getByText("Candidates & Statements")).toBeInTheDocument();
     for (let v of vp.candidates) {
       expect(getByText(v.candidateName)).toBeInTheDocument();
       expect(getByText(v.statement)).toBeInTheDocument();

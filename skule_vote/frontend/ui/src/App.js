@@ -70,9 +70,23 @@ const App = () => {
               fontSize: 24,
             },
           },
+          h3: {
+            fontSize: 20,
+            fontWeight: 400,
+            "@media (max-width:600px)": {
+              fontSize: 18,
+            },
+          },
           body1: {
             fontSize: 18,
             fontWeight: 300,
+            "@media (max-width:600px)": {
+              fontSize: 16,
+            },
+          },
+          body2: {
+            fontSize: 18,
+            fontWeight: 400,
             "@media (max-width:600px)": {
               fontSize: 16,
             },
@@ -117,7 +131,7 @@ const App = () => {
                 <Route exact path="/" component={LandingPage} />
                 <Route exact path="/elections" component={ElectionPage} />
                 <Route exact path="/404" component={NotFound} />
-                <Redirect to="/404" />
+                <Redirect to="/" />
               </Switch>
             </AppBody>
           </div>

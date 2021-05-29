@@ -1,5 +1,5 @@
+from backend.models import Candidate, Election
 from rest_framework import serializers
-from backend.models import Election, Candidate
 
 
 class CandidateSerializer(serializers.ModelSerializer):
@@ -7,12 +7,11 @@ class CandidateSerializer(serializers.ModelSerializer):
         model = Candidate
         fields = (
             "id",
-            "candidate_name",
-            "blurb",
-            "preamble",
+            "name",
+            "statement",
             "disqualified_status",
             "disqualified_link",
-            "disqualified_blurb",
+            "disqualified_message",
             "rule_violation_message",
             "rule_violation_link",
         )

@@ -1,19 +1,19 @@
 import hashlib
 
-from django.conf import settings
 import django.core.signing
+from django.conf import settings
+from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
-from django.db.models import Q
-from rest_framework import generics, exceptions
+from rest_framework import exceptions, generics
 
 from backend.models import (
+    Ballot,
+    Candidate,
     Election,
     ElectionSession,
     Eligibility,
-    Candidate,
     Voter,
-    Ballot,
 )
 from backend.serializers import ElectionSerializer
 

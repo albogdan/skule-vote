@@ -33,9 +33,9 @@ class ElectionSessionAdmin(admin.ModelAdmin):
             "(Optional) Election, Candidate, and Eligibility CSV Uploads. ",
             {
                 "fields": (
+                    "upload_elections",
                     "upload_candidates",
                     "upload_eligibilities",
-                    "upload_elections",
                 ),
                 "description": "Upload CSVs defining Elections, Candidates, and Eligibilities. "
                 "If none are uploaded then only the ElectionSession will be created. "

@@ -102,8 +102,8 @@ const ButtonDiv = styled.div`
 `;
 
 const SpoilBallotBtn = styled(Button)`
-  color: ${(props) => (props.$isDark ? "#DCD1DD" : "#4D33A3")}
-  border-color: ${(props) => (props.$isDark ? "#DCD1DD" : "#4D33A3")}
+  color: ${(props) => (props.$isDark ? "#DCD1DD" : "#4D33A3")};
+  border-color: ${(props) => (props.$isDark ? "#DCD1DD" : "#4D33A3")};
 `;
 
 // Randomize array in-place using Durstenfeld shuffle algorithm
@@ -115,16 +115,15 @@ const shuffleArray = (arr) => {
   return arr;
 };
 
-// Orange alert that appears below candidate's name if they have a
-// disqualification or rule violation message
+// Orange alert that appears below candidate's name if they have a disqualification or rule violation message
 // ruling: string, link: string
 const BallotRulingAlert = ({ ruling, link }) => {
   const message = (
     <>
-      {ruling}&nbsp;
+      {ruling}
       {link && (
         <span>
-          Please read the ruling&nbsp;
+          &nbsp;Please read the ruling&nbsp;
           <a
             href={link}
             style={{ color: "inherit" }}
@@ -144,7 +143,7 @@ const BallotRulingAlert = ({ ruling, link }) => {
 // Candidate names and statements
 // isReferendum: boolean, candidates: Array<{}>,
 const Statements = ({ isReferendum, candidates }) => (
-  <>
+  <React.Fragment key="statements">
     {!isReferendum && (
       <Typography variant="h2">Candidates &amp; Statements</Typography>
     )}
@@ -153,15 +152,18 @@ const Statements = ({ isReferendum, candidates }) => (
         candidate.statement != null && (
           <>
             {!isReferendum && (
-              <Typography variant="h3">{candidate.candidateName}</Typography>
+              <Typography variant="h3" key={`name-${candidate.id}`}>
+                {candidate.candidateName}
+              </Typography>
             )}
             {candidate.disqualificationRuling && (
               <>
                 <BallotRulingAlert
                   ruling={candidate.disqualificationRuling}
                   link={candidate.disqualificationLink}
+                  key={`disqualification-${candidate.id}`}
                 />
-                <Spacer y={4} />
+                <Spacer y={4} key={`spacer-rq-${candidate.id}`} />
               </>
             )}
             {candidate.ruleViolationRuling && (
@@ -169,20 +171,23 @@ const Statements = ({ isReferendum, candidates }) => (
                 <BallotRulingAlert
                   ruling={candidate.ruleViolationRuling}
                   link={candidate.ruleViolationLink}
+                  key={`rule-violation-${candidate.id}`}
                 />
-                <Spacer y={4} />
+                <Spacer y={4} key={`spacer-rv-${candidate.id}`} />
               </>
             )}
-            <Typography variant="body1">{candidate.statement}</Typography>
+            <Typography variant="body1" key={`statement-${candidate.id}`}>
+              {candidate.statement}
+            </Typography>
           </>
         )
     )}
-  </>
+  </React.Fragment>
 );
 
-// i: number, candidates: Array<{}>, ranking: {number: number}, isReferendum: boolean, changeRanking: func
+// i: number, candidates: Array<{}>, ranking: {[number]: number}, isReferendum: boolean, changeRanking: func
 const Selector = ({ i, candidates, ranking, isReferendum, changeRanking }) => {
-  const [selectVal, setSelectVal] = React.useState(ranking?.[i] ?? "");
+  const [selectVal, setSelectVal] = React.useState(ranking[i] ?? "");
   const handleRankOnchange = (event) => {
     setSelectVal(event.target.value);
     changeRanking(i, event.target.value);
@@ -191,7 +196,7 @@ const Selector = ({ i, candidates, ranking, isReferendum, changeRanking }) => {
   const label = isReferendum
     ? "Do you support this referendum?"
     : candidates.length === 2
-    ? " Do you support this candidate?"
+    ? "Do you support this candidate?"
     : `Rank ${i + 1}`;
 
   const duplicateSelected =
@@ -207,9 +212,7 @@ const Selector = ({ i, candidates, ranking, isReferendum, changeRanking }) => {
       key={i}
       error={duplicateSelected || outOfOrder}
     >
-      <InputLabel id={`rank-${i}-label`} color="secondary">
-        {label}
-      </InputLabel>
+      <InputLabel id={`rank-${i}-label`}>{label}</InputLabel>
       <Select
         labelId={`rank-${i}-label`}
         id={`rank-${i}-select`}
@@ -217,7 +220,6 @@ const Selector = ({ i, candidates, ranking, isReferendum, changeRanking }) => {
         onChange={handleRankOnchange}
         label={label}
         color="secondary"
-        inputProps={{ "data-testid": "candidate-select" }}
       >
         <MenuItem value="">-</MenuItem>
         {candidates.map((candidate) => (
@@ -238,7 +240,7 @@ const Selector = ({ i, candidates, ranking, isReferendum, changeRanking }) => {
   );
 };
 
-// isReferendum: boolean, candidates: Array<{}>, ranking: {number: number}, changeRanking: func
+// isReferendum: boolean, candidates: Array<{}>, ranking: {[number]: number}, changeRanking: func
 const BallotDropdowns = ({
   isReferendum,
   candidates,
@@ -271,7 +273,7 @@ const BallotDropdowns = ({
 };
 
 // Summarizes who/what user voted for
-// isReferendum: boolean, ranking: {number: number}, candidates: Array<{}>
+// isReferendum: boolean, ranking: {[number]: number}, candidates: Array<{}>
 const SelectedRanking = ({ isReferendum, ranking, candidates }) => {
   // idToNameMap: {[id: number]: [name: string]}
   const idToNameMap = React.useMemo(
@@ -313,10 +315,10 @@ const SelectedRanking = ({ isReferendum, ranking, candidates }) => {
         </Typography>
       )}
       {/* Case: multiple candidates and vote(s) has been selected */}
-      {!isReferendum &&
-        rankingLen > 1 &&
-        Object.entries(ranking).map((rank, i) => (
-          <Typography variant="body2" key={i}>
+      {rankingLen > 0 &&
+        candidates.length > 2 &&
+        Object.entries(ranking).map((rank) => (
+          <Typography variant="body2" key={rank[0]}>
             {parseInt(rank[0], 10) + 1}. {idToNameMap?.[rank[1]] ?? "error bro"}
           </Typography>
         ))}
@@ -324,7 +326,8 @@ const SelectedRanking = ({ isReferendum, ranking, candidates }) => {
   );
 };
 
-// handleClose: func, open: boolean, ballotInfo: {}, isReferendum: boolean, sortedCandidates: Array<{}>,
+// handleClose: func, handleSubmit: func, open: boolean, isReferendum: boolean,
+// sortedCandidates: Array<{}>, electionName: string, electionId: number
 export const BallotModal = ({
   handleClose,
   handleSubmit,

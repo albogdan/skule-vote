@@ -99,7 +99,7 @@ const ElectionPage = ({ listOfElections = mockElections }) => {
   };
 
   const handleSubmit = ({ electionId, ranking }) => {
-    alert(JSON.stringify({ electionId, ranking: {} }, null, 2));
+    alert(JSON.stringify({ electionId, ranking }, null, 2));
   };
 
   return (

@@ -3,11 +3,11 @@ from datetime import datetime
 from django.conf import settings
 
 from backend.models import (
-    ElectionSession,
-    Election,
-    Eligibility,
     DISCIPLINE_CHOICES,
     STUDY_YEAR_CHOICES,
+    Election,
+    ElectionSession,
+    Eligibility,
 )
 
 
@@ -112,7 +112,7 @@ class SetupElectionsMixin:
             if discipline_code == "ENG":
                 continue
 
-            # Computer and electrical engineering share a club
+            # Computer Engineering and Electrical Engineering share a club
             if discipline_code == "CPE":
                 continue
 
@@ -163,7 +163,7 @@ class SetupElectionsMixin:
         )
         election.save()
 
-        # everyone eligible
+        # Everyone eligible
         kwargs = {
             f"year_{year}_eligible": True for year, year_name in STUDY_YEAR_CHOICES
         } | {
@@ -184,7 +184,7 @@ class SetupElectionsMixin:
         )
         election.save()
 
-        # everyone eligible
+        # Everyone eligible
         kwargs = {
             f"year_{year}_eligible": True for year, year_name in STUDY_YEAR_CHOICES
         } | {

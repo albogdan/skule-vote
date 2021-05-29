@@ -170,7 +170,7 @@ class ElectionSessionAdminTestCase(SetupMixin, TestCase):
             kwargs={"object_id": election_session.id},
         )
 
-        files = self._build_csv_files()
+        files = self._build_admin_csv_files()
 
         new_data = {
             "election_session_name": self.data["election_session_name"],
@@ -216,7 +216,7 @@ class ElectionSessionAdminTestCase(SetupMixin, TestCase):
             kwargs={"object_id": election_session.id},
         )
 
-        files = self._build_csv_files()
+        files = self._build_admin_csv_files()
 
         new_data = {
             "election_session_name": self.data["election_session_name"],
@@ -243,7 +243,7 @@ class ElectionSessionAdminTestCase(SetupMixin, TestCase):
     def test_uploading_new_csvs_removes_the_old_objects(self):
         # Create an ElectionSession that has not started
         self._set_election_session_data(start_time_offset_days=1)
-        form = self._build_form(files=self._build_csv_files())
+        form = self._build_election_session_form(files=self._build_admin_csv_files())
         self.assertTrue(form.is_valid())
         election_session = form.save()
 
@@ -289,7 +289,7 @@ class ElectionSessionAdminTestCase(SetupMixin, TestCase):
                 ],
             ],
         }
-        modified_csv_files = self._build_csv_files(body=modified_body_definitions)
+        modified_csv_files = self._build_admin_csv_files(body=modified_body_definitions)
 
         new_data = {
             "election_session_name": self.data["election_session_name"],

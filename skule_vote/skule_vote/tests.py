@@ -132,7 +132,7 @@ class SetupMixin:
             "end_time": self._now() + timedelta(days=end_time_offset_days),
         }
 
-    def _build_form(self, data=None, files=None):
+    def _build_election_session_form(self, data=None, files=None):
         """
         Builds an ElectionSessionAdminForm with the given data and files.
         """
@@ -142,7 +142,7 @@ class SetupMixin:
 
         return ElectionSessionAdminForm(data=data, files=files)
 
-    def _build_csv_files(self, header=None, body=None):
+    def _build_admin_csv_files(self, header=None, body=None):
         """
         Builds the CSV files for an ElectionSessionAdminForm.
         """

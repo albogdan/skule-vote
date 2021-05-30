@@ -29,6 +29,16 @@ class IncorrectHashError(Exception):
 
 
 class CookieView(View):
+    """
+    This view will receive the payload from the UofT endpoint, verifies data integrity, creates or updates the
+    appropriate voter entry, and sets a signed cookie with the student number hash before redirecting to the elections
+    list endpoint.
+
+    To enable testing when the UofT endpoint is not up, it reads the CONNECT_TO_UOFT setting. When this setting is
+    false, the view will show an ugly html form that creates a response in the same format as the uoft endpoint. It also
+    disables the data integrity check on the form data.
+    """
+
     def get(self, request, *args, **kwargs):
         if not settings.CONNECT_TO_UOFT:
             return render(request, "cookieform.html")
@@ -146,6 +156,11 @@ class CookieView(View):
 
 
 class ElectionListView(generics.ListAPIView):
+    """
+    Returns all election that a specific voter is eligible to vote for. Also ensures that the voter has a valid signed
+    cookie.
+    """
+
     serializer_class = ElectionSerializer
 
     def get(self, request, *args, **kwargs):

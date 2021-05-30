@@ -10,5 +10,5 @@ urlpatterns = [
         views.ElectionListView.as_view(),
         name="election-list",
     ),
-    path("cookie/", views.CookieView, name="cookie"),
+    path("cookie/", views.CookieView.as_view(), name="cookie"),
 ]

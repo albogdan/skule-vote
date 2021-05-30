@@ -4,7 +4,9 @@ import django.core.signing
 from django.conf import settings
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from django.urls import reverse_lazy
+from django.views import View
 from rest_framework import exceptions, generics
 
 from backend.models import (
@@ -18,41 +20,88 @@ from backend.models import (
 from backend.serializers import ElectionSerializer
 
 
-def CookieView(request):
+class IneligibleVoterError(Exception):
+    pass
 
-    if request.method == "POST":
+
+class IncorrectHashError(Exception):
+    pass
+
+
+class CookieView(View):
+    def get(self, request, *args, **kwargs):
+        if not settings.CONNECT_TO_UOFT:
+            return render(request, "cookieform.html")
+
+        try:
+            student_number_hash = self._create_verified_voter(request.GET)
+        except (IneligibleVoterError, IncorrectHashError):
+            return HttpResponse(status=401)
+
+        res = redirect(reverse_lazy("api:backend:election-list"))
+        res.set_signed_cookie("student_number_hash", student_number_hash)
+        return res
+
+    def post(self, request, *args, **kwargs):
+        if not settings.CONNECT_TO_UOFT:
+            try:
+                student_number_hash = self._create_verified_voter(
+                    request.POST, verify_hash=False
+                )
+            except IneligibleVoterError:
+                return HttpResponse(status=401)
+
+            res = redirect(reverse_lazy("api:backend:election-list"))
+            res.set_signed_cookie("student_number_hash", student_number_hash)
+            return res
+
+        return HttpResponse(status=405)
+
+    @staticmethod
+    def _create_verified_voter(query_dict, verify_hash=True):
+        """
+        This method decodes the voter information query string in the format returned by UofT. It then determines if the
+        voter is eligible to vote in EngSoc elections.
+
+        If they are, it updates their existing voter entry with the latest information. If there is no existing entry,
+        a new one will be created. It then returns the student number hash which can be used as a UUID for this voter.
+
+        If the voter is not eligible to vote in EngSoc elections, or if verify_hash==True and the query string hash is
+        tampered with, it will raise an exception.
+        """
         # Read query string
-        student = request.POST.get("isstudent")
-        registered = request.POST.get("isregistered")
-        undergrad = request.POST.get("isundergrad")
-        primaryorg = request.POST.get("primaryorg")
-        yofstudy = request.POST.get("yofstudy")
-        campus = request.POST.get("campus")
-        postcd = request.POST.get("postcd")
-        attendance = request.POST.get("attendance")
-        assocorg = request.POST.get("assocorg")
-        pid = request.POST.get("pid")
+        student = query_dict.get("isstudent")
+        registered = query_dict.get("isregistered")
+        undergrad = query_dict.get("isundergrad")
+        primaryorg = query_dict.get("primaryorg")
+        yofstudy = query_dict.get("yofstudy")
+        campus = query_dict.get("campus")
+        postcd = query_dict.get("postcd")
+        attendance = query_dict.get("attendance")
+        assocorg = query_dict.get("assocorg")
+        pid = query_dict.get("pid")
 
         # Verify data integrity
-        # check_string = (
-        #     student
-        #     + registered
-        #     + undergrad
-        #     + primaryorg
-        #     + yofstudy
-        #     + campus
-        #     + postcd
-        #     + attendance
-        #     + assocorg
-        #     + pid
-        #     + settings.UOFT_SECRET_KEY
-        # )
-        # h = hashlib.md5()
-        # h.update(check_string)
-        # check_hash = h.hexdigest()
-        #
-        # if check_hash != request.GET.get("hash"):
-        #     return HttpResponse(status=401)
+        if verify_hash:
+            check_string = (
+                student
+                + registered
+                + undergrad
+                + primaryorg
+                + yofstudy
+                + campus
+                + postcd
+                + attendance
+                + assocorg
+                + pid
+                + settings.UOFT_SECRET_KEY
+            )
+            h = hashlib.md5()
+            h.update(check_string)
+            check_hash = h.hexdigest()
+
+            if check_hash != query_dict.get("hash"):
+                raise IncorrectHashError()
 
         # Verify basic eligibility for EngSoc elections
         eligible = (
@@ -62,7 +111,7 @@ def CookieView(request):
             and undergrad == "True"
         )
         if not eligible:
-            return HttpResponse(status=401)
+            raise IneligibleVoterError()
 
         try:
             # previous voter -> update the info in DB
@@ -93,11 +142,7 @@ def CookieView(request):
             )
             voter.save()
 
-        res = HttpResponseRedirect("/api/elections")
-        res.set_signed_cookie("student_number_hash", pid)
-        return res
-    elif request.method == "GET":
-        return render(request, "cookieform.html")
+        return pid
 
 
 class ElectionListView(generics.ListAPIView):

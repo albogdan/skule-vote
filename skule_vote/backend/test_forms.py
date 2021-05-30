@@ -52,6 +52,17 @@ class ElectionSessionAdminFormTestCase(SetupMixin, TestCase):
         self.assertEqual(Candidate.objects.count(), 2)
         self.assertEqual(Eligibility.objects.count(), 2)
 
+    def test_status_eligible_and_election_category_not_null(self):
+        form = self._build_election_session_form(files=self._build_admin_csv_files())
+        self.assertTrue(form.is_valid())
+        instance = form.save()
+
+        elections = Election.objects.filter(election_session=instance)
+        for election in elections:
+            eligibility = Eligibility.objects.get(election=election)
+            self.assertIsNotNone(election.category)
+            self.assertIsNotNone(eligibility.status_eligible)
+
     def test_1_or_2_csv_files_uploaded_throws_validation_error(self):
         modified_csv_files = self._build_admin_csv_files()
         del modified_csv_files["upload_candidates"]

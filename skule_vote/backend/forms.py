@@ -453,7 +453,7 @@ class ElectionSessionAdminForm(forms.ModelForm):
                 "election_name": election_row[header.index("election_name")],
                 "election_session": self.instance,
                 "seats_available": election_row[header.index("seats_available")],
-                "category": election_row[header.index("category")],
+                "category": election_row[header.index("category")].lower().replace(" ", "_"),
             }
             election = Election(**data)
             election.save()
@@ -510,7 +510,9 @@ class ElectionSessionAdminForm(forms.ModelForm):
                 "year_3_eligible": eligibility_row[header.index("year_3_eligible")],
                 "year_4_eligible": eligibility_row[header.index("year_4_eligible")],
                 "pey_eligible": eligibility_row[header.index("pey_eligible")],
-                "status_eligible": eligibility_row[header.index("status_eligible")],
+                "status_eligible": eligibility_row[header.index("status_eligible")]
+                .lower()
+                .replace(" ", "_"),
             }
             eligibility = Eligibility(**data)
             eligibility.save()

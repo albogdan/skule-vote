@@ -59,7 +59,7 @@ class SetupMixin:
                 [
                     "1st Year Civil Engineering Representative",
                     "1",
-                    "Class Representatives",
+                    "Class Representative",
                 ],
                 ["4th Year Chair", "1", "Officer"],
             ],

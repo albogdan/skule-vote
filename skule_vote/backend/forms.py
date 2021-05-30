@@ -138,8 +138,16 @@ class ElectionSessionAdminForm(forms.ModelForm):
                 "none at all."
             )
 
-        # If all files were uploaded extract the csv data and pass it to the csv_checker functions
+        # If all files were uploaded extract the CSV data and pass it to the csv_checker functions
         elif raw_uploads.count(None) == 0:
+            # Check to make sure user uploads a CSV and not a different type of file.
+            for file in raw_uploads:
+                if file.content_type != "text/csv":
+                    raise forms.ValidationError(
+                        "Ensure all uploaded files are CSV files. ODS, XLS and other spreadsheet extensions are not "
+                        f"supported. Please upload your files again. Error at: [{file.name}]"
+                    )
+
             # Make sure we're at the beginning of the file
             self.cleaned_data["upload_elections"].file.seek(0)
             elections_data = list(
@@ -453,7 +461,9 @@ class ElectionSessionAdminForm(forms.ModelForm):
                 "election_name": election_row[header.index("election_name")],
                 "election_session": self.instance,
                 "seats_available": election_row[header.index("seats_available")],
-                "category": election_row[header.index("category")].lower().replace(" ", "_"),
+                "category": election_row[header.index("category")]
+                .lower()
+                .replace(" ", "_"),
             }
             election = Election(**data)
             election.save()

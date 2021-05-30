@@ -335,3 +335,45 @@ class ElectionSessionAdminFormTestCase(SetupMixin, TestCase):
             f"Full and Part Time]. Incorrect category found in CSV: [{modified_body['eligibilities'][1][16]}].",
             form.errors["upload_eligibilities"][0],
         )
+
+    def test_not_uploading_csv_content_type_throws_validation_error(self):
+        files_dict = self._build_admin_csv_files()
+
+        files_dict["upload_elections"].content_type = "application/vnd.ms-excel"
+
+        form_1 = self._build_election_session_form(files=files_dict)
+        self.assertFalse(form_1.is_valid())
+
+        self.assertIn(
+            "Ensure all uploaded files are CSV files. ODS, XLS and other spreadsheet extensions are not "
+            f"supported. Please upload your files again. Error at: [{files_dict['upload_elections'].name}]",
+            form_1.errors["__all__"],
+        )
+
+        files_dict = self._build_admin_csv_files()
+
+        files_dict[
+            "upload_candidates"
+        ].content_type = "application/vnd.oasis.opendocument.spreadsheet"
+
+        form_2 = self._build_election_session_form(files=files_dict)
+        self.assertFalse(form_2.is_valid())
+
+        self.assertIn(
+            "Ensure all uploaded files are CSV files. ODS, XLS and other spreadsheet extensions are not "
+            f"supported. Please upload your files again. Error at: [{files_dict['upload_candidates'].name}]",
+            form_2.errors["__all__"],
+        )
+
+        files_dict = self._build_admin_csv_files()
+
+        files_dict["upload_eligibilities"].content_type = "text/plain"
+
+        form_3 = self._build_election_session_form(files=files_dict)
+        self.assertFalse(form_3.is_valid())
+
+        self.assertIn(
+            "Ensure all uploaded files are CSV files. ODS, XLS and other spreadsheet extensions are not "
+            f"supported. Please upload your files again. Error at: [{files_dict['upload_eligibilities'].name}]",
+            form_3.errors["__all__"],
+        )

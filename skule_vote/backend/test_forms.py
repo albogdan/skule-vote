@@ -151,16 +151,19 @@ class ElectionSessionAdminFormTestCase(SetupMixin, TestCase):
             "Invalid row length discovered. See more info below.",
             form.errors["__all__"][0],
         )
+        elections_csv_file = modified_csv_files["upload_elections"].name
         self.assertIn(
-            "[elections.csv] All rows in the CSV must be the same length as the header.",
+            f"[{elections_csv_file}] All rows in the CSV must be the same length as the header.",
             form.errors["upload_elections"][0],
         )
+        candidates_csv_file = modified_csv_files["upload_candidates"].name
         self.assertIn(
-            "[candidates.csv] All rows in the CSV must be the same length as the header.",
+            f"[{candidates_csv_file}] All rows in the CSV must be the same length as the header.",
             form.errors["upload_candidates"][0],
         )
+        eligibilities_csv_file = modified_csv_files["upload_eligibilities"].name
         self.assertIn(
-            "[eligibilities.csv] All rows in the CSV must be the same length as the header.",
+            f"[{eligibilities_csv_file}] All rows in the CSV must be the same length as the header.",
             form.errors["upload_eligibilities"][0],
         )
 
@@ -177,14 +180,15 @@ class ElectionSessionAdminFormTestCase(SetupMixin, TestCase):
             "Election and Eligibilities don't match. See more info below.",
             form.errors["__all__"][0],
         )
+        eligibilities_csv_file = modified_csv_files["upload_eligibilities"].name
         self.assertIn(
-            "[eligibilities.csv] Elections and Eligibilities CSVs must have the same number of rows. "
+            f"[{eligibilities_csv_file}] Elections and Eligibilities CSVs must have the same number of rows. "
             f"Eligibilities CSV has {len(modified_body['eligibilities'])} rows.",
             form.errors["upload_eligibilities"][0],
         )
-
+        elections_csv_file = modified_csv_files["upload_elections"].name
         self.assertIn(
-            "[elections.csv] Elections and Eligibilities CSVs must have the same number of rows. "
+            f"[{elections_csv_file}] Elections and Eligibilities CSVs must have the same number of rows. "
             f"Elections CSV has {len(modified_body['elections'])} rows.",
             form.errors["upload_elections"][0],
         )
@@ -204,8 +208,10 @@ class ElectionSessionAdminFormTestCase(SetupMixin, TestCase):
             "Election names don't match over all CSV files.",
             form_1.errors["__all__"][0],
         )
+        elections_csv_file = modified_csv_files["upload_elections"].name
+        candidates_csv_file = modified_csv_files["upload_candidates"].name
         self.assertIn(
-            f"[elections.csv, candidates.csv] Election names within the Candidates CSV must match "
+            f"[{elections_csv_file}, {candidates_csv_file}] Election names within the Candidates CSV must match "
             f"those within the Elections CSV. Invalid Election name discovered: {modified_body['candidates'][0][1]}",
             form_1.errors["upload_candidates"][0],
         )
@@ -222,8 +228,10 @@ class ElectionSessionAdminFormTestCase(SetupMixin, TestCase):
             "Election names don't match over all CSV files.",
             form_2.errors["__all__"][0],
         )
+        elections_csv_file = modified_csv_files["upload_elections"].name
+        eligibilities_csv_file = modified_csv_files["upload_eligibilities"].name
         self.assertIn(
-            f"[elections.csv, eligibilities.csv] Election names within the Eligibilities CSV must match "
+            f"[{elections_csv_file}, {eligibilities_csv_file}] Election names within the Eligibilities CSV must match "
             f"those within the Elections CSV. Invalid Election name discovered: {modified_body['eligibilities'][1][0]}",
             form_2.errors["upload_eligibilities"][0],
         )
@@ -279,8 +287,9 @@ class ElectionSessionAdminFormTestCase(SetupMixin, TestCase):
         form_1 = self._build_election_session_form(files=modified_csv_files)
         self.assertFalse(form_1.is_valid())
 
+        eligibilities_csv_file = modified_csv_files["upload_eligibilities"].name
         self.assertIn(
-            f"[eligibilities.csv] Eligibilities must be true/false values represented by the *integer* values of "
+            f"[{eligibilities_csv_file}] Eligibilities must be true/false values represented by the *integer* values of "
             f"1 or 0. Non-integer value found in CSV: [4].",
             form_1.errors["upload_eligibilities"][0],
         )
@@ -293,8 +302,9 @@ class ElectionSessionAdminFormTestCase(SetupMixin, TestCase):
         form_2 = self._build_election_session_form(files=modified_csv_files)
         self.assertFalse(form_2.is_valid())
 
+        eligibilities_csv_file = modified_csv_files["upload_eligibilities"].name
         self.assertIn(
-            f"[eligibilities.csv] Eligibilities must be true/false values represented by the *integer* values "
+            f"[{eligibilities_csv_file}] Eligibilities must be true/false values represented by the *integer* values "
             f"of 1 or 0. Non-integer value found in CSV: [f].",
             form_2.errors["upload_eligibilities"][0],
         )
@@ -308,8 +318,9 @@ class ElectionSessionAdminFormTestCase(SetupMixin, TestCase):
         form = self._build_election_session_form(files=modified_csv_files)
         self.assertFalse(form.is_valid())
 
+        eligibilities_csv_file = modified_csv_files["upload_eligibilities"].name
         self.assertIn(
-            f"[eligibilities.csv] Eligibility status category must be one of: [Full Time, Part Time, "
+            f"[{eligibilities_csv_file}] Eligibility status category must be one of: [Full Time, Part Time, "
             f"Full and Part Time]. Incorrect category found in CSV: [{modified_body['eligibilities'][1][16]}].",
             form.errors["upload_eligibilities"][0],
         )

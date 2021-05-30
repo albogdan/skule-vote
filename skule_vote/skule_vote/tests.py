@@ -1,6 +1,8 @@
 import csv
 from datetime import datetime, timedelta
 from io import BytesIO, StringIO
+import random
+import string
 
 from django.conf import settings
 from django.core.files.uploadedfile import InMemoryUploadedFile
@@ -160,11 +162,12 @@ class SetupMixin:
             writer.writerow(header[model_file])
             writer.writerows(body[model_file])
             csv_bytes_io = BytesIO(writer_file.getvalue().encode("utf-8"))
+            file_name = f"{model_file} {''.join(random.choice(string.ascii_letters) for i in range(10))} (1).csv"
 
             file_dict[f"upload_{model_file}"] = InMemoryUploadedFile(
                 file=csv_bytes_io,
                 field_name=f"upload_{model_file}",
-                name=f"{model_file}.csv",
+                name=file_name,
                 content_type="text/csv",
                 size=len(csv_bytes_io.getvalue()),
                 charset=None,

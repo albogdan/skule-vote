@@ -230,7 +230,7 @@ class ElectionSessionAdminForm(forms.ModelForm):
                 if category not in self.header_definitions[csv_file]:
                     ElectionSessionAdminForm.add_error(
                         self=self,
-                        field=f"upload_{self.file_upload_list[csv_file]['file_name'][:-4]}",
+                        field=f"upload_{csv_file}",
                         error=f"[{self.file_upload_list[csv_file]['file_name']}] Invalid header. Header for the "
                         f"{csv_file.capitalize()} CSV must contain: {self.header_definitions[csv_file]}. "
                         f"Invalid header value found: [{category}]. Ensure there are no additional trailing commas "
@@ -255,7 +255,7 @@ class ElectionSessionAdminForm(forms.ModelForm):
                     error_found = True
                     ElectionSessionAdminForm.add_error(
                         self=self,
-                        field=f"upload_{self.file_upload_list[key]['file_name'][:-4]}",
+                        field=f"upload_{key}",
                         error=f"[{self.file_upload_list[key]['file_name']}] All rows in the CSV must be the same "
                         f"length as the header. Ensure that any commas that may exist in text are enclosed in "
                         f"quotation marks. Ensure there are no additional trailing commas at the end of any"

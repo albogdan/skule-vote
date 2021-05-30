@@ -119,9 +119,9 @@ class ElectionSessionAdminForm(forms.ModelForm):
             and illegally_changed_fields
         ):
             raise forms.ValidationError(
-                "Select fields cannot be changed once the election has begun. "
-                "Revert changes, or leave and return to this page to reset all fields. "
-                f" Modified fields: {', '.join(field for field in illegally_changed_fields)}."
+                f"{', '.join(field for field in illegally_changed_fields)} cannot be changed once "
+                "the election session has begun. Revert changes, or leave and return to this page "
+                "to reset all fields."
             )
 
         # Check the number of files uploaded

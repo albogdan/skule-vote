@@ -188,7 +188,7 @@ To use this method, when you go to the `admin` site and add an `ElectionSession`
    - The Election names in the Eligibilities and Candidates CSVs must match the ones in the Elections CSV.
    - Within the Elections CSV:
        * All of the `seats_available` must be integers and >=1.
-       * Election Categories must be one of `[Referenda, Officer, Board of Directors, Discipline Clubs, Class Representative, Other]`.
+       * Election Categories must be one of `[Referenda, Officer, Board of Directors, Discipline Club, Class Representative, Other]`.
    - Within the Eligibilities CSV:
        * All of the eligible fields must be integers and either `1 (True)` or `0 (False)`.
        * Eligibilities `status_eligible` fields must be one of `[Full Time, Part Time, Full and Part Time]`.

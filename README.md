@@ -58,16 +58,17 @@ $ pip install -r requirements.txt
 
 In order to run the django and react development servers locally (or run tests), the following environment variables are used. Those in **bold** are required.
 
-| **Variable**                 | **Required value**                | **Default**    | **Description**                                                                                             |
-| ---------------------------- | --------------------------------- | -------------- | ----------------------------------------------------------------------------------------------------------- |
-| **DEBUG**                    | 1                                 | 0              | Run Django in debug mode. Required to run locally.                                                          |
-| **SECRET_KEY**               | Something secret, create your own | None           | Secret key for cryptographic signing. Must not be shared. Required.                                         |
-| DB_HOST                      |                                   | 127.0.0.1      | Postgres database host.                                                                                     |
-| DB_USER                      |                                   | postgres       | User on the postgres database. Must have permissions to create and modify tables.                           |
-| DB_PASSWORD                  |                                   |                | Password for the postgres user.                                                                             |
-| DB_PORT                      |                                   | 5432           | Port the postgres server is open on.                                                                        |
-| DB_NAME                      |                                   | hackathon_site | Postgres database name.                                                                                     |
-| **REACT_APP_DEV_SERVER_URL** | http://localhost:8000             |                | Path to the django development server, used by React. Update the port if you aren't using the default 8000. |
+| **Variable**                 | **Required value**                | **Default**    | **Description**                                                                                                                                             |
+| ---------------------------- | --------------------------------- | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **DEBUG**                    | 1                                 | 0              | Run Django in debug mode. Required to run locally.                                                                                                          |
+| **SECRET_KEY**               | Something secret, create your own | None           | Secret key for cryptographic signing. Must not be shared. Required.                                                                                         |
+| DB_HOST                      |                                   | 127.0.0.1      | Postgres database host.                                                                                                                                     |
+| DB_USER                      |                                   | postgres       | User on the postgres database. Must have permissions to create and modify tables.                                                                           |
+| DB_PASSWORD                  |                                   |                | Password for the postgres user.                                                                                                                             |
+| DB_PORT                      |                                   | 5432           | Port the postgres server is open on.                                                                                                                        |
+| DB_NAME                      |                                   | hackathon_site | Postgres database name.                                                                                                                                     |
+| **REACT_APP_DEV_SERVER_URL** | http://localhost:8000             |                | Path to the django development server, used by React. Update the port if you aren't using the default 8000.                                                 |
+| CONNECT_TO_UOFT              |                                   | 0              | If set, tries to obtain voter information by connecting to the UofT endpoint. Disabled by default to allow for testing, but must be enabled for production. |
 
 If you are using miniconda, you can add these to your environment such that each time you `conda activate skule_vote`, the variables will be sourced as well. To do this run (while the skule_vote environment is activated):
 

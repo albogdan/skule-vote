@@ -102,7 +102,7 @@ class ElectionSessionAdminFormTestCase(SetupMixin, TestCase):
             form_1.errors["__all__"][0],
         )
         self.assertIn(
-            "Invalid header. Header for the Elections CSV must contain",
+            f"Invalid header. Header for the Elections CSV must contain: {self.header_definitions['elections']}.",
             form_1.errors["upload_elections"][0],
         )
         self.assertIn(
@@ -120,7 +120,7 @@ class ElectionSessionAdminFormTestCase(SetupMixin, TestCase):
             form_2.errors["__all__"][0],
         )
         self.assertIn(
-            "Invalid header. Header for the Candidates CSV must contain",
+            f"Invalid header. Header for the Candidates CSV must contain: {self.header_definitions['candidates']}.",
             form_2.errors["upload_candidates"][0],
         )
         self.assertIn(
@@ -139,11 +139,60 @@ class ElectionSessionAdminFormTestCase(SetupMixin, TestCase):
             form_3.errors["__all__"][0],
         )
         self.assertIn(
-            "Invalid header. Header for the Eligibilities CSV must contain",
+            f"Invalid header. Header for the Eligibilities CSV must contain: {self.header_definitions['eligibilities']}.",
             form_3.errors["upload_eligibilities"][0],
         )
         self.assertIn(
             f"Invalid header value found: [{modified_headers['eligibilities'][0]}].",
+            form_3.errors["upload_eligibilities"][0],
+        )
+
+    def test_missing_header_categories_throws_validation_error(self):
+        modified_headers = copy.deepcopy(self.header_definitions)
+        del modified_headers["elections"][-1]  # Delete last header category
+
+        modified_csv_files = self._build_admin_csv_files(header=modified_headers)
+        form_1 = self._build_election_session_form(files=modified_csv_files)
+        self.assertFalse(form_1.is_valid())
+        self.assertEqual(
+            "Incomplete header discovered. See more info below.",
+            form_1.errors["__all__"][0],
+        )
+        self.assertIn(
+            f"Invalid header. Header for Elections CSV must contain: {self.header_definitions['elections']}. "
+            " Categories missing: {'category'}",
+            form_1.errors["upload_elections"][0],
+        )
+
+        modified_headers = copy.deepcopy(self.header_definitions)
+        del modified_headers["candidates"][0]  # Delete first header category
+
+        modified_csv_files = self._build_admin_csv_files(header=modified_headers)
+        form_2 = self._build_election_session_form(files=modified_csv_files)
+        self.assertFalse(form_2.is_valid())
+        self.assertEqual(
+            "Incomplete header discovered. See more info below.",
+            form_2.errors["__all__"][0],
+        )
+        self.assertIn(
+            f"Invalid header. Header for Candidates CSV must contain: {self.header_definitions['candidates']}. "
+            " Categories missing: {'name'}",
+            form_2.errors["upload_candidates"][0],
+        )
+
+        modified_headers = copy.deepcopy(self.header_definitions)
+        del modified_headers["eligibilities"][1]  # Delete second header category
+
+        modified_csv_files = self._build_admin_csv_files(header=modified_headers)
+        form_3 = self._build_election_session_form(files=modified_csv_files)
+        self.assertFalse(form_3.is_valid())
+        self.assertEqual(
+            "Incomplete header discovered. See more info below.",
+            form_3.errors["__all__"][0],
+        )
+        self.assertIn(
+            f"Invalid header. Header for Eligibilities CSV must contain: {self.header_definitions['eligibilities']}. "
+            " Categories missing: {'eng_eligible'}",
             form_3.errors["upload_eligibilities"][0],
         )
 

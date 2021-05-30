@@ -233,8 +233,8 @@ class ElectionSessionAdminForm(forms.ModelForm):
         """Checks if all the CSV files have the correct headers."""
         csv_files_to_check = ["elections", "candidates", "eligibilities"]
         for csv_file in csv_files_to_check:
+            header_categories = []
             for category in self.file_upload_list[csv_file]["header"]:
-
                 if category not in self.header_definitions[csv_file]:
                     ElectionSessionAdminForm.add_error(
                         self=self,
@@ -247,6 +247,19 @@ class ElectionSessionAdminForm(forms.ModelForm):
                     raise forms.ValidationError(
                         "Invalid header discovered. See more info below."
                     )
+                header_categories.append(category)
+
+            if set(self.header_definitions[csv_file]) != set(header_categories):
+                ElectionSessionAdminForm.add_error(
+                    self=self,
+                    field=f"upload_{csv_file}",
+                    error=f"[{self.file_upload_list[csv_file]['file_name']}] Invalid header. Header for "
+                          f"{csv_file.capitalize()} CSV must contain: {self.header_definitions[csv_file]}. "
+                          f" Categories missing: {set(self.header_definitions[csv_file]) - set(header_categories)}",
+                )
+                raise forms.ValidationError(
+                    "Incomplete header discovered. See more info below."
+                )
 
     def lengths_check(self):
         """
@@ -269,6 +282,7 @@ class ElectionSessionAdminForm(forms.ModelForm):
                         f"quotation marks. Ensure there are no additional trailing commas at the end of any"
                         f" rows.",
                     )
+                    break
         if error_found:
             raise forms.ValidationError(
                 "Invalid row length discovered. See more info below."

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { createMuiTheme } from "@material-ui/core/styles";
@@ -11,6 +11,7 @@ import NotFound from "pages/NotFound";
 import Footer from "components/Footer";
 import Header from "components/Header";
 import { responsive } from "assets/breakpoints";
+import { useLocalStorage } from "assets/hooks";
 
 const AppWrapper = styled.div`
   min-height: 100vh;
@@ -46,9 +47,12 @@ const AppBody = styled.div`
 
 const App = () => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
-  const [darkState, setDarkState] = useState(prefersDarkMode);
+  const [isDark, setIsDark] = useLocalStorage(
+    "prefersDarkMode",
+    prefersDarkMode
+  );
   const toggleDark = () => {
-    setDarkState(!darkState);
+    setIsDark(!isDark);
   };
 
   const theme = React.useMemo(
@@ -90,28 +94,28 @@ const App = () => {
           },
         },
         palette: {
-          type: darkState ? "dark" : "light",
+          type: isDark ? "dark" : "light",
           primary: {
             main: "#3B739E",
           },
           secondary: {
-            main: darkState ? "#C8EDFF" : "#3B6482",
+            main: isDark ? "#C8EDFF" : "#3B6482",
           },
           background: {
-            default: darkState ? "#212121 !important" : "#EFEFEF !important",
+            default: isDark ? "#212121 !important" : "#EFEFEF !important",
           },
         },
       }),
-    [darkState]
+    [isDark]
   );
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <BrowserRouter>
-        <AppWrapper theme={theme} isDark={darkState}>
+        <AppWrapper theme={theme} isDark={isDark}>
           <div>
-            <Header isDark={darkState} toggleDark={toggleDark} />
+            <Header isDark={isDark} toggleDark={toggleDark} />
             <AppBody>
               <Switch>
                 <Route exact path="/" component={LandingPage} />
@@ -121,7 +125,7 @@ const App = () => {
               </Switch>
             </AppBody>
           </div>
-          <Footer isDark={darkState} />
+          <Footer isDark={isDark} />
         </AppWrapper>
       </BrowserRouter>
     </ThemeProvider>

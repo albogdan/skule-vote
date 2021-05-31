@@ -131,6 +131,12 @@ class ElectionSessionAdminTestCase(SetupMixin, TestCase):
 
         response = self.client.post(list_view, data=new_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response,
+            f"start_time cannot be changed once the "
+            f"election session has begun. Revert changes, or leave and return to this page to "
+            f"reset all fields.",
+        )
 
         # Try changing the ElectionSessionName
         new_data = {
@@ -143,6 +149,12 @@ class ElectionSessionAdminTestCase(SetupMixin, TestCase):
 
         response = self.client.post(list_view, data=new_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response,
+            f"election_session_name cannot be changed once the "
+            f"election session has begun. Revert changes, or leave and return to this page to "
+            f"reset all fields.",
+        )
 
         election_session.refresh_from_db()
 
@@ -232,6 +244,12 @@ class ElectionSessionAdminTestCase(SetupMixin, TestCase):
         response = self.client.post(list_view, data=new_data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response,
+            f"upload_candidates, upload_elections, upload_eligibilities cannot be changed once the "
+            f"election session has begun. Revert changes, or leave and return to this page to "
+            f"reset all fields.",
+        )
 
         election_session.refresh_from_db()
 

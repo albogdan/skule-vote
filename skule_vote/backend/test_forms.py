@@ -426,3 +426,16 @@ class ElectionSessionAdminFormTestCase(SetupMixin, TestCase):
             f"supported. Please upload your files again. Error at: [{files_dict['upload_eligibilities'].name}]",
             form_3.errors["__all__"],
         )
+
+    def test_start_time_after_end_time_throws_validation_error(self):
+        self._set_election_session_data(
+            start_time_offset_days=5, end_time_offset_days=-2
+        )
+
+        form = self._build_election_session_form()
+        self.assertFalse(form.is_valid())
+
+        self.assertIn(
+            "The ElectionSession must start before it ends. Ensure that your start time is before your end time.",
+            form.errors["__all__"],
+        )

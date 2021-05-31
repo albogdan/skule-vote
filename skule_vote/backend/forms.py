@@ -106,6 +106,16 @@ class ElectionSessionAdminForm(forms.ModelForm):
         """
         cleaned_data = super().clean()
 
+        if (
+            self.cleaned_data["start_time"] is not None
+            and self.cleaned_data["end_time"] is not None
+            and self.cleaned_data["start_time"].astimezone(settings.TZ_INFO)
+            >= self.cleaned_data["end_time"].astimezone(settings.TZ_INFO)
+        ):
+            raise forms.ValidationError(
+                "The ElectionSession must start before it ends. Ensure that your start time is before your end time."
+            )
+
         # Get a list of the field names that should be readonly
         read_only_field_names = [field["field_name"] for field in self.read_only_fields]
         illegally_changed_fields = list(
@@ -119,7 +129,7 @@ class ElectionSessionAdminForm(forms.ModelForm):
             and illegally_changed_fields
         ):
             raise forms.ValidationError(
-                f"{', '.join(field for field in illegally_changed_fields)} cannot be changed once "
+                f"{', '.join(field for field in sorted(illegally_changed_fields))} cannot be changed once "
                 "the election session has begun. Revert changes, or leave and return to this page "
                 "to reset all fields."
             )
@@ -254,8 +264,8 @@ class ElectionSessionAdminForm(forms.ModelForm):
                     self=self,
                     field=f"upload_{csv_file}",
                     error=f"[{self.file_upload_list[csv_file]['file_name']}] Invalid header. Header for "
-                          f"{csv_file.capitalize()} CSV must contain: {self.header_definitions[csv_file]}. "
-                          f" Categories missing: {set(self.header_definitions[csv_file]) - set(header_categories)}",
+                    f"{csv_file.capitalize()} CSV must contain: {self.header_definitions[csv_file]}. "
+                    f" Categories missing: {set(self.header_definitions[csv_file]) - set(header_categories)}",
                 )
                 raise forms.ValidationError(
                     "Incomplete header discovered. See more info below."

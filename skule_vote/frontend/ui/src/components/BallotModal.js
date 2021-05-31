@@ -32,7 +32,7 @@ const ModalPaper = styled(Paper)`
   max-height: calc(100% - 100px);
   left: 0;
   right: 0;
-  overflow: scroll;
+  overflow-y: scroll;
   outline: none;
   @media ${responsive.smDown} {
     padding: 16px;

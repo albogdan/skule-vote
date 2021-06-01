@@ -69,7 +69,7 @@ export const mockElections = [
 
 export const MockBallotReferenda = {
   electionName: "Referedum 1",
-  numCandidates: 0,
+  numCandidates: 1,
   electionId: 0,
   category: "Referenda",
   candidates: [
@@ -127,7 +127,7 @@ export const MockBallotPresident = {
 };
 export const MockBallotVP = {
   electionName: "VP Finance",
-  numCandidates: 1,
+  numCandidates: 5,
   electionId: 3,
   category: "Officer",
   candidates: [

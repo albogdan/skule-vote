@@ -1,6 +1,6 @@
 import React from "react";
 import { render, waitFor, fireEvent } from "@testing-library/react";
-import { BallotModal } from "components/BallotModal";
+import { BallotModal, ConfirmSpoilModal } from "components/BallotModal";
 
 const referendum = {
   electionName: "Referedum 1",
@@ -66,7 +66,13 @@ const vp = {
 
 describe("<BallotModal />", () => {
   it("renders BallotModal for a referendum", () => {
-    const { getByText, queryByText, getByLabelText, queryByLabelText } = render(
+    const {
+      getByText,
+      queryByText,
+      getByLabelText,
+      queryByLabelText,
+      getByRole,
+    } = render(
       <BallotModal
         open={true}
         isReferendum={true}
@@ -84,6 +90,10 @@ describe("<BallotModal />", () => {
     expect(
       getByLabelText(/Do you support this referendum?/i)
     ).toBeInTheDocument();
+    const selector = getByRole("button", {
+      name: /Do you support this referendum?/i,
+    });
+    expect(selector.querySelector("span").innerHTML).toEqual("​");
     expect(
       queryByLabelText(/Do you support this candidate?/i)
     ).not.toBeInTheDocument();
@@ -97,8 +107,9 @@ describe("<BallotModal />", () => {
     expect(getByText(/Spoil ballot/)).toBeInTheDocument();
     expect(getByText(/Cast ballot/).closest("button")).toBeDisabled();
   });
+
   it("renders BallotModal for an election with a single candidate", () => {
-    const { getByText, queryByLabelText, getByLabelText } = render(
+    const { getByText, queryByLabelText, getByLabelText, getByRole } = render(
       <BallotModal
         open={true}
         isReferendum={false}
@@ -114,6 +125,10 @@ describe("<BallotModal />", () => {
     expect(
       getByLabelText(/Do you support this candidate?/i)
     ).toBeInTheDocument();
+    const selector = getByRole("button", {
+      name: /Do you support this candidate?/i,
+    });
+    expect(selector.querySelector("span").innerHTML).toEqual("​");
     expect(
       queryByLabelText(/Do you support this referendum?/i)
     ).not.toBeInTheDocument();
@@ -121,21 +136,26 @@ describe("<BallotModal />", () => {
   });
 
   it("renders BallotModal for an election with a multiple candidates", () => {
-    const { getByText, queryByLabelText, getByLabelText } = render(
-      <BallotModal
-        open={true}
-        isReferendum={false}
-        sortedCandidates={vp.candidates}
-        electionName={vp.electionName}
-        electionId={vp.electionId}
-      />
-    );
+    const { getByText, queryByLabelText, getByLabelText, getAllByRole } =
+      render(
+        <BallotModal
+          open={true}
+          isReferendum={false}
+          sortedCandidates={vp.candidates}
+          electionName={vp.electionName}
+          electionId={vp.electionId}
+        />
+      );
 
     expect(getByText(vp.electionName)).toBeInTheDocument();
     expect(getByText("Candidates & Statements")).toBeInTheDocument();
     for (let v of vp.candidates) {
       expect(getByText(v.candidateName)).toBeInTheDocument();
       expect(getByText(v.statement)).toBeInTheDocument();
+    }
+    const selectors = getAllByRole("button", { name: /Rank/i });
+    for (let s of selectors) {
+      expect(s.querySelector("span").innerHTML).toEqual("​");
     }
     expect(
       queryByLabelText(/Do you support this candidate?/i)
@@ -146,10 +166,10 @@ describe("<BallotModal />", () => {
     expect(getByLabelText("Rank 1")).toBeInTheDocument();
   });
 
-  it("spoils ballot", async () => {
+  it("spoils ballot and confirms on modal", async () => {
     const handleSubmitSpy = jest.fn();
     const handleCloseSpy = jest.fn();
-    const { getByText, findByText } = render(
+    const { getByText, findByText, queryByTestId, getByTestId } = render(
       <BallotModal
         open={true}
         handleSubmit={handleSubmitSpy}
@@ -162,9 +182,17 @@ describe("<BallotModal />", () => {
     );
 
     expect(getByText(vp.electionName)).toBeInTheDocument();
+    expect(queryByTestId("spoilModalConfirm")).not.toBeInTheDocument();
     expect(getByText(/Cast ballot/).closest("button")).toBeDisabled();
     const buttonSpoil = await findByText("Spoil ballot");
     fireEvent.click(buttonSpoil);
+
+    await waitFor(() => {
+      expect(getByTestId("spoilModalConfirm")).toBeInTheDocument();
+    });
+
+    const buttonSpoilConfirm = getByTestId("spoilModalConfirm");
+    fireEvent.click(buttonSpoilConfirm);
 
     await waitFor(() => {
       expect(handleSubmitSpy).toHaveBeenCalledWith({
@@ -205,7 +233,6 @@ describe("<BallotModal />", () => {
       expect(getByText("2. Quin Sykora")).toBeInTheDocument();
     });
 
-    expect(getByText(/Spoil ballot/).closest("button")).toBeDisabled();
     const buttonSubmit = await findByText(/Cast ballot/i);
     fireEvent.click(buttonSubmit);
 
@@ -254,7 +281,6 @@ describe("<BallotModal />", () => {
       ).toBe(2);
     });
 
-    expect(getByText(/Spoil ballot/).closest("button")).toBeDisabled();
     expect(getByText(/Cast ballot/).closest("button")).toBeDisabled();
     const buttonSubmit = await findByText(/Cast ballot/i);
     fireEvent.click(buttonSubmit);
@@ -290,7 +316,6 @@ describe("<BallotModal />", () => {
       expect(getByText("Choices not performed in order")).toBeInTheDocument();
     });
 
-    expect(getByText(/Spoil ballot/).closest("button")).toBeDisabled();
     expect(getByText(/Cast ballot/).closest("button")).toBeDisabled();
     const buttonSubmit = await findByText(/Cast ballot/i);
     fireEvent.click(buttonSubmit);
@@ -461,5 +486,57 @@ describe("<BallotModal />", () => {
       "href",
       vp.candidates[4].ruleViolationLink
     );
+  });
+});
+
+describe("<ConfirmSpoilModal />", () => {
+  it("renders ConfirmSpoilModal", () => {
+    const { getByText } = render(<ConfirmSpoilModal open={true} />);
+
+    expect(
+      getByText("Are you sure you want to spoil your ballot?")
+    ).toBeInTheDocument();
+    expect(getByText(/Cancel/)).toBeInTheDocument();
+    expect(getByText(/Spoil ballot/)).toBeInTheDocument();
+  });
+
+  it("confirms to spoil the ballot", async () => {
+    const spoilBallotSpy = jest.fn();
+    const onCloseSpy = jest.fn();
+    const { findByText } = render(
+      <ConfirmSpoilModal
+        open={true}
+        spoilBallot={spoilBallotSpy}
+        onClose={onCloseSpy}
+      />
+    );
+
+    const buttonSpoil = await findByText("Spoil ballot");
+    fireEvent.click(buttonSpoil);
+
+    await waitFor(() => {
+      expect(spoilBallotSpy).toHaveBeenCalled();
+      expect(onCloseSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  it("cancels the modal", async () => {
+    const spoilBallotSpy = jest.fn();
+    const onCloseSpy = jest.fn();
+    const { findByText } = render(
+      <ConfirmSpoilModal
+        open={true}
+        spoilBallot={spoilBallotSpy}
+        onClose={onCloseSpy}
+      />
+    );
+
+    const buttonSpoil = await findByText("Cancel");
+    fireEvent.click(buttonSpoil);
+
+    await waitFor(() => {
+      expect(spoilBallotSpy).not.toHaveBeenCalled();
+      expect(onCloseSpy).toHaveBeenCalled();
+    });
   });
 });

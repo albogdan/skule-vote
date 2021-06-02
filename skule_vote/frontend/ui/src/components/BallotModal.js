@@ -58,6 +58,11 @@ const ModalPaper = styled(Paper)`
   }
 `;
 
+const SpoilModalPaper = styled(ModalPaper)`
+  max-width: 450px;
+  margin-top: 100px;
+`;
+
 const HeaderDiv = styled.div`
   display: flex;
   justify-content: space-between;
@@ -335,6 +340,43 @@ const SelectedRanking = ({ isReferendum, ranking, candidates }) => {
   );
 };
 
+// Modal that opens to confirm you want to spoil your ballot
+// open: boolean, onClose: func, spoilBallot: func, isDark: boolean
+export const ConfirmSpoilModal = ({ open, onClose, spoilBallot, isDark }) => (
+  <Modal
+    open={open}
+    onClose={onClose}
+    aria-labelledby="confirm-spoil-modal"
+    aria-describedby="confirm-spoil-modal"
+  >
+    <SpoilModalPaper>
+      <Typography variant="h3">
+        Are you sure you want to spoil your ballot?
+      </Typography>
+      <Divider />
+      <ButtonDiv>
+        <Button
+          variant="outlined"
+          color="secondary"
+          onClick={() => onClose()}
+          disableElevation
+        >
+          Cancel
+        </Button>
+        <SpoilBallotBtn
+          $isDark={isDark}
+          variant="outlined"
+          onClick={() => spoilBallot()}
+          data-testid="spoilModalConfirm"
+          disableElevation
+        >
+          Spoil ballot
+        </SpoilBallotBtn>
+      </ButtonDiv>
+    </SpoilModalPaper>
+  </Modal>
+);
+
 // handleClose: func, handleSubmit: func, open: boolean, isReferendum: boolean,
 // sortedCandidates: Array<{}>, electionName: string, electionId: number
 export const BallotModal = ({
@@ -347,9 +389,12 @@ export const BallotModal = ({
   electionId,
 }) => {
   const theme = useTheme();
+  const isDark = theme.palette.type === "dark";
 
-  let [ranking, setRanking] = React.useState({});
+  const [ranking, setRanking] = React.useState({});
   const rankingLen = Object.keys(ranking).length;
+
+  const [openConfirmSpoil, setOpenConfirmSpoil] = React.useState(false);
 
   const changeRanking = (i, val) => {
     setRanking((prevState) => {
@@ -377,77 +422,91 @@ export const BallotModal = ({
     setRanking({});
   };
 
+  const handleCloseConfirmSpoil = () => {
+    setOpenConfirmSpoil(false);
+  };
+
   return (
-    <Modal
-      open={open}
-      onClose={() => closeForm()}
-      aria-labelledby={`ballot-modal-${electionName}`}
-      aria-describedby="ballot-modal"
-    >
-      <ModalPaper>
-        <HeaderDiv>
-          <Typography variant="h1">{electionName}</Typography>
-          <IconButton
-            data-testid="drawerClose"
-            onClick={() => closeForm()}
-            role="close"
-          >
-            <ClearIcon />
-          </IconButton>
-        </HeaderDiv>
-        <Divider />
-        <Statements isReferendum={isReferendum} candidates={sortedCandidates} />
-        <Divider />
-        <BallotDropdowns
-          isReferendum={isReferendum}
-          candidates={sortedCandidates}
-          changeRanking={changeRanking}
-          ranking={ranking}
-        />
-        <Divider />
-        <SelectedRanking
-          isReferendum={isReferendum}
-          ranking={ranking}
-          candidates={sortedCandidates}
-        />
-        <Divider />
-        <ButtonDiv>
-          <SpoilBallotBtn
-            $isDark={theme.palette.type === "dark"}
-            variant="outlined"
-            disableElevation
-            onClick={() => spoilBallot()}
-            disabled={rankingLen !== 0}
-          >
-            Spoil ballot
-          </SpoilBallotBtn>
-          <div>
-            <Button
-              variant="outlined"
-              color="secondary"
+    <>
+      <ConfirmSpoilModal
+        open={openConfirmSpoil}
+        onClose={handleCloseConfirmSpoil}
+        spoilBallot={spoilBallot}
+        isDark={isDark}
+      />
+      <Modal
+        open={open}
+        onClose={() => closeForm()}
+        aria-labelledby={`ballot-modal-${electionName}`}
+        aria-describedby="ballot-modal"
+      >
+        <ModalPaper>
+          <HeaderDiv>
+            <Typography variant="h1">{electionName}</Typography>
+            <IconButton
+              data-testid="drawerClose"
               onClick={() => closeForm()}
+              role="close"
+            >
+              <ClearIcon />
+            </IconButton>
+          </HeaderDiv>
+          <Divider />
+          <Statements
+            isReferendum={isReferendum}
+            candidates={sortedCandidates}
+          />
+          <Divider />
+          <BallotDropdowns
+            isReferendum={isReferendum}
+            candidates={sortedCandidates}
+            changeRanking={changeRanking}
+            ranking={ranking}
+          />
+          <Divider />
+          <SelectedRanking
+            isReferendum={isReferendum}
+            ranking={ranking}
+            candidates={sortedCandidates}
+          />
+          <Divider />
+          <ButtonDiv>
+            <SpoilBallotBtn
+              $isDark={isDark}
+              variant="outlined"
+              onClick={() => setOpenConfirmSpoil(true)}
               disableElevation
             >
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => castBallot()}
-              // checks if choices are not in order or there are duplicate votes for the same person
-              disabled={
-                parseInt(Object.keys(ranking).slice(-1)[0], 10) !==
-                  rankingLen - 1 ||
-                new Set(Object.values(ranking)).size !== rankingLen
-              }
-              disableElevation
-            >
-              Cast ballot
-            </Button>
-          </div>
-        </ButtonDiv>
-      </ModalPaper>
-    </Modal>
+              Spoil ballot
+            </SpoilBallotBtn>
+            <div>
+              <Button
+                variant="outlined"
+                color="secondary"
+                onClick={() => closeForm()}
+                disableElevation
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => castBallot()}
+                // checks if choices are not in order or there are duplicate votes for the same person
+                disabled={
+                  parseInt(Object.keys(ranking).slice(-1)[0], 10) !==
+                    rankingLen - 1 ||
+                  new Set(Object.values(ranking)).size !== rankingLen
+                }
+                disableElevation
+              >
+                Cast ballot
+              </Button>
+            </div>
+          </ButtonDiv>
+        </ModalPaper>
+      </Modal>
+    </>
   );
 };
 

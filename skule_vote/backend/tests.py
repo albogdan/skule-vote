@@ -153,6 +153,7 @@ class GetCookieTestCase(APITestCase):
         )
 
         voter = Voter.objects.get(student_number_hash=voter_dict["pid"])
+        self.assertEqual(Voter.objects.count(), 1)
         self.assertEqual(voter.student_status, "full_time")
         self.assertEqual(voter.study_year, 3)
         self.assertEqual(voter.pey, False)

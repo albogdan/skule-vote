@@ -5,71 +5,22 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from skule_vote.tests import SetupElectionsMixin
+from skule_vote.tests import SetupMixin
 from backend.models import (
     DISCIPLINE_CHOICES,
     STUDY_YEAR_CHOICES,
     Voter,
 )
 
-DISCIPLINES_POST_DICT = {
-    discipline_code: f"AE{discipline_code}BLAH"
-    for discipline_code, discipline_name in DISCIPLINE_CHOICES
-}
 
-
-def urlencode_cookie_request(
-    student=True,
-    undergrad=True,
-    registered=True,
-    engineering=True,
-    discipline="ESC",
-    year=1,
-    pey=False,
-    attendance="FT",
-):
-    # student number hash
-    chars = string.ascii_letters + string.digits
-    pid = "".join(random.choice(chars) for i in range(16))
-
-    if pey:
-        assocorg = "AEPEY"
-        yofstudy = ""
-    else:
-        assocorg = "null"
-        yofstudy = str(year)
-
-    attendance = attendance
-    postcd = DISCIPLINES_POST_DICT[discipline]
-
-    primaryorg = "APSE" if engineering else "null"
-    isstudent = str(student)
-    isundergrad = str(undergrad)
-    isregistered = str(registered)
-    campus = "UTSG"
-
-    return {
-        "pid": pid,
-        "assocorg": assocorg,
-        "yofstudy": yofstudy,
-        "attendance": attendance,
-        "postcd": postcd,
-        "primaryorg": primaryorg,
-        "isstudent": isstudent,
-        "isundergrad": isundergrad,
-        "isregistered": isregistered,
-        "campus": campus,
-    }
-
-
-class GetCookieTestCase(APITestCase):
+class GetCookieTestCase(SetupMixin, APITestCase):
     def setUp(self):
         super().setUp()
         self.elections_view = reverse("api:backend:election-list")
         self.cookie_view = reverse("api:backend:bypass-cookie")
 
     def test_get_cookie(self):
-        voter_dict = urlencode_cookie_request(year=1, pey=False, discipline="ENG")
+        voter_dict = self._urlencode_cookie_request(year=1, pey=False, discipline="ENG")
 
         # When sending requests with client.post, django moves url query params to request.GET in the view :(
         # That's why we need to send them as a dictionary in the data field so we can read them in POST
@@ -89,7 +40,7 @@ class GetCookieTestCase(APITestCase):
         self.assertEqual(voter.engineering_student, True)
 
     def test_nonregistered_student(self):
-        voter_dict = urlencode_cookie_request(registered=False)
+        voter_dict = self._urlencode_cookie_request(registered=False)
 
         response = self.client.post(self.cookie_view, voter_dict, follow=True)
 
@@ -100,7 +51,7 @@ class GetCookieTestCase(APITestCase):
             Voter.objects.get(student_number_hash=voter_dict["pid"])
 
     def test_nonengineering_student(self):
-        voter_dict = urlencode_cookie_request(engineering=False)
+        voter_dict = self._urlencode_cookie_request(engineering=False)
 
         response = self.client.post(self.cookie_view, voter_dict, follow=True)
 
@@ -111,7 +62,7 @@ class GetCookieTestCase(APITestCase):
             Voter.objects.get(student_number_hash=voter_dict["pid"])
 
     def test_nonundergrad_student(self):
-        voter_dict = urlencode_cookie_request(undergrad=False)
+        voter_dict = self._urlencode_cookie_request(undergrad=False)
 
         response = self.client.post(self.cookie_view, voter_dict, follow=True)
 
@@ -122,7 +73,7 @@ class GetCookieTestCase(APITestCase):
             Voter.objects.get(student_number_hash=voter_dict["pid"])
 
     def test_nonstudent(self):
-        voter_dict = urlencode_cookie_request(student=False)
+        voter_dict = self._urlencode_cookie_request(student=False)
 
         response = self.client.post(self.cookie_view, voter_dict, follow=True)
 
@@ -133,7 +84,7 @@ class GetCookieTestCase(APITestCase):
             Voter.objects.get(student_number_hash=voter_dict["pid"])
 
     def test_update_voter(self):
-        voter_dict = urlencode_cookie_request(year=1, pey=False, discipline="ENG")
+        voter_dict = self._urlencode_cookie_request(year=1, pey=False, discipline="ENG")
         response = self.client.post(self.cookie_view, voter_dict, follow=True)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -161,9 +112,10 @@ class GetCookieTestCase(APITestCase):
         self.assertEqual(voter.engineering_student, True)
 
 
-class GetElectionsTestCase(SetupElectionsMixin, APITestCase):
+class GetElectionsTestCase(SetupMixin, APITestCase):
     def setUp(self):
         super().setUp()
+        self.setUpElections()
         self.elections_view = reverse("api:backend:election-list")
         self.cookie_view = reverse("api:backend:bypass-cookie")
 
@@ -173,7 +125,7 @@ class GetElectionsTestCase(SetupElectionsMixin, APITestCase):
 
     def test_modify_cookie(self):
         # Make sure the election endpoint notices that we change the student number hash
-        voter_dict = urlencode_cookie_request()
+        voter_dict = self._urlencode_cookie_request()
 
         response = self.client.post(self.cookie_view, voter_dict, follow=True)
 
@@ -199,7 +151,7 @@ class GetElectionsTestCase(SetupElectionsMixin, APITestCase):
         # All class reps are in the db, but each student is eligible to vote for exactly one!
         for discipline_code, discipline_name in DISCIPLINE_CHOICES:
             if discipline_code == "ENG":
-                voter_dict = urlencode_cookie_request(year=1, discipline="ENG")
+                voter_dict = self._urlencode_cookie_request(year=1, discipline="ENG")
                 response = self.client.post(self.cookie_view, voter_dict, follow=True)
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -214,7 +166,7 @@ class GetElectionsTestCase(SetupElectionsMixin, APITestCase):
                 continue
 
             for year, year_name in STUDY_YEAR_CHOICES:
-                voter_dict = urlencode_cookie_request(
+                voter_dict = self._urlencode_cookie_request(
                     year=year, discipline=discipline_code
                 )
                 response = self.client.post(self.cookie_view, voter_dict, follow=True)
@@ -237,7 +189,7 @@ class GetElectionsTestCase(SetupElectionsMixin, APITestCase):
                     (class_reps, year, year_name, discipline_code, discipline_name),
                 )
 
-            voter_dict = urlencode_cookie_request(
+            voter_dict = self._urlencode_cookie_request(
                 year=year, pey=True, discipline=discipline_code
             )
             response = self.client.post(self.cookie_view, voter_dict, follow=True)
@@ -259,7 +211,7 @@ class GetElectionsTestCase(SetupElectionsMixin, APITestCase):
         for attendance_code, expected in [("PT", True), ("FT", False)]:
             for discipline_code, discipline_name in DISCIPLINE_CHOICES:
                 if discipline_code == "ENG":
-                    voter_dict = urlencode_cookie_request(
+                    voter_dict = self._urlencode_cookie_request(
                         year=1, discipline="ENG", attendance=attendance_code
                     )
                     response = self.client.post(
@@ -282,7 +234,7 @@ class GetElectionsTestCase(SetupElectionsMixin, APITestCase):
                     continue
 
                 for year, year_name in STUDY_YEAR_CHOICES:
-                    voter_dict = urlencode_cookie_request(
+                    voter_dict = self._urlencode_cookie_request(
                         year=year,
                         discipline=discipline_code,
                         attendance=attendance_code,
@@ -310,7 +262,7 @@ class GetElectionsTestCase(SetupElectionsMixin, APITestCase):
         for attendance_code in ["PT", "FT"]:
             for discipline_code, discipline_name in DISCIPLINE_CHOICES:
                 if discipline_code == "ENG":
-                    voter_dict = urlencode_cookie_request(
+                    voter_dict = self._urlencode_cookie_request(
                         year=1, discipline="ENG", attendance=attendance_code
                     )
                     response = self.client.post(
@@ -328,7 +280,7 @@ class GetElectionsTestCase(SetupElectionsMixin, APITestCase):
                     continue
 
                 for year, year_name in STUDY_YEAR_CHOICES:
-                    voter_dict = urlencode_cookie_request(
+                    voter_dict = self._urlencode_cookie_request(
                         year=year,
                         discipline=discipline_code,
                         attendance=attendance_code,
@@ -351,7 +303,7 @@ class GetElectionsTestCase(SetupElectionsMixin, APITestCase):
         for attendance_code in ["PT", "FT"]:
             for discipline_code, discipline_name in DISCIPLINE_CHOICES:
                 if discipline_code == "ENG":
-                    voter_dict = urlencode_cookie_request(
+                    voter_dict = self._urlencode_cookie_request(
                         year=1, discipline="ENG", attendance=attendance_code
                     )
                     response = self.client.post(
@@ -369,7 +321,7 @@ class GetElectionsTestCase(SetupElectionsMixin, APITestCase):
                     continue
 
                 for year, year_name in STUDY_YEAR_CHOICES:
-                    voter_dict = urlencode_cookie_request(
+                    voter_dict = self._urlencode_cookie_request(
                         year=year,
                         discipline=discipline_code,
                         attendance=attendance_code,
@@ -394,7 +346,7 @@ class GetElectionsTestCase(SetupElectionsMixin, APITestCase):
                     continue
 
                 for year, year_name in STUDY_YEAR_CHOICES:
-                    voter_dict = urlencode_cookie_request(
+                    voter_dict = self._urlencode_cookie_request(
                         year=year,
                         discipline=discipline_code,
                         attendance=attendance_code,

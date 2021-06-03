@@ -10,8 +10,6 @@ from skule_vote.tests import SetupElectionsMixin
 from backend.models import (
     DISCIPLINE_CHOICES,
     STUDY_YEAR_CHOICES,
-    Election,
-    Eligibility,
     Voter,
 )
 
@@ -50,8 +48,6 @@ def urlencode_cookie_request(
     isundergrad = str(undergrad)
     isregistered = str(registered)
     campus = "UTSG"
-
-    # return f"?pid={pid}&assocorg={assocorg}&yofstudy={yofstudy}&attendance={attendance}&postcd={postcd}&primaryorg={primaryorg}&isstudent={isstudent}&isundergrad={isundergrad}&isregistered={isregistered}&campus={campus}"
 
     return {
         "pid": pid,

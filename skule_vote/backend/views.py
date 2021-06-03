@@ -10,10 +10,7 @@ from django.views import View
 from rest_framework import exceptions, generics
 
 from backend.models import (
-    Ballot,
-    Candidate,
     Election,
-    ElectionSession,
     Eligibility,
     Voter,
 )

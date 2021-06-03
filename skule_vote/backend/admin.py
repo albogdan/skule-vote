@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from backend.forms import ElectionSessionAdminForm
 from backend.models import (
     ElectionSession,
     Election,
@@ -28,9 +29,26 @@ class ElectionSessionAdmin(admin.ModelAdmin):
             "Set the timeline of your Election Session.",
             {"fields": ("start_time", "end_time")},
         ),
+        (
+            "(Optional) Election, Candidate, and Eligibility CSV Uploads. ",
+            {
+                "fields": (
+                    "upload_elections",
+                    "upload_candidates",
+                    "upload_eligibilities",
+                ),
+                "description": "Upload CSVs defining Elections, Candidates, and Eligibilities. "
+                "If none are uploaded then only the ElectionSession will be created. "
+                "Note that all three must be uploaded at the same time. Re-uploading will delete"
+                " all previous Elections, Candidates, and Eligibilities for that ElectionSession "
+                "and insert a new one with the new data.",
+            },
+        ),
     )
 
     search_fields = ["election_session_name"]
+
+    form = ElectionSessionAdminForm
 
 
 @admin.register(Election)

@@ -10,6 +10,7 @@ import ElectionsFilter, {
   ElectionsFilterDrawer,
 } from "components/ElectionsFilter";
 import ElectionCard, { NoElectionsCard } from "components/ElectionCard";
+import EnhancedBallotModal from "components/BallotModal";
 import { Spacer } from "assets/layout";
 import { mockElections } from "assets/mocks";
 import { responsive } from "assets/breakpoints";
@@ -50,7 +51,6 @@ const FilterBtnDiv = styled.div`
   width: 100%;
   p {
     margin-left: 16px;
-    font-weight: 400;
     text-align: right;
   }
 `;
@@ -91,9 +91,25 @@ const ElectionPage = ({ listOfElections = mockElections }) => {
     setFilterCategory(category);
     setDrawerOpen(false);
   };
+  const [open, setOpen] = React.useState(false);
+  const [ballotElectionId, setBallotElectionId] = React.useState(null);
+  const handleClose = () => {
+    setOpen(false);
+    setBallotElectionId(null);
+  };
+
+  const handleSubmit = ({ electionId, ranking }) => {
+    alert(JSON.stringify({ electionId, ranking }, null, 2));
+  };
 
   return (
     <>
+      <EnhancedBallotModal
+        open={open}
+        handleClose={handleClose}
+        handleSubmit={handleSubmit}
+        id={ballotElectionId}
+      />
       <ElectionsFilterDrawer
         drawerOpen={drawerOpen}
         toggleDrawer={toggleDrawer}
@@ -141,7 +157,7 @@ const ElectionPage = ({ listOfElections = mockElections }) => {
             >
               Filter
             </Button>
-            <Typography variant="body1">
+            <Typography variant="body2">
               Selected Filter: {filterCategory}
             </Typography>
           </FilterBtnDiv>
@@ -152,6 +168,10 @@ const ElectionPage = ({ listOfElections = mockElections }) => {
               key={i}
               title={election.electionName}
               numCandidates={election.numCandidates}
+              openModal={() => {
+                setOpen(true);
+                setBallotElectionId(election.electionId);
+              }}
             />
           ))}
           {filteredListOfElections.length === 0 && (

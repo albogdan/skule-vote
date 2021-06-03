@@ -10,13 +10,16 @@ The repository hosting the code for the [Skule Voting](https://vote.skule.ca) we
   - [Environment Variables](#environment-variables)
   - [Running the development server](#running-the-development-server)
   - [Creating users locally](#creating-users-locally)
-
+- [Working with the Admin Site](#working-with-the-admin-site)
+  - [Creating ElectionsSessions with CSV Files](#method-1-using-a-csv-file-recommended)
+  - [Creating ElectionSessions Manually](#method-2-manually)
 ## Requirements
 
 - Python 3.8 or higher
 - [Docker](https://docs.docker.com/get-docker/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 
+## Getting Started
 ### Python Environment
 
 For local development, create a Python virtual environment.
@@ -173,3 +176,30 @@ const Wrapper = styled.div`
   }
 `;
 ```
+
+
+## Working with the Admin Site
+The admin site can be found at `/admin` (for login credentials enquire with the previous CRO) and is used to set up `ElectionSessions`, `Elections`, `Candidates` for each `Election` and `Eligibilities` for each `Election`. These can be done either manually or automatically using a CSV file.
+
+### Method 1: Using a CSV File (Recommended)
+To use this method, when you go to the `admin` site and add an `ElectionSession` you must add an `ElectionSession` with a `name`, `start_date` and `end_date`, and CSV files for each section of `election`, `candidate` and `eligibility`. These CSV files have certain constraints that must be obeyed. Note that there are templates for these files in the `/csv_files` folder of this repo. The constraints are as follows:
+   - The header (first row) of each CSV file must be the same as the ones in the `/csv_files` templates.
+   - Within a single CSV file all rows must be of equal length (have the same number of comma separated values).
+   - Election and Eligibility CSVs must have the same number of rows, since they are 1-to-1.
+   - The Election names in the Eligibilities and Candidates CSVs must match the ones in the Elections CSV.
+   - Within the Elections CSV:
+       * All of the `seats_available` must be integers and >=1.
+       * Election Categories must be one of `[Referenda, Officer, Board of Directors, Discipline Club, Class Representative, Other]`.
+   - Within the Eligibilities CSV:
+       * All of the eligible fields must be integers and either `1 (True)` or `0 (False)`.
+       * Eligibilities `status_eligible` fields must be one of `[Full Time, Part Time, Full and Part Time]`.
+
+**Note**: All the CSV files must be uploaded at once, or none at all. If this is not met then an error will be shown and nothing will happen.
+
+**Note**: if you upload CSVs successfully and realize you made a mistake, you can just re-upload the updated CSVs to the same `ElectionSession`. All of the previous `Elections`, `Candidates` and `Eligibilities` *connected to that `ElectionSession`* will be deleted and new ones will be created from the new CSV.
+
+**Note**: once an ElectionSession has started you *cannot* edit it to change its `name`, `start_date`, or upload any new CSV files. Any changes required for `Elections`, `Candidates` and `Eligibilities` must be made manually. You *can* change the `ElectionSession's` `end_date` once it has started, also manually.
+
+### Method 2: Manually
+
+To use this method, when you go to the `admin` site and add an `ElectionSession` you must add an `ElectionSession` with only a `name`, `start_date` and `end_date`. You will then go and manually create each of `Election`, `Candidate` and `Eligibility`. Note that `Candidate` and `Eligibility` require an `Election` to connect to, so `Elections` should be created first.

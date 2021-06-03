@@ -21,4 +21,6 @@ and by running your code before you merge it.
 from skule_vote.settings import *
 
 
+from skule_vote.settings import *
+
 DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}}

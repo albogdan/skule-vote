@@ -22,6 +22,9 @@ User = get_user_model()
 
 
 class SetupElectionsMixin:
+    """
+    This mixin can be used to create various types of elections with their corresponding eligibility
+    """
     def setUp(self):
         self.curr_session = ElectionSession(
             election_session_name="Summer 2021 Elections",

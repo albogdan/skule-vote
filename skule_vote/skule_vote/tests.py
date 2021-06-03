@@ -318,7 +318,10 @@ class SetupMixin:
         self.client.login(username=self.user.username, password=self.password)
 
     def _set_election_session_data(
-        self, start_time_offset_days=-2, end_time_offset_days=5
+        self,
+        name="ElectionSession2021",
+        start_time_offset_days=-2,
+        end_time_offset_days=5,
     ):
         """
         Sets default bare-bones data for ElectionSession with start and end time offsets
@@ -326,10 +329,24 @@ class SetupMixin:
         """
 
         self.data = {
-            "election_session_name": "ElectionSession2021",
+            "election_session_name": name,
             "start_time": self._now() + timedelta(days=start_time_offset_days),
             "end_time": self._now() + timedelta(days=end_time_offset_days),
         }
+        return self.data
+
+    def _create_election_session(self, data=None):
+        """
+        Creates and saves an ElectionSession. By default it is one that has already
+        started, and contains no Elections, Candidates, or Eligibilities.
+        """
+        if data is None:
+            data = self.data
+
+        election_session = ElectionSession.objects.create(**data)
+        election_session.save()
+
+        return election_session
 
     def _build_election_session_form(self, data=None, files=None):
         """

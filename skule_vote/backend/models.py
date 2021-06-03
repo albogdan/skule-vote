@@ -51,8 +51,8 @@ class Election(models.Model):
         ("referenda", "Referenda"),
         ("officer", "Officer"),
         ("board_of_directors", "Board of Directors"),
-        ("discipline_club", "Discipline Clubs"),
-        ("class_representative", "Class Representatives"),
+        ("discipline_club", "Discipline Club"),
+        ("class_representative", "Class Representative"),
         ("other", "Other"),
     ]
 

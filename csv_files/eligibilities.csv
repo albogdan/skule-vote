@@ -1,0 +1,8 @@
+election_name,eng_eligible,che_eligible,civ_eligible,ele_eligible,cpe_eligible,esc_eligible,ind_eligible,lme_eligible,mec_eligible,mms_eligible,year_1_eligible,year_2_eligible,year_3_eligible,year_4_eligible,pey_eligible,status_eligible
+1st Year Civil Engineering Representative,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,Full and Part Time
+2nd Year Engineering Science Representative,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,Full and Part Time
+4th Year Chair,0,1,1,1,1,1,1,1,1,1,0,0,0,1,1,Full and Part Time
+Computer Club Chair,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1,Full and Part Time
+Engineering Science Club Chair,0,0,0,0,0,1,0,0,0,0,1,1,1,1,1,Full and Part Time
+Part Time Student Chair,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,Part Time
+PEY Chemical Engineering Representative,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,Full and Part Time

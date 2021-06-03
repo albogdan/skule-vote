@@ -19,4 +19,6 @@ caught during testing. These should be caught by a staging environment,
 and by running your code before you merge it.
 """
 
+from skule_vote.settings import *
+
 DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}}

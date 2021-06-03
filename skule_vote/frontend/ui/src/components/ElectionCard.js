@@ -14,9 +14,6 @@ const Card = styled(Paper)`
   box-shadow: none;
   cursor: pointer;
   text-align: center;
-  > p:first-child {
-    font-weight: 400;
-  }
   &:hover {
     opacity: 0.9;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.14), 0px 3px 4px rgba(0, 0, 0, 0.12);
@@ -31,7 +28,7 @@ const Subtitle = styled(Typography)`
   opacity: 0.57;
 `;
 
-const ElectionCard = ({ title, numCandidates }) => {
+const ElectionCard = ({ title, numCandidates, openModal }) => {
   let subtitle;
   if (numCandidates > 1) {
     subtitle = `${numCandidates} Candidates`;
@@ -39,9 +36,9 @@ const ElectionCard = ({ title, numCandidates }) => {
     subtitle = `${numCandidates} Candidate`;
   }
   return (
-    <Card>
-      <Typography variant="body1">{title}</Typography>
-      {subtitle && <Subtitle variant="body2">{subtitle}</Subtitle>}
+    <Card onClick={openModal}>
+      <Typography variant="body2">{title}</Typography>
+      {subtitle && <Subtitle variant="subtitle1">{subtitle}</Subtitle>}
     </Card>
   );
 };

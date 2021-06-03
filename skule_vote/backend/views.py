@@ -11,7 +11,6 @@ from rest_framework import exceptions, generics
 
 from backend.models import (
     Election,
-    Eligibility,
     Voter,
 )
 from backend.serializers import ElectionSerializer

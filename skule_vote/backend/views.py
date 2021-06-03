@@ -4,7 +4,7 @@ import django.core.signing
 from django.conf import settings
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect, render
+from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views import View
 from rest_framework import exceptions, generics
@@ -138,7 +138,7 @@ class CookieView(View):
             return HttpResponse(status=400)
 
         # TODO: redirect to frontend
-        res = HttpResponse(status=200)
+        res = HttpResponseRedirect(reverse_lazy("api:backend:election-list"))
         res.set_signed_cookie("student_number_hash", student_number_hash)
         return res
 
@@ -167,7 +167,7 @@ class BypassUofTCookieView(View):
             return HttpResponse(status=400)
 
         # TODO: Redirect to frontend
-        res = HttpResponse(status=200)
+        res = HttpResponseRedirect(reverse_lazy("api:backend:election-list"))
         res.set_signed_cookie("student_number_hash", student_number_hash)
         return res
 

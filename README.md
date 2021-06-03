@@ -72,6 +72,7 @@ In order to run the django and react development servers locally (or run tests),
 | DB_NAME                      |                                   | hackathon_site | Postgres database name.                                                                                                                                     |
 | **REACT_APP_DEV_SERVER_URL** | http://localhost:8000             |                | Path to the django development server, used by React. Update the port if you aren't using the default 8000.                                                 |
 | CONNECT_TO_UOFT              |                                   | 0              | If set, tries to obtain voter information by connecting to the UofT endpoint. Disabled by default to allow for testing, but must be enabled for production. |
+| UOFT_SECRET_KEY              |                                   | 0              | Used to verify the integrity of voter data sent by UofT. Only used when `CONNECT_TO_UOFT == 1` 
 
 If you are using miniconda, you can add these to your environment such that each time you `conda activate skule_vote`, the variables will be sourced as well. To do this run (while the skule_vote environment is activated):
 

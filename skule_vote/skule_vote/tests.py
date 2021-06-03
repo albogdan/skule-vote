@@ -25,6 +25,7 @@ class SetupElectionsMixin:
     """
     This mixin can be used to create various types of elections with their corresponding eligibility
     """
+
     def setUp(self):
         self.curr_session = ElectionSession(
             election_session_name="Summer 2021 Elections",
@@ -208,7 +209,6 @@ class SetupElectionsMixin:
             election=election, status_eligible="full_and_part_time", **kwargs
         )
         elgibility.save()
-
 
 
 class SetupMixin:

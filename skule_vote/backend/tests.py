@@ -71,7 +71,7 @@ class GetCookieTestCase(APITestCase):
     def setUp(self):
         super().setUp()
         self.elections_view = reverse("api:backend:election-list")
-        self.cookie_view = reverse("api:backend:cookie")
+        self.cookie_view = reverse("api:backend:bypass-cookie")
 
     def test_get_cookie(self):
         voter_dict = urlencode_cookie_request(year=1, pey=False, discipline="ENG")
@@ -169,7 +169,7 @@ class GetElectionsTestCase(SetupElectionsMixin, APITestCase):
     def setUp(self):
         super().setUp()
         self.elections_view = reverse("api:backend:election-list")
-        self.cookie_view = reverse("api:backend:cookie")
+        self.cookie_view = reverse("api:backend:bypass-cookie")
 
     def test_no_cookie(self):
         response = self.client.get(self.elections_view)

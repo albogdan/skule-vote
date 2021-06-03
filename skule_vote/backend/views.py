@@ -28,131 +28,151 @@ class IncorrectHashError(Exception):
     pass
 
 
+class IncompleteVoterInfoError(Exception):
+    pass
+
+
+def _create_verified_voter(query_dict, verify_hash=True):
+    """
+    This method decodes the voter information query string in the format returned by UofT. It then determines if the
+    voter is eligible to vote in EngSoc elections.
+
+    If they are, it updates their existing voter entry with the latest information. If there is no existing entry,
+    a new one will be created. It then returns the student number hash which can be used as a UUID for this voter.
+
+    If the voter is not eligible to vote in EngSoc elections, or if verify_hash==True and the query string hash is
+    tampered with, it will raise an exception.
+    """
+    # Read query string
+    try:
+        student = query_dict["isstudent"]
+        registered = query_dict["isregistered"]
+        undergrad = query_dict["isundergrad"]
+        primaryorg = query_dict["primaryorg"]
+        yofstudy = query_dict["yofstudy"]
+        campus = query_dict["campus"]
+        postcd = query_dict["postcd"]
+        attendance = query_dict["attendance"]
+        assocorg = query_dict["assocorg"]
+        pid = query_dict["pid"]
+    except KeyError:
+        raise IncompleteVoterInfoError
+
+    # Verify data integrity
+    if verify_hash:
+        check_string = (
+            student
+            + registered
+            + undergrad
+            + primaryorg
+            + yofstudy
+            + campus
+            + postcd
+            + attendance
+            + assocorg
+            + pid
+            + settings.UOFT_SECRET_KEY
+        )
+        h = hashlib.md5()
+        h.update(check_string)
+        check_hash = h.hexdigest()
+
+        try:
+            uoft_hash = query_dict.get("hash")
+        except KeyError:
+            raise IncompleteVoterInfoError
+
+        if check_hash != uoft_hash:
+            raise IncorrectHashError()
+
+    # Verify basic eligibility for EngSoc elections
+    eligible = (
+        student == "True"
+        and registered == "True"
+        and primaryorg == "APSE"
+        and undergrad == "True"
+    )
+    if not eligible:
+        raise IneligibleVoterError()
+
+    try:
+        # previous voter -> update the info in DB
+        voter = Voter.objects.get(student_number_hash=pid)
+        voter.pey = assocorg == "AEPEY"  # either AEPEY or null
+        voter.study_year = 3 if yofstudy is None or yofstudy == "" else int(yofstudy)
+        voter.engineering_student = primaryorg == "APSE"
+
+        # The university will send us the POSt code
+        # This substring determines the engineering discipline and corresponds to DISCIPLINE_CHOICES
+        voter.discipline = postcd[2:5]
+
+        # No need to check for unregistered. We would have returned 401 by now
+        voter.student_status = "full_time" if attendance == "FT" else "part_time"
+
+        voter.save()
+
+    except Voter.DoesNotExist:  # new voter -> add to DB
+        voter = Voter(
+            student_number_hash=pid,
+            pey=(assocorg == "AEPEY"),
+            study_year=(3 if yofstudy is None or yofstudy == "" else int(yofstudy)),
+            engineering_student=(primaryorg == "APSE"),
+            discipline=postcd[2:5],
+            student_status="full_time" if attendance == "FT" else "part_time",
+        )
+        voter.save()
+
+    return pid
+
+
 class CookieView(View):
     """
     This view will receive the payload from the UofT endpoint, verifies data integrity, creates or updates the
-    appropriate voter entry, and sets a signed cookie with the student number hash before redirecting to the elections
-    list endpoint.
-
-    To enable testing when the UofT endpoint is not up, it reads the CONNECT_TO_UOFT setting. When this setting is
-    false, the view will show an ugly html form that creates a response in the same format as the uoft endpoint. It also
-    disables the data integrity check on the form data.
+    appropriate voter entry, and sets a signed cookie with the student number hash. This cookie is used to retrieve
+    the list of eligible elections, as well as to vote.
     """
 
     def get(self, request, *args, **kwargs):
-        if not settings.CONNECT_TO_UOFT:
-            return render(request, "cookieform.html")
-
         try:
-            student_number_hash = self._create_verified_voter(request.GET)
+            student_number_hash = _create_verified_voter(request.GET)
         except (IneligibleVoterError, IncorrectHashError):
             return HttpResponse(status=401)
+        except IncompleteVoterInfoError:
+            return HttpResponse(status=400)
 
-        res = redirect(reverse_lazy("api:backend:election-list"))
+        # TODO: redirect to frontend
+        res = HttpResponse(status=200)
         res.set_signed_cookie("student_number_hash", student_number_hash)
         return res
 
+
+class BypassUofTCookieView(View):
+    """
+    This view is exclusively for use in testing. It renders a form that lets the developer input their desired
+    eligibility criteria, then creates a querystring similar to the one sent by UofT. This view then creates a voter
+    with those properties and return a signed cookie.
+
+    Since this view allows the developer to create an unlimited number of  arbitrary voters, it is only added as a
+    path when setting.CONNECT_TO_UOFT is set to 0. In prod, setting.CONNECT_TO_UOFT should always be set to 1.
+    """
+
+    def get(self, request, *args, **kwargs):
+        return render(request, "cookieform.html")
+
     def post(self, request, *args, **kwargs):
-        if not settings.CONNECT_TO_UOFT:
-            try:
-                student_number_hash = self._create_verified_voter(
-                    request.POST, verify_hash=False
-                )
-            except IneligibleVoterError:
-                return HttpResponse(status=401)
-
-            res = redirect(reverse_lazy("api:backend:election-list"))
-            res.set_signed_cookie("student_number_hash", student_number_hash)
-            return res
-
-        return HttpResponse(status=405)
-
-    @staticmethod
-    def _create_verified_voter(query_dict, verify_hash=True):
-        """
-        This method decodes the voter information query string in the format returned by UofT. It then determines if the
-        voter is eligible to vote in EngSoc elections.
-
-        If they are, it updates their existing voter entry with the latest information. If there is no existing entry,
-        a new one will be created. It then returns the student number hash which can be used as a UUID for this voter.
-
-        If the voter is not eligible to vote in EngSoc elections, or if verify_hash==True and the query string hash is
-        tampered with, it will raise an exception.
-        """
-        # Read query string
-        student = query_dict.get("isstudent")
-        registered = query_dict.get("isregistered")
-        undergrad = query_dict.get("isundergrad")
-        primaryorg = query_dict.get("primaryorg")
-        yofstudy = query_dict.get("yofstudy")
-        campus = query_dict.get("campus")
-        postcd = query_dict.get("postcd")
-        attendance = query_dict.get("attendance")
-        assocorg = query_dict.get("assocorg")
-        pid = query_dict.get("pid")
-
-        # Verify data integrity
-        if verify_hash:
-            check_string = (
-                student
-                + registered
-                + undergrad
-                + primaryorg
-                + yofstudy
-                + campus
-                + postcd
-                + attendance
-                + assocorg
-                + pid
-                + settings.UOFT_SECRET_KEY
-            )
-            h = hashlib.md5()
-            h.update(check_string)
-            check_hash = h.hexdigest()
-
-            if check_hash != query_dict.get("hash"):
-                raise IncorrectHashError()
-
-        # Verify basic eligibility for EngSoc elections
-        eligible = (
-            student == "True"
-            and registered == "True"
-            and primaryorg == "APSE"
-            and undergrad == "True"
-        )
-        if not eligible:
-            raise IneligibleVoterError()
-
         try:
-            # previous voter -> update the info in DB
-            voter = Voter.objects.get(student_number_hash=pid)
-            voter.pey = assocorg == "AEPEY"  # either AEPEY or null
-            voter.study_year = (
-                3 if yofstudy is None or yofstudy == "" else int(yofstudy)
+            student_number_hash = _create_verified_voter(
+                request.POST, verify_hash=False
             )
-            voter.engineering_student = primaryorg == "APSE"
+        except IneligibleVoterError:
+            return HttpResponse(status=401)
+        except IncompleteVoterInfoError:
+            return HttpResponse(status=400)
 
-            # The university will send us the POSt code
-            # This substring determines the engineering discipline and corresponds to DISCIPLINE_CHOICES
-            voter.discipline = postcd[2:5]
-
-            # No need to check for unregistered. We would have returned 401 by now
-            voter.student_status = "full_time" if attendance == "FT" else "part_time"
-
-            voter.save()
-
-        except Voter.DoesNotExist:  # new voter -> add to DB
-            voter = Voter(
-                student_number_hash=pid,
-                pey=(assocorg == "AEPEY"),
-                study_year=(3 if yofstudy is None or yofstudy == "" else int(yofstudy)),
-                engineering_student=(primaryorg == "APSE"),
-                discipline=postcd[2:5],
-                student_status="full_time" if attendance == "FT" else "part_time",
-            )
-            voter.save()
-
-        return pid
+        # TODO: Redirect to frontend
+        res = HttpResponse(status=200)
+        res.set_signed_cookie("student_number_hash", student_number_hash)
+        return res
 
 
 class ElectionListView(generics.ListAPIView):

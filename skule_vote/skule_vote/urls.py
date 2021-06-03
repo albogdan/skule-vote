@@ -35,7 +35,7 @@ schema_view = get_schema_view(
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("api.urls", namespace="api")),
-    path("vote", CookieView.as_view(), name="cookie"),
+    path("vote/", CookieView.as_view(), name="cookie"),
     url(
         r"^swagger/$",
         schema_view.with_ui("swagger", cache_timeout=0),

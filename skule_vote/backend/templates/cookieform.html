@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form action="/api/bypasscookie/" method="post">
+    {% csrf_token %}
+    <div class="formbuilder-text form-group field-pid">
+        <label for="pid" class="formbuilder-text-label">Student ID Hash - Assumed to be unique per person. Will overwrite old info<span class="formbuilder-required">*</span></label>
+        <input type="text" class="form-control" name="pid" access="false" value="213asdf2348u9" maxlength="16" id="pid" required="required" aria-required="true">
+    </div>
+    <div class="formbuilder-radio-group form-group field-isstudent">
+        <label for="isstudent" class="formbuilder-radio-group-label">Is Student?<span class="formbuilder-required">*</span></label>
+        <div class="radio-group">
+            <div class="formbuilder-radio">
+                <input name="isstudent" access="false" id="isstudent-0" required="required" aria-required="true" value="True" type="radio">
+                <label for="isstudent-0">Yes</label>
+            </div>
+            <div class="formbuilder-radio">
+                <input name="isstudent" access="false" id="isstudent-1" required="required" aria-required="true" value="False" type="radio">
+                <label for="isstudent-1">No</label>
+            </div>
+        </div>
+    </div>
+    <div class="formbuilder-radio-group form-group field-primaryorg">
+        <label for="primaryorg" class="formbuilder-radio-group-label">Is Engineering?<span class="formbuilder-required">*</span></label>
+        <div class="radio-group">
+            <div class="formbuilder-radio">
+                <input name="primaryorg" access="false" id="primaryorg-0" required="required" aria-required="true" value="APSE" type="radio">
+                <label for="primaryorg-0">Yes</label>
+            </div>
+            <div class="formbuilder-radio">
+                <input name="primaryorg" access="false" id="primaryorg-1" required="required" aria-required="true" value="null" type="radio">
+                <label for="primaryorg-1">No</label>
+            </div>
+        </div>
+    </div>
+    <div class="formbuilder-radio-group form-group field-isundergrad">
+        <label for="isundergrad" class="formbuilder-radio-group-label">Is Undergrad?<span class="formbuilder-required">*</span></label>
+        <div class="radio-group">
+            <div class="formbuilder-radio">
+                <input name="isundergrad" access="false" id="isundergrad-0" required="required" aria-required="true" value="True" type="radio">
+                <label for="isundergrad-0">Yes</label>
+            </div>
+            <div class="formbuilder-radio">
+                <input name="isundergrad" access="false" id="isundergrad-1" required="required" aria-required="true" value="False" type="radio">
+                <label for="isundergrad-1">No</label>
+            </div>
+        </div>
+    </div>
+    <div class="formbuilder-radio-group form-group field-isregistered">
+        <label for="isregistered" class="formbuilder-radio-group-label">Is Registered?<span class="formbuilder-required">*</span></label>
+        <div class="radio-group">
+            <div class="formbuilder-radio">
+                <input name="isregistered" access="false" id="isregistered-0" required="required" aria-required="true" value="True" type="radio">
+                <label for="isregistered-0">Yes</label>
+            </div>
+            <div class="formbuilder-radio">
+                <input name="isregistered" access="false" id="isregistered-1" required="required" aria-required="true" value="False" type="radio">
+                <label for="isregistered-1">No</label>
+            </div>
+        </div>
+    </div>
+    <div class="formbuilder-radio-group form-group field-assocorg">
+        <label for="assocorg" class="formbuilder-radio-group-label">Is PEY?<span class="formbuilder-required">*</span></label>
+        <div class="radio-group">
+            <div class="formbuilder-radio">
+                <input name="assocorg" access="false" id="assocorg-0" required="required" aria-required="true" value="AEPEY" type="radio">
+                <label for="assocorg-0">Yes</label>
+            </div>
+            <div class="formbuilder-radio">
+                <input name="assocorg" access="false" id="assocorg-1" required="required" aria-required="true" value="null" type="radio">
+                <label for="assocorg-1">No</label>
+            </div>
+        </div>
+    </div>
+    <div class="formbuilder-radio-group form-group field-yofstudy">
+        <label for="yofstudy" class="formbuilder-radio-group-label">Year of study? <span class="formbuilder-required">*</span> </label>
+        <div class="radio-group">
+            <div class="formbuilder-radio">
+                <input name="yofstudy" access="false" id="yofstudy-0" required="required" value="1" type="radio">
+                <label for="yofstudy-0">1</label>
+            </div>
+            <div class="formbuilder-radio">
+                <input name="yofstudy" access="false" id="yofstudy-1" required="required" value="2" type="radio">
+                <label for="yofstudy-1">2</label>
+            </div>
+            <div class="formbuilder-radio">
+                <input name="yofstudy" access="false" id="yofstudy-2" required="required" value="3" type="radio">
+                <label for="yofstudy-2">3</label>
+            </div>
+            <div class="formbuilder-radio">
+                <input name="yofstudy" access="false" id="yofstudy-3" required="required" value="4" type="radio">
+                <label for="yofstudy-3">4</label>
+            </div>
+        </div>
+    </div>
+    <div class="formbuilder-radio-group form-group field-attendance">
+        <label for="attendance" class="formbuilder-radio-group-label">Attendance?<span class="formbuilder-required">*</span></label>
+        <div class="radio-group">
+            <div class="formbuilder-radio">
+                <input name="attendance" access="false" id="attendance-0" required="required" aria-required="true" value="FT" type="radio">
+                <label for="attendance-0">Full-time</label>
+            </div>
+            <div class="formbuilder-radio">
+                <input name="attendance" access="false" id="attendance-1" required="required" aria-required="true" value="PT" type="radio">
+                <label for="attendance-1">Part-time</label>
+            </div>
+        </div>
+    </div>
+    <div class="formbuilder-radio-group form-group field-campus">
+        <label for="campus" class="formbuilder-radio-group-label">Campus?<span class="formbuilder-required">*</span></label>
+        <div class="radio-group">
+            <div class="formbuilder-radio">
+                <input name="campus" access="false" id="campus-0" required="required" aria-required="true" value="utsg" type="radio">
+                <label for="campus-0">UTSG</label>
+            </div>
+            <div class="formbuilder-radio">
+                <input name="campus" access="false" id="campus-1" required="required" aria-required="true" value="utm" type="radio">
+                <label for="campus-1">UTM</label>
+            </div>
+            <div class="formbuilder-radio">
+                <input name="campus" access="false" id="campus-2" required="required" aria-required="true" value="utsc" type="radio">
+                <label for="campus-2">UTSC</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="formbuilder-radio-group form-group field-postcd">
+        <label for="postcd" class="formbuilder-radio-group-label">Discipline<span class="formbuilder-required">*</span></label>
+        <div class="radio-group">
+            <div class="formbuilder-radio">
+                <input name="postcd" access="false" id="postcd-0" required="required" aria-required="true" value="AEESCBLAH" type="radio">
+                <label for="postcd-0">EngSci</label>
+            </div>
+            <div class="formbuilder-radio">
+                <input name="postcd" access="false" id="postcd-1" required="required" aria-required="true" value="AEELEBLAH" type="radio">
+                <label for="postcd-1">Elec</label>
+            </div>
+            <div class="formbuilder-radio">
+                <input name="postcd" access="false" id="postcd-2" required="required" aria-required="true" value="AECPEBLAH" type="radio">
+                <label for="postcd-2">Comp</label>
+            </div>
+            <div class="formbuilder-radio">
+                <input name="postcd" access="false" id="postcd-3" required="required" aria-required="true" value="AEMECBLAH" type="radio">
+                <label for="postcd-3">Mech</label>
+            </div>
+            <div class="formbuilder-radio">
+                <input name="postcd" access="false" id="postcd-4" required="required" aria-required="true" value="AECHEBLAH" type="radio">
+                <label for="postcd-4">Chem</label>
+            </div>
+            <div class="formbuilder-radio">
+                <input name="postcd" access="false" id="postcd-5" required="required" aria-required="true" value="AEINDBLAH" type="radio">
+                <label for="postcd-5">Indy</label>
+            </div>
+            <div class="formbuilder-radio">
+                <input name="postcd" access="false" id="postcd-6" required="required" aria-required="true" value="AEMMSBLAH" type="radio">
+                <label for="postcd-6">MSE</label>
+            </div>
+            <div class="formbuilder-radio">
+                <input name="postcd" access="false" id="postcd-7" required="required" aria-required="true" value="AELMEBLAH" type="radio">
+                <label for="postcd-7">Min</label>
+            </div>
+            <div class="formbuilder-radio">
+                <input name="postcd" access="false" id="postcd-8" required="required" aria-required="true" value="AEENGBLAH" type="radio">
+                <label for="postcd-8">Trackone</label>
+            </div>
+        </div>
+    </div>
+    <div class="formbuilder-button form-group field-button-1621381732799">
+        <button type="submit" class="btn-primary btn" name="button-1621381732799" access="false" style="primary" id="button-1621381732799">Submit</button>
+    </div>
+</form>
+</body>
+</html>

@@ -27,6 +27,9 @@ SECRET_KEY = os.environ["SECRET_KEY"]
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(int(os.environ.get("DEBUG", 0)))
 
+CONNECT_TO_UOFT = bool(int(os.environ.get("CONNECT_TO_UOFT", 0)))
+UOFT_SECRET_KEY = os.environ.get("UOFT_SECRET_KEY", 0)
+
 if DEBUG:
     ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
     INTERNAL_IPS = ["localhost", "127.0.0.1"]

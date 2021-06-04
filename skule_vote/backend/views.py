@@ -1,7 +1,9 @@
 import hashlib
+import json
 
 import django.core.signing
 from django.conf import settings
+from django.db import transaction, DatabaseError
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -10,8 +12,10 @@ from django.views import View
 from rest_framework import exceptions, generics
 
 from backend.models import (
+    Ballot,
     Election,
     Voter,
+    Candidate,
 )
 from backend.serializers import ElectionSerializer
 
@@ -213,3 +217,79 @@ class ElectionListView(generics.ListAPIView):
         q = q.filter(**kwargs)
 
         return q
+
+
+class BallotSubmitView(View):
+    def post(self, request, *args, **kwargs):
+        # Ensure user is logged in with a valid voter record
+        try:
+            student_number_hash = self.request.get_signed_cookie("student_number_hash")
+        except (django.core.signing.BadSignature, KeyError):
+            return HttpResponse(status=401)
+
+        try:
+            payload = json.loads(request.body)
+            election_id = payload["electionId"]
+            # rank -> candidate_id
+            ranking = payload["ranking"]
+        except (ValueError, KeyError):
+            return HttpResponse("<h1>Malformed request</h1>", status=400)
+
+        voter = Voter.objects.get(student_number_hash=student_number_hash)
+        election = Election.objects.get(id=election_id)
+        candidates = Candidate.objects.filter(election=election)
+        candidates_dict = {c.id: c for c in candidates}
+
+        # Ensure the voter is eligible to vote in this election:
+        if voter.pey:
+            eligible = (
+                election.eligibilities.pey_eligible
+                and getattr(
+                    election.eligibilities, f"{voter.discipline.lower()}_eligible"
+                )
+                and election.eligibilities.status_eligible
+                in [voter.student_status, "full_and_part_time"]
+            )
+        else:
+            eligible = (
+                getattr(election.eligibilities, f"year_{voter.study_year}_eligible")
+                and getattr(
+                    election.eligibilities, f"{voter.discipline.lower()}_eligible"
+                )
+                and election.eligibilities.status_eligible
+                in [voter.student_status, "full_and_part_time"]
+            )
+
+        if not eligible:
+            return HttpResponse(
+                "<h1>Voter is not eligible to vote in this election</h1>", status=403
+            )
+
+        # Ensure the voter has not already voted in this election:
+        if Ballot.objects.filter(voter=voter, election=election).count() > 0:
+            return HttpResponse(
+                "<h1>Voter has already voted in this election</h1>", status=400
+            )
+
+        # Ensure the candidates belong to this election
+        if ranking:
+            for rank in ranking:
+                if ranking[rank] not in candidates_dict:
+                    return HttpResponse(
+                        "<h1>Candidate does not exist in chosen election</h1>",
+                        status=400,
+                    )
+
+        # Submit ballot
+        try:
+            with transaction.atomic(durable=True):
+                for rank in ranking:
+                    ballot = Ballot(
+                        voter=voter,
+                        candidate=candidates_dict[ranking[rank]],
+                        election=election,
+                    )
+                    ballot.save()
+        except DatabaseError:
+            return HttpResponse("<h1>Failed to submit ballot</h1>", status=500)
+        return HttpResponse(status=201)

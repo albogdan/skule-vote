@@ -411,18 +411,16 @@ class ElectionsViewTestCase(SetupMixin, APITestCase):
         voter_dict = self._urlencode_cookie_request(
             year=1, discipline="ENG", attendance="FT"
         )
-        self.client.post(
-            self.cookie_view, voter_dict, follow=True
-        )
+        self.client.post(self.cookie_view, voter_dict, follow=True)
 
         response = self.client.get(self.elections_view)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         referendum = live_election_session.elections.all()[0]
-        officer=future_election_session.elections.all()[0]
+        officer = future_election_session.elections.all()[0]
         self.assertEqual(len(response.json()), 1)
-        self.assertEqual(response.json()[0]['election_name'], referendum.election_name)
-        self.assertNotEqual(response.json()[0]['election_name'], officer.election_name)
+        self.assertEqual(response.json()[0]["election_name"], referendum.election_name)
+        self.assertNotEqual(response.json()[0]["election_name"], officer.election_name)
 
     def test_future_election_session_returns_empty_list(self):
         future_election_session = self._create_election_session(
@@ -436,9 +434,7 @@ class ElectionsViewTestCase(SetupMixin, APITestCase):
         voter_dict = self._urlencode_cookie_request(
             year=1, discipline="ENG", attendance="FT"
         )
-        self.client.post(
-            self.cookie_view, voter_dict, follow=True
-        )
+        self.client.post(self.cookie_view, voter_dict, follow=True)
 
         response = self.client.get(self.elections_view)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -458,9 +454,7 @@ class ElectionsViewTestCase(SetupMixin, APITestCase):
         voter_dict = self._urlencode_cookie_request(
             year=1, discipline="ENG", attendance="FT"
         )
-        self.client.post(
-            self.cookie_view, voter_dict, follow=True
-        )
+        self.client.post(self.cookie_view, voter_dict, follow=True)
 
         response = self.client.get(self.elections_view)
         self.assertEqual(response.status_code, status.HTTP_200_OK)

@@ -234,6 +234,9 @@ class ElectionSessionListView(generics.ListAPIView):
 
     def get_queryset(self):
         now = _now()
+
+        # This is guaranteed to return <=1 ElectionSessions due to the constraints implemented
+        # in the ElectionSession save() method.
         election_session = ElectionSession.objects.filter(
             Q(start_time__lt=now) & Q(end_time__gt=now)
         )

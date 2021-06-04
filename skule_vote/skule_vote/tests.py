@@ -130,29 +130,20 @@ class SetupMixin:
             ],
         }
 
-    def setUpElections(self):
-        self.curr_session = ElectionSession(
-            election_session_name="Summer 2021 Elections",
-            start_time=datetime.now().replace(tzinfo=settings.TZ_INFO),
-            end_time=datetime(year=2022, month=12, day=23).replace(
-                tzinfo=settings.TZ_INFO
-            ),
-        )
-        self.curr_session.save()
+    def setUpElections(self, election_session):
+        self._create_referendum(election_session)
+        self._create_class_reps(election_session)
+        self._create_officer(election_session)
+        self._create_parttime_chair(election_session)
+        self._create_discipline_club_chair(election_session)
 
-        self._create_referendum()
-        self._create_class_reps()
-        self._create_officer()
-        self._create_parttime_chair()
-        self._create_discipline_club_chair()
-
-    def _create_class_reps(self):
+    def _create_class_reps(self, election_session):
         # Create class reps for all years, disciplines, and PEY
         for discipline_code, discipline_name in DISCIPLINE_CHOICES:
             if discipline_code == "ENG":
                 election = Election(
                     election_name=f"{discipline_name} Class Rep",
-                    election_session=self.curr_session,
+                    election_session=election_session,
                     seats_available=1,
                     category="class_representative",
                 )
@@ -171,7 +162,7 @@ class SetupMixin:
             for year, year_name in STUDY_YEAR_CHOICES:
                 election = Election(
                     election_name=f"{year_name} {discipline_name} Class Rep",
-                    election_session=self.curr_session,
+                    election_session=election_session,
                     seats_available=1,
                     category="class_representative",
                 )
@@ -188,7 +179,7 @@ class SetupMixin:
 
             election = Election(
                 election_name=f"PEY {discipline_name} Class Rep",
-                election_session=self.curr_session,
+                election_session=election_session,
                 seats_available=1,
                 category="class_representative",
             )
@@ -203,10 +194,10 @@ class SetupMixin:
             )
             elgibility.save()
 
-    def _create_parttime_chair(self):
+    def _create_parttime_chair(self, election_session):
         election = Election(
             election_name="Part-Time Chair",
-            election_session=self.curr_session,
+            election_session=election_session,
             seats_available=1,
             category="other",
         )
@@ -223,7 +214,7 @@ class SetupMixin:
         )
         elgibility.save()
 
-    def _create_discipline_club_chair(self):
+    def _create_discipline_club_chair(self, election_session):
 
         for discipline_code, discipline_name in DISCIPLINE_CHOICES:
             # The goal is to test multiple years of the same discipline being eligible, so no point in testing track one
@@ -237,7 +228,7 @@ class SetupMixin:
             if discipline_code == "ELE":
                 election = Election(
                     election_name="ECE Club Chair",
-                    election_session=self.curr_session,
+                    election_session=election_session,
                     seats_available=1,
                     category="discipline_club",
                 )
@@ -257,7 +248,7 @@ class SetupMixin:
             # Other disciplines
             election = Election(
                 election_name=f"{discipline_name} Club Chair",
-                election_session=self.curr_session,
+                election_session=election_session,
                 seats_available=1,
                 category="discipline_club",
             )
@@ -272,10 +263,10 @@ class SetupMixin:
             )
             elgibility.save()
 
-    def _create_referendum(self):
+    def _create_referendum(self, election_session):
         election = Election(
             election_name="Random Club Levy",
-            election_session=self.curr_session,
+            election_session=election_session,
             seats_available=1,
             category="referenda",
         )
@@ -293,10 +284,10 @@ class SetupMixin:
         )
         elgibility.save()
 
-    def _create_officer(self):
+    def _create_officer(self, election_session):
         election = Election(
             election_name="President",
-            election_session=self.curr_session,
+            election_session=election_session,
             seats_available=1,
             category="officer",
         )

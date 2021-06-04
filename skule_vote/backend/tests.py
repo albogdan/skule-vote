@@ -114,7 +114,6 @@ class CookieViewTestCase(SetupMixin, APITestCase):
 class ElectionsViewTestCase(SetupMixin, APITestCase):
     def setUp(self):
         super().setUp()
-        self.setUpElections()
         self.elections_view = reverse("api:backend:election-list")
         self.cookie_view = reverse("api:backend:bypass-cookie")
 
@@ -147,6 +146,11 @@ class ElectionsViewTestCase(SetupMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_class_reps(self):
+        election_session = self._create_election_session(
+            self._set_election_session_data()
+        )
+        self.setUpElections(election_session)
+
         # All class reps are in the db, but each student is eligible to vote for exactly one!
         for discipline_code, discipline_name in DISCIPLINE_CHOICES:
             if discipline_code == "ENG":
@@ -206,6 +210,11 @@ class ElectionsViewTestCase(SetupMixin, APITestCase):
             self.assertTrue("PEY" in class_reps[0]["election_name"])
 
     def test_parttime_chair(self):
+        election_session = self._create_election_session(
+            self._set_election_session_data()
+        )
+        self.setUpElections(election_session)
+
         # Part time students of any discipline and year are eligible
         for attendance_code, expected in [("PT", True), ("FT", False)]:
             for discipline_code, discipline_name in DISCIPLINE_CHOICES:
@@ -257,6 +266,11 @@ class ElectionsViewTestCase(SetupMixin, APITestCase):
                         self.assertEqual(len(pt_chair), 0)
 
     def test_officer(self):
+        election_session = self._create_election_session(
+            self._set_election_session_data()
+        )
+        self.setUpElections(election_session)
+
         # All students are eligible
         for attendance_code in ["PT", "FT"]:
             for discipline_code, discipline_name in DISCIPLINE_CHOICES:
@@ -298,6 +312,11 @@ class ElectionsViewTestCase(SetupMixin, APITestCase):
                     self.assertEqual(len(pres), 1)
 
     def test_referendum(self):
+        election_session = self._create_election_session(
+            self._set_election_session_data()
+        )
+        self.setUpElections(election_session)
+
         # All students are eligible
         for attendance_code in ["PT", "FT"]:
             for discipline_code, discipline_name in DISCIPLINE_CHOICES:
@@ -339,6 +358,11 @@ class ElectionsViewTestCase(SetupMixin, APITestCase):
                     self.assertEqual(len(referendum), 1)
 
     def test_discipline_club_chair(self):
+        election_session = self._create_election_session(
+            self._set_election_session_data()
+        )
+        self.setUpElections(election_session)
+
         for attendance_code in ["PT", "FT"]:
             for discipline_code, discipline_name in DISCIPLINE_CHOICES:
                 if discipline_code == "ENG":

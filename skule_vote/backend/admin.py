@@ -50,6 +50,7 @@ class ElectionSessionAdmin(admin.ModelAdmin):
 
     form = ElectionSessionAdminForm
 
+    change_list_template = "election-session/change_list.html"
 
 @admin.register(Election)
 class ElectionAdmin(admin.ModelAdmin):

@@ -52,6 +52,7 @@ class ElectionSessionAdmin(admin.ModelAdmin):
 
     change_list_template = "election-session/change_list.html"
 
+
 @admin.register(Election)
 class ElectionAdmin(admin.ModelAdmin):
     list_display = (

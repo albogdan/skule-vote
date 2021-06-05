@@ -1,4 +1,4 @@
-from backend.models import Candidate, Election
+from backend.models import Candidate, Election, ElectionSession
 from rest_framework import serializers
 
 
@@ -30,4 +30,14 @@ class ElectionSerializer(serializers.ModelSerializer):
             "category",
             "seats_available",
             "candidates",
+        )
+
+
+class ElectionSessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ElectionSession
+        fields = (
+            "election_session_name",
+            "start_time",
+            "end_time",
         )

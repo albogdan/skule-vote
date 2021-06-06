@@ -1,3 +1,4 @@
+from datetime import datetime
 import hashlib
 import json
 
@@ -14,10 +15,11 @@ from rest_framework import exceptions, generics
 from backend.models import (
     Ballot,
     Election,
+    ElectionSession,
     Voter,
     Candidate,
 )
-from backend.serializers import ElectionSerializer
+from backend.serializers import ElectionSerializer, ElectionSessionSerializer
 
 
 class IneligibleVoterError(Exception):
@@ -30,6 +32,10 @@ class IncorrectHashError(Exception):
 
 class IncompleteVoterInfoError(Exception):
     pass
+
+
+def _now():
+    return datetime.now().astimezone(settings.TZ_INFO)
 
 
 def _create_verified_voter(query_dict, verify_hash=True):
@@ -217,6 +223,34 @@ class ElectionListView(generics.ListAPIView):
         q = q.filter(**kwargs)
 
         return q
+
+
+class ElectionSessionListView(generics.ListAPIView):
+    """
+    Returns the currently happening ElectionSessions. If there are none live, then returns the
+    upcoming ElectionSession.
+    """
+
+    serializer_class = ElectionSessionSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def get_queryset(self):
+        now = _now()
+
+        # This is guaranteed to return <=1 ElectionSessions due to the constraints implemented
+        # in the ElectionSession save() method.
+        election_session = ElectionSession.objects.filter(
+            Q(start_time__lt=now) & Q(end_time__gt=now)
+        )
+
+        if not election_session.exists():
+            election_session = ElectionSession.objects.filter(
+                Q(start_time__gt=now)
+            ).order_by("start_time")[:1]
+
+        return election_session
 
 
 class BallotSubmitView(View):

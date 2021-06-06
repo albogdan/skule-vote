@@ -1,6 +1,4 @@
-import random
-import string
-
+from django.conf import settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -9,11 +7,12 @@ from skule_vote.tests import SetupMixin
 from backend.models import (
     DISCIPLINE_CHOICES,
     STUDY_YEAR_CHOICES,
+    ElectionSession,
     Voter,
 )
 
 
-class GetCookieTestCase(SetupMixin, APITestCase):
+class CookieViewTestCase(SetupMixin, APITestCase):
     def setUp(self):
         super().setUp()
         self.elections_view = reverse("api:backend:election-list")
@@ -112,7 +111,7 @@ class GetCookieTestCase(SetupMixin, APITestCase):
         self.assertEqual(voter.engineering_student, True)
 
 
-class GetElectionsTestCase(SetupMixin, APITestCase):
+class ElectionsViewTestCase(SetupMixin, APITestCase):
     def setUp(self):
         super().setUp()
         self.setUpElections()
@@ -369,3 +368,98 @@ class GetElectionsTestCase(SetupMixin, APITestCase):
                     ]
                     self.assertEqual(len(chair), 1)
                     self.assertEqual(chair[0]["election_name"], expected_election_name)
+
+
+class ElectionSessionViewTestCase(SetupMixin, APITestCase):
+    def setUp(self):
+        super().setUp()
+        self.election_session_view = reverse("api:backend:election-session-list")
+
+    def test_live_election_session_returns_future_election_does_not_success(self):
+        future_session = self._set_election_session_data(
+            name="TestElectionSession", start_time_offset_days=1
+        )
+        self._create_election_session()
+        current_session = self._set_election_session_data()
+        self._create_election_session()
+
+        response = self.client.get(self.election_session_view)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(ElectionSession.objects.count(), 2)
+        self.assertEqual(len(response.json()), 1)
+        self.assertEqual(
+            response.json()[0]["election_session_name"],
+            current_session["election_session_name"],
+        )
+        self.assertEqual(
+            response.json()[0]["start_time"], current_session["start_time"].isoformat()
+        )
+        self.assertEqual(
+            response.json()[0]["end_time"], current_session["end_time"].isoformat()
+        )
+
+    def test_no_live_election_session_returns_future_election_session_success(self):
+        future_session = self._set_election_session_data(start_time_offset_days=1)
+        self._create_election_session()
+        response = self.client.get(self.election_session_view)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(ElectionSession.objects.count(), 1)
+        self.assertEqual(len(response.json()), 1)
+        self.assertEqual(
+            response.json()[0]["election_session_name"],
+            future_session["election_session_name"],
+        )
+        self.assertEqual(
+            response.json()[0]["start_time"], future_session["start_time"].isoformat()
+        )
+        self.assertEqual(
+            response.json()[0]["end_time"], future_session["end_time"].isoformat()
+        )
+
+    def test_no_live_or_future_elections_returns_empty_list(self):
+        past_session = self._set_election_session_data(
+            start_time_offset_days=-4, end_time_offset_days=-2
+        )
+        self._create_election_session()
+
+        response = self.client.get(self.election_session_view)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(ElectionSession.objects.count(), 1)
+        self.assertEqual(len(response.json()), 0)
+        self.assertEqual(response.json(), [])
+
+    def test_multiple_future_election_sessions_returns_closest_one(self):
+        last_session = self._set_election_session_data(
+            start_time_offset_days=10, end_time_offset_days=12
+        )
+        self._create_election_session()
+        middle_session = self._set_election_session_data(
+            start_time_offset_days=6, end_time_offset_days=8
+        )
+        self._create_election_session()
+        first_session = self._set_election_session_data(
+            start_time_offset_days=2, end_time_offset_days=4
+        )
+        self._create_election_session()
+
+        response = self.client.get(self.election_session_view)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(ElectionSession.objects.count(), 3)
+        self.assertEqual(len(response.json()), 1)
+        self.assertEqual(
+            response.json()[0]["election_session_name"],
+            first_session["election_session_name"],
+        )
+        self.assertEqual(
+            response.json()[0]["start_time"], first_session["start_time"].isoformat()
+        )
+        self.assertEqual(
+            response.json()[0]["end_time"], first_session["end_time"].isoformat()
+        )

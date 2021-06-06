@@ -493,6 +493,33 @@ class ElectionSessionViewTestCase(SetupMixin, APITestCase):
             response.json()[0]["end_time"], current_session["end_time"].isoformat()
         )
 
+    def test_live_election_session_returns_past_election_does_not_success(self):
+        past = self._set_election_session_data(
+            name="TestElectionSession",
+            start_time_offset_days=-4,
+            end_time_offset_days=-2,
+        )
+        self._create_election_session()
+        current_session = self._set_election_session_data()
+        self._create_election_session()
+
+        response = self.client.get(self.election_session_view)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(ElectionSession.objects.count(), 2)
+        self.assertEqual(len(response.json()), 1)
+        self.assertEqual(
+            response.json()[0]["election_session_name"],
+            current_session["election_session_name"],
+        )
+        self.assertEqual(
+            response.json()[0]["start_time"], current_session["start_time"].isoformat()
+        )
+        self.assertEqual(
+            response.json()[0]["end_time"], current_session["end_time"].isoformat()
+        )
+
     def test_no_live_election_session_returns_future_election_session_success(self):
         future_session = self._set_election_session_data(start_time_offset_days=1)
         self._create_election_session()

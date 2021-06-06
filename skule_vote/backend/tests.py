@@ -422,6 +422,35 @@ class ElectionsViewTestCase(SetupMixin, APITestCase):
         self.assertEqual(response.json()[0]["election_name"], referendum.election_name)
         self.assertNotEqual(response.json()[0]["election_name"], officer.election_name)
 
+    def test_live_and_past_election_session_returns_only_live_elections(self):
+        live_election_session = self._create_election_session(
+            self._set_election_session_data()
+        )
+        self._create_referendum(live_election_session)
+
+        past_election_session = self._create_election_session(
+            self._set_election_session_data(
+                name="SpringElectionSession2022",
+                start_time_offset_days=-6,
+                end_time_offset_days=-4,
+            )
+        )
+        self._create_officer(past_election_session)
+
+        voter_dict = self._urlencode_cookie_request(
+            year=1, discipline="ENG", attendance="FT"
+        )
+        self.client.post(self.cookie_view, voter_dict, follow=True)
+
+        response = self.client.get(self.elections_view)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        referendum = live_election_session.elections.all()[0]
+        officer = past_election_session.elections.all()[0]
+        self.assertEqual(len(response.json()), 1)
+        self.assertEqual(response.json()[0]["election_name"], referendum.election_name)
+        self.assertNotEqual(response.json()[0]["election_name"], officer.election_name)
+
     def test_future_election_session_returns_empty_list(self):
         future_election_session = self._create_election_session(
             self._set_election_session_data(
@@ -493,7 +522,7 @@ class ElectionSessionViewTestCase(SetupMixin, APITestCase):
             response.json()[0]["end_time"], current_session["end_time"].isoformat()
         )
 
-    def test_live_election_session_returns_past_election_does_not_success(self):
+    def test_live_election_session_returns_past_election_session_does_not_success(self):
         past = self._set_election_session_data(
             name="TestElectionSession",
             start_time_offset_days=-4,

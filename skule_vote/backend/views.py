@@ -283,13 +283,23 @@ class BallotSubmitView(View):
         # Submit ballot
         try:
             with transaction.atomic(durable=True):
-                for rank in ranking:
+                if ranking:
+                    for rank in ranking:
+                        ballot = Ballot(
+                            voter=voter,
+                            candidate=candidates_dict[ranking[rank]],
+                            election=election,
+                            rank=int(rank)
+                        )
+                        ballot.save()
+                else:
+                    # Spoiled ballot
                     ballot = Ballot(
                         voter=voter,
-                        candidate=candidates_dict[ranking[rank]],
                         election=election,
                     )
                     ballot.save()
+
         except DatabaseError:
             return HttpResponse("<h1>Failed to submit ballot</h1>", status=500)
         return HttpResponse(status=201)

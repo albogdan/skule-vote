@@ -180,10 +180,14 @@ const Wrapper = styled.div`
 
 
 ## Working with the Admin Site
-The admin site can be found at `/admin` (for login credentials enquire with the previous CRO) and is used to set up `ElectionSessions`, `Elections`, `Candidates` for each `Election` and `Eligibilities` for each `Election`. These can be done either manually or automatically using a CSV file.
+The admin site can be found at `/admin` (for login credentials enquire with the previous CRO) and is used to set up `ElectionSessions`, `Elections`, `Candidates` for each `Election` and `Eligibilities` for each `Election`. These can be done either manually or automatically using a CSV file. Note that there are templates for how these files must appear in the `skule_vote/backend/static/backend/csv_templates` folder of this repo. 
+
+Additionally, if you go to the admin site and click on `Election Sessions` on the left-hand panel, you will get a page that shows you a list of all the `Election Sessions`. On top right this page you will see a button `Download CSV Templates` that will serve you a ZIP file of all of the CSV files in the `skule_vote/backend/static/backend/csv_templates` directory. 
+
+**Developer Note**: If you wish to change the CSV templates in any way, make sure to regenerate the ZIP file and place it in the `skule_vote/backend/static/backend` directory.
 
 ### Method 1: Using a CSV File (Recommended)
-To use this method, when you go to the `admin` site and add an `ElectionSession` you must add an `ElectionSession` with a `name`, `start_date` and `end_date`, and CSV files for each section of `election`, `candidate` and `eligibility`. These CSV files have certain constraints that must be obeyed. Note that there are templates for these files in the `/csv_files` folder of this repo. The constraints are as follows:
+To use this method, when you go to the `admin` site and add an `ElectionSession` you must add an `ElectionSession` with a `name`, `start_date` and `end_date`, and CSV files for each section of `election`, `candidate` and `eligibility`. These CSV files have certain constraints that must be obeyed. The constraints are as follows:
    - The header (first row) of each CSV file must be the same as the ones in the `/csv_files` templates.
    - Within a single CSV file all rows must be of equal length (have the same number of comma separated values).
    - Election and Eligibility CSVs must have the same number of rows, since they are 1-to-1.

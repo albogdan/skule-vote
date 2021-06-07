@@ -114,7 +114,6 @@ class CookieViewTestCase(SetupMixin, APITestCase):
 class ElectionsViewTestCase(SetupMixin, APITestCase):
     def setUp(self):
         super().setUp()
-        self.setUpElections()
         self.elections_view = reverse("api:backend:election-list")
         self.cookie_view = reverse("api:backend:bypass-cookie")
 
@@ -147,6 +146,11 @@ class ElectionsViewTestCase(SetupMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_class_reps(self):
+        election_session = self._create_election_session(
+            self._set_election_session_data()
+        )
+        self.setUpElections(election_session)
+
         # All class reps are in the db, but each student is eligible to vote for exactly one!
         for discipline_code, discipline_name in DISCIPLINE_CHOICES:
             if discipline_code == "ENG":
@@ -206,6 +210,11 @@ class ElectionsViewTestCase(SetupMixin, APITestCase):
             self.assertTrue("PEY" in class_reps[0]["election_name"])
 
     def test_parttime_chair(self):
+        election_session = self._create_election_session(
+            self._set_election_session_data()
+        )
+        self.setUpElections(election_session)
+
         # Part time students of any discipline and year are eligible
         for attendance_code, expected in [("PT", True), ("FT", False)]:
             for discipline_code, discipline_name in DISCIPLINE_CHOICES:
@@ -257,6 +266,11 @@ class ElectionsViewTestCase(SetupMixin, APITestCase):
                         self.assertEqual(len(pt_chair), 0)
 
     def test_officer(self):
+        election_session = self._create_election_session(
+            self._set_election_session_data()
+        )
+        self.setUpElections(election_session)
+
         # All students are eligible
         for attendance_code in ["PT", "FT"]:
             for discipline_code, discipline_name in DISCIPLINE_CHOICES:
@@ -298,6 +312,11 @@ class ElectionsViewTestCase(SetupMixin, APITestCase):
                     self.assertEqual(len(pres), 1)
 
     def test_referendum(self):
+        election_session = self._create_election_session(
+            self._set_election_session_data()
+        )
+        self.setUpElections(election_session)
+
         # All students are eligible
         for attendance_code in ["PT", "FT"]:
             for discipline_code, discipline_name in DISCIPLINE_CHOICES:
@@ -339,6 +358,11 @@ class ElectionsViewTestCase(SetupMixin, APITestCase):
                     self.assertEqual(len(referendum), 1)
 
     def test_discipline_club_chair(self):
+        election_session = self._create_election_session(
+            self._set_election_session_data()
+        )
+        self.setUpElections(election_session)
+
         for attendance_code in ["PT", "FT"]:
             for discipline_code, discipline_name in DISCIPLINE_CHOICES:
                 if discipline_code == "ENG":
@@ -369,6 +393,104 @@ class ElectionsViewTestCase(SetupMixin, APITestCase):
                     self.assertEqual(len(chair), 1)
                     self.assertEqual(chair[0]["election_name"], expected_election_name)
 
+    def test_live_and_future_election_session_returns_only_live_elections(self):
+        live_election_session = self._create_election_session(
+            self._set_election_session_data()
+        )
+        self._create_referendum(live_election_session)
+
+        future_election_session = self._create_election_session(
+            self._set_election_session_data(
+                name="SpringElectionSession2022",
+                start_time_offset_days=8,
+                end_time_offset_days=16,
+            )
+        )
+        self._create_officer(future_election_session)
+
+        voter_dict = self._urlencode_cookie_request(
+            year=1, discipline="ENG", attendance="FT"
+        )
+        self.client.post(self.cookie_view, voter_dict, follow=True)
+
+        response = self.client.get(self.elections_view)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        referendum = live_election_session.elections.all()[0]
+        officer = future_election_session.elections.all()[0]
+        self.assertEqual(len(response.json()), 1)
+        self.assertEqual(response.json()[0]["election_name"], referendum.election_name)
+        self.assertNotEqual(response.json()[0]["election_name"], officer.election_name)
+
+    def test_live_and_past_election_session_returns_only_live_elections(self):
+        live_election_session = self._create_election_session(
+            self._set_election_session_data()
+        )
+        self._create_referendum(live_election_session)
+
+        past_election_session = self._create_election_session(
+            self._set_election_session_data(
+                name="SpringElectionSession2022",
+                start_time_offset_days=-6,
+                end_time_offset_days=-4,
+            )
+        )
+        self._create_officer(past_election_session)
+
+        voter_dict = self._urlencode_cookie_request(
+            year=1, discipline="ENG", attendance="FT"
+        )
+        self.client.post(self.cookie_view, voter_dict, follow=True)
+
+        response = self.client.get(self.elections_view)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        referendum = live_election_session.elections.all()[0]
+        officer = past_election_session.elections.all()[0]
+        self.assertEqual(len(response.json()), 1)
+        self.assertEqual(response.json()[0]["election_name"], referendum.election_name)
+        self.assertNotEqual(response.json()[0]["election_name"], officer.election_name)
+
+    def test_future_election_session_returns_empty_list(self):
+        future_election_session = self._create_election_session(
+            self._set_election_session_data(
+                start_time_offset_days=8,
+                end_time_offset_days=16,
+            )
+        )
+        self._create_officer(future_election_session)
+
+        voter_dict = self._urlencode_cookie_request(
+            year=1, discipline="ENG", attendance="FT"
+        )
+        self.client.post(self.cookie_view, voter_dict, follow=True)
+
+        response = self.client.get(self.elections_view)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(len(response.json()), 0)
+        self.assertEqual(response.json(), [])
+
+    def test_past_election_session_returns_empty_list(self):
+        past_election_session = self._create_election_session(
+            self._set_election_session_data(
+                start_time_offset_days=-8,
+                end_time_offset_days=-4,
+            )
+        )
+        self._create_officer(past_election_session)
+
+        voter_dict = self._urlencode_cookie_request(
+            year=1, discipline="ENG", attendance="FT"
+        )
+        self.client.post(self.cookie_view, voter_dict, follow=True)
+
+        response = self.client.get(self.elections_view)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(len(response.json()), 0)
+        self.assertEqual(response.json(), [])
+
 
 class ElectionSessionViewTestCase(SetupMixin, APITestCase):
     def setUp(self):
@@ -378,6 +500,33 @@ class ElectionSessionViewTestCase(SetupMixin, APITestCase):
     def test_live_election_session_returns_future_election_does_not_success(self):
         future_session = self._set_election_session_data(
             name="TestElectionSession", start_time_offset_days=1
+        )
+        self._create_election_session()
+        current_session = self._set_election_session_data()
+        self._create_election_session()
+
+        response = self.client.get(self.election_session_view)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(ElectionSession.objects.count(), 2)
+        self.assertEqual(len(response.json()), 1)
+        self.assertEqual(
+            response.json()[0]["election_session_name"],
+            current_session["election_session_name"],
+        )
+        self.assertEqual(
+            response.json()[0]["start_time"], current_session["start_time"].isoformat()
+        )
+        self.assertEqual(
+            response.json()[0]["end_time"], current_session["end_time"].isoformat()
+        )
+
+    def test_live_election_session_returns_past_election_session_does_not_success(self):
+        past = self._set_election_session_data(
+            name="TestElectionSession",
+            start_time_offset_days=-4,
+            end_time_offset_days=-2,
         )
         self._create_election_session()
         current_session = self._set_election_session_data()

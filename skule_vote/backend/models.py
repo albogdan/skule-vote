@@ -91,6 +91,19 @@ class Election(models.Model):
     def __str__(self):
         return f"{self.election_name}"
 
+    def save(
+        self, force_insert=False, force_update=False, using=None, update_fields=None
+    ):
+        super(Election, self).save(force_insert, force_update, using, update_fields)
+
+        data = {
+            "name": "Reopen Nominations",
+            "election": self,
+            "statement": "Choose this option to reopen nominations.",
+        }
+        candidate = Candidate(**data)
+        candidate.save()
+
 
 class Candidate(models.Model):
     name = models.CharField(

@@ -1,4 +1,6 @@
 from django.contrib import admin
+from import_export import resources
+from import_export.admin import ExportMixin
 
 from backend.forms import ElectionSessionAdminForm
 from backend.models import (
@@ -127,9 +129,39 @@ class VoterAdmin(admin.ModelAdmin):
     pass
 
 
+class BallotResource(resources.ModelResource):
+    class Meta:
+        model = Ballot
+
+        fields = (
+            "voter__student_number_hash",
+            "candidate__name",
+            "rank",
+            "election__election_name",
+            "election__election_session__election_session_name",
+        )
+        export_order = (
+            "voter__student_number_hash",
+            "candidate__name",
+            "rank",
+            "election__election_name",
+            "election__election_session__election_session_name",
+        )
+
+    def get_export_headers(self):
+        export_headers = [
+            "student_number_hash",
+            "candidate_name",
+            "rank",
+            "election_name",
+            "election_session_name",
+        ]
+        return export_headers
+
+
 @admin.register(Ballot)
-class BallotAdmin(admin.ModelAdmin):
-    pass
+class BallotAdmin(ExportMixin, admin.ModelAdmin):
+    resource_class = BallotResource
 
 
 @admin.register(Eligibility)

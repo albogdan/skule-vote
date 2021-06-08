@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "dj_rest_auth",
     "drf_yasg",
+    "import_export",
     "api",
     "backend",
 ]

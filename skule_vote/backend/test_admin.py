@@ -197,7 +197,9 @@ class ElectionSessionAdminTestCase(SetupMixin, TestCase):
             Election.objects.count(), len(self.body_definitions["elections"])
         )
         self.assertEqual(
-            Candidate.objects.count(), len(self.body_definitions["candidates"])
+            Candidate.objects.count(),
+            len(self.body_definitions["candidates"])
+            + Election.objects.count(),  # Factor in RON Candidate
         )
         self.assertEqual(
             Eligibility.objects.count(), len(self.body_definitions["eligibilities"])
@@ -317,5 +319,7 @@ class ElectionSessionAdminTestCase(SetupMixin, TestCase):
         self.assertEqual(ElectionSession.objects.count(), 1)
         self.assertEqual(ElectionSession.objects.all()[0], election_session)
         self.assertEqual(Election.objects.count(), 1)
-        self.assertEqual(Candidate.objects.count(), 1)
+        self.assertEqual(
+            Candidate.objects.count(), 1 + Election.objects.count()
+        )  # Factor in RON Candidate
         self.assertEqual(Eligibility.objects.count(), 1)

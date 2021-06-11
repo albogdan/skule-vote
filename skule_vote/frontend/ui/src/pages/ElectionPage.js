@@ -114,11 +114,7 @@ const ElectionPage = ({ listOfElections = mockElections }) => {
       <Spacer y={isMobile ? 12 : 16} />
       <MessagesDiv>
         <CustomMessage
-          type="info"
-          message="Elections close on Friday, May 12, 11:59PM EST."
-        />
-        <CustomMessage
-          type="info"
+          variant="info"
           message="Elections close on Friday, May 12, 11:59PM EST."
         />
       </MessagesDiv>

@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { useSnackbar } from "notistack";
 import Typography from "@material-ui/core/Typography";
 import Hidden from "@material-ui/core/Hidden";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
@@ -78,7 +77,6 @@ export const listOfCategories = [
 
 const ElectionPage = ({ listOfElections = mockElections }) => {
   const isMobile = useMediaQuery(responsive.smDown);
-  const { enqueueSnackbar } = useSnackbar();
 
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [filterCategory, setFilterCategory] = React.useState("All");
@@ -100,29 +98,11 @@ const ElectionPage = ({ listOfElections = mockElections }) => {
     setBallotElectionId(null);
   };
 
-  const handleSubmit = ({ electionId, ranking }) => {
-    console.log(JSON.stringify({ electionId, ranking }, null, 2));
-
-    // Variant is repeated as a hack in order to use a custom snackbar
-    enqueueSnackbar(
-      { message: "Your vote has been successfully cast", variant: "success" },
-      { variant: "success" }
-    );
-    enqueueSnackbar(
-      {
-        message: "Unable with vote due to Error: <error from response>.",
-        variant: "error",
-      },
-      { variant: "error" }
-    );
-  };
-
   return (
     <>
       <EnhancedBallotModal
         open={open}
         handleClose={handleClose}
-        handleSubmit={handleSubmit}
         id={ballotElectionId}
       />
       <ElectionsFilterDrawer
@@ -133,6 +113,10 @@ const ElectionPage = ({ listOfElections = mockElections }) => {
       />
       <Spacer y={isMobile ? 12 : 16} />
       <MessagesDiv>
+        <CustomMessage
+          type="info"
+          message="Elections close on Friday, May 12, 11:59PM EST."
+        />
         <CustomMessage
           type="info"
           message="Elections close on Friday, May 12, 11:59PM EST."

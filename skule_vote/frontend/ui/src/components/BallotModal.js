@@ -13,7 +13,8 @@ import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import { Spacer } from "assets/layout";
-import { CustomAlert } from "components/Alerts";
+import { useHandleSubmit } from "assets/hooks";
+import { CustomMessage } from "components/Alerts";
 import { responsive } from "assets/breakpoints";
 import { useTheme } from "@material-ui/core/styles";
 
@@ -148,7 +149,7 @@ const BallotRulingAlert = ({ ruling, link }) => {
       )}
     </>
   );
-  return <CustomAlert type="warning" message={message} />;
+  return <CustomMessage variant="warning" message={message} />;
 };
 
 // Candidate names and statements
@@ -378,7 +379,7 @@ export const ConfirmSpoilModal = ({ open, onClose, spoilBallot, isDark }) => (
 );
 
 // handleClose: func, handleSubmit: func, open: boolean, isReferendum: boolean,
-// sortedCandidates: Array<{}>, electionName: string, electionId: number
+// sortedCandidates: Array<{}>, electionName: string
 export const BallotModal = ({
   handleClose,
   handleSubmit,
@@ -386,7 +387,6 @@ export const BallotModal = ({
   isReferendum,
   sortedCandidates,
   electionName,
-  electionId,
 }) => {
   const theme = useTheme();
   const isDark = theme.palette.type === "dark";
@@ -409,11 +409,11 @@ export const BallotModal = ({
   };
 
   const castBallot = () => {
-    handleSubmit({ electionId, ranking });
+    handleSubmit(ranking);
     closeForm();
   };
   const spoilBallot = () => {
-    handleSubmit({ electionId, ranking: {} });
+    handleSubmit({});
     closeForm();
   };
 
@@ -510,7 +510,8 @@ export const BallotModal = ({
   );
 };
 
-const EnhancedBallotModal = ({ handleClose, handleSubmit, open, id }) => {
+const EnhancedBallotModal = ({ handleClose, open, id }) => {
+  const handleSubmit = useHandleSubmit(id);
   // Remove this later with get from API
   const mockElections = {
     0: MockBallotReferenda,
@@ -522,7 +523,7 @@ const EnhancedBallotModal = ({ handleClose, handleSubmit, open, id }) => {
   }
   const ballotInfo = mockElections[id];
 
-  const { category, candidates, electionName, electionId } = ballotInfo;
+  const { category, candidates, electionName } = ballotInfo;
   const isReferendum = category === "Referenda";
   let candidatesList = candidates;
   if (!isReferendum && candidates.length > 2) {
@@ -545,7 +546,6 @@ const EnhancedBallotModal = ({ handleClose, handleSubmit, open, id }) => {
       isReferendum={isReferendum}
       sortedCandidates={candidatesList}
       electionName={electionName}
-      electionId={electionId}
     />
   );
 };

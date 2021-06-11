@@ -1,11 +1,12 @@
 import React from "react";
 import styled from "styled-components";
+import { useSnackbar } from "notistack";
 import Typography from "@material-ui/core/Typography";
 import Hidden from "@material-ui/core/Hidden";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import Button from "@material-ui/core/Button";
 import FilterListIcon from "@material-ui/icons/FilterList";
-import { CustomAlert } from "components/Alerts";
+import { CustomMessage } from "components/Alerts";
 import ElectionsFilter, {
   ElectionsFilterDrawer,
 } from "components/ElectionsFilter";
@@ -55,7 +56,7 @@ const FilterBtnDiv = styled.div`
   }
 `;
 
-const AlertsDiv = styled.div`
+const MessagesDiv = styled.div`
   display: flex;
   flex-direction: column;
   max-width: 800px;
@@ -77,6 +78,7 @@ export const listOfCategories = [
 
 const ElectionPage = ({ listOfElections = mockElections }) => {
   const isMobile = useMediaQuery(responsive.smDown);
+  const { enqueueSnackbar } = useSnackbar();
 
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [filterCategory, setFilterCategory] = React.useState("All");
@@ -99,7 +101,20 @@ const ElectionPage = ({ listOfElections = mockElections }) => {
   };
 
   const handleSubmit = ({ electionId, ranking }) => {
-    alert(JSON.stringify({ electionId, ranking }, null, 2));
+    console.log(JSON.stringify({ electionId, ranking }, null, 2));
+
+    // Variant is repeated as a hack in order to use a custom snackbar
+    enqueueSnackbar(
+      { message: "Your vote has been successfully cast", variant: "success" },
+      { variant: "success" }
+    );
+    enqueueSnackbar(
+      {
+        message: "Unable with vote due to Error: <error from response>.",
+        variant: "error",
+      },
+      { variant: "error" }
+    );
   };
 
   return (
@@ -117,26 +132,12 @@ const ElectionPage = ({ listOfElections = mockElections }) => {
         setAndCloseFilter={setAndCloseFilter}
       />
       <Spacer y={isMobile ? 12 : 16} />
-      <AlertsDiv>
-        <CustomAlert
-          type="warning"
-          message="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisinuli."
-        />
-        <CustomAlert
+      <MessagesDiv>
+        <CustomMessage
           type="info"
           message="Elections close on Friday, May 12, 11:59PM EST."
         />
-        <CustomAlert
-          type="success"
-          message="Your vote has successfully been cast."
-          action={() => {}}
-        />
-        <CustomAlert
-          type="error"
-          message="Unable with vote due to Error: blah."
-          action={() => {}}
-        />
-      </AlertsDiv>
+      </MessagesDiv>
       <Spacer y={isMobile ? 20 : 48} />
       <Typography variant="h1">Elections</Typography>
       <ElectionsWrapper>

@@ -36,5 +36,5 @@ setuptools==52.0.0
 sqlparse==0.4.1
 toml==0.10.2
 uritemplate==3.0.1
-urllib3==1.26.4
+urllib3==1.26.5
 wheel==0.36.2

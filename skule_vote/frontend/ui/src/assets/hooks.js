@@ -1,4 +1,6 @@
 import { useState, useCallback } from "react";
+import axios from "axios";
+import { get } from "api/api";
 
 export function useLocalStorage(key, initValue) {
   const [storedValue, setStoredValue] = useState(() => {
@@ -28,4 +30,17 @@ export function useLocalStorage(key, initValue) {
   }, [key]);
 
   return [storedValue, setValue, removeKey];
+}
+
+export async function getElectionSession() {
+  try {
+    const response = await get("/api/electionsession/");
+    if (response.status === 200) {
+      return response.data[0] ?? {};
+    }
+  } catch {
+    // handle a flash error here
+    // Have to merge snackbar PR
+  }
+  return null;
 }

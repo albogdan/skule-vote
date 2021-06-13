@@ -11,9 +11,11 @@ import ElectionsFilter, {
 } from "components/ElectionsFilter";
 import ElectionCard, { NoElectionsCard } from "components/ElectionCard";
 import EnhancedBallotModal from "components/BallotModal";
+import Messages from "components/Messages";
 import { Spacer } from "assets/layout";
 import { mockElections } from "assets/mocks";
 import { responsive } from "assets/breakpoints";
+import { getElectionSession } from "assets/hooks";
 
 const ElectionsWrapper = styled.div`
   display: flex;
@@ -55,16 +57,6 @@ const FilterBtnDiv = styled.div`
   }
 `;
 
-const AlertsDiv = styled.div`
-  display: flex;
-  flex-direction: column;
-  max-width: 800px;
-  width: 100%;
-  > :not(:last-child) {
-    margin-bottom: 8px;
-  }
-`;
-
 export const listOfCategories = [
   "All",
   "Referenda",
@@ -75,11 +67,40 @@ export const listOfCategories = [
   "Other",
 ];
 
-const ElectionPage = ({ listOfElections = mockElections }) => {
+export function readableDate(date) {
+  if (date == null) {
+    return [null, null];
+  }
+  const dateObj = new Date(date);
+  const readableDate = dateObj.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    timeZoneName: "short",
+  });
+  return [dateObj, readableDate];
+}
+
+const ElectionPage = () => {
   const isMobile = useMediaQuery(responsive.smDown);
 
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [filterCategory, setFilterCategory] = React.useState("All");
+  const [electionSession, setElectionSession] = React.useState({});
+
+  const [startTime, startTimeStr] = readableDate(electionSession?.start_time);
+  const [endTime, endTimeStr] = readableDate(electionSession?.end_time);
+  const electionIsLive =
+    startTime && Date.now() >= startTime && Date.now() <= endTime;
+
+  let listOfElections = [];
+  if (Object.keys(electionSession).length !== 0 && electionIsLive) {
+    listOfElections = mockElections;
+  }
+
   let filteredListOfElections = listOfElections.filter((election) =>
     filterCategory === "All" ? true : filterCategory === election.category
   );
@@ -102,6 +123,19 @@ const ElectionPage = ({ listOfElections = mockElections }) => {
     alert(JSON.stringify({ electionId, ranking }, null, 2));
   };
 
+  React.useEffect(() => {
+    async function fetchElectionSessions() {
+      const getElecSession = await getElectionSession();
+      if (getElecSession != null) {
+        setElectionSession(getElecSession);
+      }
+      setTimeout(() => {
+        fetchElectionSessions();
+      }, 60000);
+    }
+    fetchElectionSessions();
+  }, []);
+
   return (
     <>
       <EnhancedBallotModal
@@ -117,26 +151,10 @@ const ElectionPage = ({ listOfElections = mockElections }) => {
         setAndCloseFilter={setAndCloseFilter}
       />
       <Spacer y={isMobile ? 12 : 16} />
-      <AlertsDiv>
-        <CustomAlert
-          type="warning"
-          message="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisinuli."
-        />
-        <CustomAlert
-          type="info"
-          message="Elections close on Friday, May 12, 11:59PM EST."
-        />
-        <CustomAlert
-          type="success"
-          message="Your vote has successfully been cast."
-          action={() => {}}
-        />
-        <CustomAlert
-          type="error"
-          message="Unable with vote due to Error: blah."
-          action={() => {}}
-        />
-      </AlertsDiv>
+      <Messages
+        electionIsLive={electionIsLive}
+        times={[startTime, startTimeStr, endTimeStr]}
+      />
       <Spacer y={isMobile ? 20 : 48} />
       <Typography variant="h1">Elections</Typography>
       <ElectionsWrapper>

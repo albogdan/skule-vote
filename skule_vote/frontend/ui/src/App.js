@@ -127,10 +127,6 @@ const App = () => {
   return (
     <ThemeProvider theme={theme}>
       <SnackbarProvider
-        anchorOrigin={{
-          vertical: "top",
-          horizontal: "center",
-        }}
         content={(key, message) => <CustomAlert id={key} options={message} />}
       >
         <CssBaseline />

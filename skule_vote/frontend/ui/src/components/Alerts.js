@@ -15,8 +15,8 @@ const fillColorMap = {
 
 const AlertDiv = styled.div`
   > div {
-    ${(props) => !props.isDark && `background-color: ${props.$fill}`};
     width: 100%;
+    ${(props) => `background-color: ${props.isDark ? "#171717" : props.$fill}`};
     font-size: 16px;
   }
 `;

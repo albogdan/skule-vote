@@ -524,17 +524,28 @@ const EnhancedBallotModal = ({ handleClose, handleSubmit, open, id }) => {
 
   const { category, candidates, electionName, electionId } = ballotInfo;
   const isReferendum = category === "Referenda";
-  let candidatesList = candidates;
+
+  let candidatesList = [];
+  // Seperate ron from non-ron candidates
+  const ron = candidates.filter(
+    (candidate) => candidate.candidateName === "Reopen Nominations"
+  )[0];
+  let nonRon = candidates.filter(
+    (candidate) => candidate.candidateName !== "Reopen Nominations"
+  );
+
   if (!isReferendum && candidates.length > 2) {
-    // Remove RON, randomly shuffle the list, then append RON to the end
-    const ron = candidates.filter(
-      (candidate) => candidate.candidateName === "Reopen Nominations"
-    );
-    candidatesList = candidates.filter(
-      (candidate) => candidate.candidateName !== "Reopen Nominations"
-    );
-    candidatesList = shuffleArray(candidatesList);
-    candidatesList = candidatesList.concat(ron);
+    // Randomly shuffle the list, then append RON to the end
+    nonRon = shuffleArray(nonRon);
+    candidatesList = nonRon.concat(ron);
+  } else if (candidates.length === 2) {
+    // Replace ron with No
+    const noSelection = {
+      id: ron.id,
+      candidateName: "No",
+      statement: null,
+    };
+    candidatesList = nonRon.concat(noSelection);
   }
 
   return (

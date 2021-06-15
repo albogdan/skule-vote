@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import admin
 from import_export import resources
 from import_export.admin import ExportMixin
@@ -122,6 +123,19 @@ class CandidateAdmin(admin.ModelAdmin):
 
     get_election_session.short_description = "Election Session"
     get_election_session.admin_order_field = "election"
+
+    def get_queryset(self, request):
+        if settings.DEBUG:
+            return Candidate.objects.all()
+        else:
+            return Candidate.objects.all().exclude(name="Reopen Nominations")
+
+    def has_delete_permission(self, request, obj=None):
+        if settings.DEBUG:
+            return super().has_delete_permission(request, obj)
+        elif obj is not None and obj.name == "Reopen Nominations":
+            return False
+        return super().has_delete_permission(request, obj)
 
 
 @admin.register(Voter)

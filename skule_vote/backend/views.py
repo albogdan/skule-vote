@@ -11,6 +11,8 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views import View
 from rest_framework import exceptions, generics
+from rest_framework.generics import CreateAPIView
+from rest_framework.views import APIView
 
 from backend.models import (
     Ballot,
@@ -19,7 +21,7 @@ from backend.models import (
     Voter,
     Candidate,
 )
-from backend.serializers import ElectionSerializer, ElectionSessionSerializer
+from backend.serializers import ElectionSerializer, ElectionSessionSerializer, BallotSerializer
 
 
 class IneligibleVoterError(Exception):
@@ -261,28 +263,33 @@ class ElectionSessionListView(generics.ListAPIView):
         return election_session
 
 
-class BallotSubmitView(View):
-    def post(self, request, *args, **kwargs):
-        # Ensure user is logged in with a valid voter record
+class BallotSubmitView(CreateAPIView):
+    serializer_class = BallotSerializer
+
+    def get_serializer_context(self):
+        # Bypass for swagger schema generator
+        if getattr(self, "swagger_fake_view", False):
+            return super().get_serializer_context() | {"student_number_hash": "debug only" }
+
+        return super().get_serializer_context() | {"student_number_hash": self.request.get_signed_cookie("student_number_hash") }
+
+    def check_permissions(self, request):
+        """
+        Checks that the user is logged in with a valid signed cookie, is eligible to vote in the election, and has not
+        previously voted in this election
+        """
         try:
             student_number_hash = self.request.get_signed_cookie("student_number_hash")
         except (django.core.signing.BadSignature, KeyError):
-            return HttpResponse(status=401)
-
-        try:
-            payload = json.loads(request.body)
-            election_id = payload["electionId"]
-            # rank -> candidate_id
-            ranking = payload["ranking"]
-        except (ValueError, KeyError):
-            return HttpResponse("<h1>Malformed request</h1>", status=400)
+            self.permission_denied(request, message="You are not logged in as a valid student.")
 
         voter = Voter.objects.get(student_number_hash=student_number_hash)
-        election = Election.objects.get(id=election_id)
-        candidates = Candidate.objects.filter(election=election)
-        candidates_dict = {c.id: c for c in candidates}
+        try:
+            election_id = request.data["electionId"]
+            election = Election.objects.get(id=election_id)
+        except (KeyError, ValueError, Election.DoesNotExist):
+            self.permission_denied(request, message="You did not provide an election Id or the election does not exist")
 
-        # Ensure the voter is eligible to vote in this election:
         if voter.pey:
             eligible = (
                 election.eligibilities.pey_eligible
@@ -303,45 +310,7 @@ class BallotSubmitView(View):
             )
 
         if not eligible:
-            return HttpResponse(
-                "<h1>Voter is not eligible to vote in this election</h1>", status=403
-            )
+            self.permission_denied(request, message="You are not eligible to vote in this election.")
 
-        # Ensure the voter has not already voted in this election:
         if Ballot.objects.filter(voter=voter, election=election).count() > 0:
-            return HttpResponse(
-                "<h1>Voter has already voted in this election</h1>", status=400
-            )
-
-        # Ensure the candidates belong to this election
-        if ranking:
-            for rank in ranking:
-                if ranking[rank] not in candidates_dict:
-                    return HttpResponse(
-                        "<h1>Candidate does not exist in chosen election</h1>",
-                        status=400,
-                    )
-
-        # Submit ballot
-        try:
-            with transaction.atomic(durable=True):
-                if ranking:
-                    for rank in ranking:
-                        ballot = Ballot(
-                            voter=voter,
-                            candidate=candidates_dict[ranking[rank]],
-                            election=election,
-                            rank=int(rank)
-                        )
-                        ballot.save()
-                else:
-                    # Spoiled ballot
-                    ballot = Ballot(
-                        voter=voter,
-                        election=election,
-                    )
-                    ballot.save()
-
-        except DatabaseError:
-            return HttpResponse("<h1>Failed to submit ballot</h1>", status=500)
-        return HttpResponse(status=201)
+            self.permission_denied(request, message="You have already voted in this election.")

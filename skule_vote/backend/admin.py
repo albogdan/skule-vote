@@ -1,4 +1,7 @@
+from django.conf import settings
 from django.contrib import admin
+from import_export import resources
+from import_export.admin import ExportMixin
 
 from backend.forms import ElectionSessionAdminForm
 from backend.models import (
@@ -49,6 +52,8 @@ class ElectionSessionAdmin(admin.ModelAdmin):
     search_fields = ["election_session_name"]
 
     form = ElectionSessionAdminForm
+
+    change_list_template = "election-session/change_list.html"
 
 
 @admin.register(Election)
@@ -119,15 +124,58 @@ class CandidateAdmin(admin.ModelAdmin):
     get_election_session.short_description = "Election Session"
     get_election_session.admin_order_field = "election"
 
+    def get_queryset(self, request):
+        if settings.DEBUG:
+            return Candidate.objects.all()
+        else:
+            return Candidate.objects.all().exclude(name="Reopen Nominations")
+
+    def has_delete_permission(self, request, obj=None):
+        if settings.DEBUG:
+            return super().has_delete_permission(request, obj)
+        elif obj is not None and obj.name == "Reopen Nominations":
+            return False
+        return super().has_delete_permission(request, obj)
+
 
 @admin.register(Voter)
 class VoterAdmin(admin.ModelAdmin):
     pass
 
 
+class BallotResource(resources.ModelResource):
+    class Meta:
+        model = Ballot
+
+        fields = (
+            "voter__student_number_hash",
+            "candidate__name",
+            "rank",
+            "election__election_name",
+            "election__election_session__election_session_name",
+        )
+        export_order = (
+            "voter__student_number_hash",
+            "candidate__name",
+            "rank",
+            "election__election_name",
+            "election__election_session__election_session_name",
+        )
+
+    def get_export_headers(self):
+        export_headers = [
+            "student_number_hash",
+            "candidate_name",
+            "rank",
+            "election_name",
+            "election_session_name",
+        ]
+        return export_headers
+
+
 @admin.register(Ballot)
-class BallotAdmin(admin.ModelAdmin):
-    pass
+class BallotAdmin(ExportMixin, admin.ModelAdmin):
+    resource_class = BallotResource
 
 
 @admin.register(Eligibility)

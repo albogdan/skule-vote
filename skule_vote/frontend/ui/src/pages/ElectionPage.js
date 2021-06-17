@@ -5,7 +5,7 @@ import Hidden from "@material-ui/core/Hidden";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import Button from "@material-ui/core/Button";
 import FilterListIcon from "@material-ui/icons/FilterList";
-import { CustomAlert } from "components/Alerts";
+import { CustomMessage } from "components/Alerts";
 import ElectionsFilter, {
   ElectionsFilterDrawer,
 } from "components/ElectionsFilter";
@@ -55,7 +55,7 @@ const FilterBtnDiv = styled.div`
   }
 `;
 
-const AlertsDiv = styled.div`
+const MessagesDiv = styled.div`
   display: flex;
   flex-direction: column;
   max-width: 800px;
@@ -98,16 +98,11 @@ const ElectionPage = ({ listOfElections = mockElections }) => {
     setBallotElectionId(null);
   };
 
-  const handleSubmit = ({ electionId, ranking }) => {
-    alert(JSON.stringify({ electionId, ranking }, null, 2));
-  };
-
   return (
     <>
       <EnhancedBallotModal
         open={open}
         handleClose={handleClose}
-        handleSubmit={handleSubmit}
         id={ballotElectionId}
       />
       <ElectionsFilterDrawer
@@ -117,26 +112,12 @@ const ElectionPage = ({ listOfElections = mockElections }) => {
         setAndCloseFilter={setAndCloseFilter}
       />
       <Spacer y={isMobile ? 12 : 16} />
-      <AlertsDiv>
-        <CustomAlert
-          type="warning"
-          message="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisinuli."
-        />
-        <CustomAlert
-          type="info"
+      <MessagesDiv>
+        <CustomMessage
+          variant="info"
           message="Elections close on Friday, May 12, 11:59PM EST."
         />
-        <CustomAlert
-          type="success"
-          message="Your vote has successfully been cast."
-          action={() => {}}
-        />
-        <CustomAlert
-          type="error"
-          message="Unable with vote due to Error: blah."
-          action={() => {}}
-        />
-      </AlertsDiv>
+      </MessagesDiv>
       <Spacer y={isMobile ? 20 : 48} />
       <Typography variant="h1">Elections</Typography>
       <ElectionsWrapper>

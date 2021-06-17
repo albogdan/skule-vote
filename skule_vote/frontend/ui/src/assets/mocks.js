@@ -86,8 +86,8 @@ export const MockBallotReferenda = {
     },
     {
       id: 1,
-      candidateName: "No",
-      statement: null,
+      candidateName: "Reopen Nominations",
+      statement: "Choose this option to reopen nominations.",
       isDisqualified: false,
       disqualificationRuling: null,
       disqualificationLink: null,
@@ -115,8 +115,8 @@ export const MockBallotPresident = {
     },
     {
       id: 1,
-      candidateName: "No",
-      statement: null,
+      candidateName: "Reopen Nominations",
+      statement: "Choose this option to reopen nominations.",
       isDisqualified: false,
       disqualificationRuling: null,
       disqualificationLink: null,

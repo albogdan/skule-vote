@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { SnackbarProvider } from "notistack";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { createMuiTheme } from "@material-ui/core/styles";
 import { ThemeProvider } from "@material-ui/styles";
@@ -7,7 +8,7 @@ import useMediaQuery from "@material-ui/core/useMediaQuery";
 import { Route, BrowserRouter, Redirect, Switch } from "react-router-dom";
 import ElectionPage from "pages/ElectionPage";
 import LandingPage from "pages/LandingPage";
-import NotFound from "pages/NotFound";
+import { CustomAlert } from "components/Alerts";
 import Footer from "components/Footer";
 import Header from "components/Header";
 import { responsive } from "assets/breakpoints";
@@ -125,23 +126,26 @@ const App = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <BrowserRouter>
-        <AppWrapper theme={theme} isDark={isDark}>
-          <div>
-            <Header isDark={isDark} toggleDark={toggleDark} />
-            <AppBody>
-              <Switch>
-                <Route exact path="/" component={LandingPage} />
-                <Route exact path="/elections" component={ElectionPage} />
-                <Route exact path="/404" component={NotFound} />
-                <Redirect to="/" />
-              </Switch>
-            </AppBody>
-          </div>
-          <Footer isDark={isDark} />
-        </AppWrapper>
-      </BrowserRouter>
+      <SnackbarProvider
+        content={(key, message) => <CustomAlert id={key} options={message} />}
+      >
+        <CssBaseline />
+        <BrowserRouter>
+          <AppWrapper theme={theme} isDark={isDark}>
+            <div>
+              <Header isDark={isDark} toggleDark={toggleDark} />
+              <AppBody>
+                <Switch>
+                  <Route exact path="/" component={LandingPage} />
+                  <Route exact path="/elections" component={ElectionPage} />
+                  <Redirect to="/" />
+                </Switch>
+              </AppBody>
+            </div>
+            <Footer isDark={isDark} />
+          </AppWrapper>
+        </BrowserRouter>
+      </SnackbarProvider>
     </ThemeProvider>
   );
 };

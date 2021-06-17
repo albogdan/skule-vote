@@ -49,7 +49,9 @@ class ElectionSessionAdminFormTestCase(SetupMixin, TestCase):
         self.assertEqual(ElectionSession.objects.count(), 1)
         self.assertEqual(ElectionSession.objects.all()[0], instance)
         self.assertEqual(Election.objects.count(), 2)
-        self.assertEqual(Candidate.objects.count(), 2)
+        self.assertEqual(
+            Candidate.objects.count(), 2 + Election.objects.count()
+        )  # Factor in RON Candidate
         self.assertEqual(Eligibility.objects.count(), 2)
 
     def test_status_eligible_and_election_category_not_null(self):

@@ -200,7 +200,15 @@ class ElectionListView(generics.ListAPIView):
 
         voter = Voter.objects.get(student_number_hash=student_number_hash)
 
-        q = Election.objects.all()
+        now = _now()
+        election_session = ElectionSession.objects.filter(
+            Q(start_time__lt=now) & Q(end_time__gt=now)
+        )
+        if not election_session.exists():
+            return election_session
+
+        # Return only Elections in an active ElectionSession
+        q = Election.objects.filter(Q(election_session=election_session[0]))
 
         # A voter isn't eligible to vote in an election where they have already voted
         q = q.exclude(ballots__voter=voter)

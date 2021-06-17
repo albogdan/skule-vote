@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { CustomAlert } from "components/Alerts";
+import { CustomMessage } from "components/Alerts";
 
 const MessagesDiv = styled.div`
   display: flex;
@@ -17,14 +17,14 @@ const Messages = ({ electionIsLive, times }) => {
   return (
     <MessagesDiv>
       {electionIsLive && (
-        <CustomAlert
-          type="info"
+        <CustomMessage
+          variant="info"
           message={`Elections close on ${endTimeStr}.`}
         />
       )}
       {startTime != null && startTime > Date.now() && (
-        <CustomAlert
-          type="info"
+        <CustomMessage
+          variant="info"
           message={`There's an upcoming election starting on ${startTimeStr}.`}
         />
       )}

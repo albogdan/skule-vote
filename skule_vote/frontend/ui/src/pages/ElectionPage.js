@@ -5,7 +5,6 @@ import Hidden from "@material-ui/core/Hidden";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import Button from "@material-ui/core/Button";
 import FilterListIcon from "@material-ui/icons/FilterList";
-import { CustomAlert } from "components/Alerts";
 import ElectionsFilter, {
   ElectionsFilterDrawer,
 } from "components/ElectionsFilter";
@@ -119,10 +118,6 @@ const ElectionPage = () => {
     setBallotElectionId(null);
   };
 
-  const handleSubmit = ({ electionId, ranking }) => {
-    alert(JSON.stringify({ electionId, ranking }, null, 2));
-  };
-
   React.useEffect(() => {
     async function fetchElectionSessions() {
       const getElecSession = await getElectionSession();
@@ -141,7 +136,6 @@ const ElectionPage = () => {
       <EnhancedBallotModal
         open={open}
         handleClose={handleClose}
-        handleSubmit={handleSubmit}
         id={ballotElectionId}
       />
       <ElectionsFilterDrawer

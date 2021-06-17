@@ -195,10 +195,7 @@ describe("<BallotModal />", () => {
     fireEvent.click(buttonSpoilConfirm);
 
     await waitFor(() => {
-      expect(handleSubmitSpy).toHaveBeenCalledWith({
-        electionId: vp.electionId,
-        ranking: {},
-      });
+      expect(handleSubmitSpy).toHaveBeenCalledWith({});
       expect(handleCloseSpy).toHaveBeenCalled();
     });
   });
@@ -237,13 +234,7 @@ describe("<BallotModal />", () => {
     fireEvent.click(buttonSubmit);
 
     await waitFor(() => {
-      expect(handleSubmitSpy).toHaveBeenCalledWith({
-        electionId: vp.electionId,
-        ranking: {
-          0: 0,
-          1: 1,
-        },
-      });
+      expect(handleSubmitSpy).toHaveBeenCalledWith({ 0: 0, 1: 1 });
       expect(handleCloseSpy).toHaveBeenCalled();
     });
   });
@@ -370,10 +361,7 @@ describe("<BallotModal />", () => {
     fireEvent.click(buttonSubmit);
 
     await waitFor(() => {
-      expect(handleSubmitSpy).toHaveBeenCalledWith({
-        electionId: president.electionId,
-        ranking: { 0: 1 },
-      });
+      expect(handleSubmitSpy).toHaveBeenCalledWith({ 0: 1 });
       expect(handleCloseSpy).toHaveBeenCalled();
     });
   });
@@ -422,10 +410,7 @@ describe("<BallotModal />", () => {
     fireEvent.click(buttonSubmit);
 
     await waitFor(() => {
-      expect(handleSubmitSpy).toHaveBeenCalledWith({
-        electionId: referendum.electionId,
-        ranking: { 0: 1 },
-      });
+      expect(handleSubmitSpy).toHaveBeenCalledWith({ 0: 1 });
       expect(handleCloseSpy).toHaveBeenCalled();
     });
   });

@@ -186,7 +186,9 @@ Additionally, if you go to the admin site and click on `Election Sessions` on th
 
 **Developer Note**: If you wish to change the CSV templates in any way, make sure to regenerate the ZIP file and place it in the `skule_vote/backend/static/backend` directory.
 
-### Method 1: Using a CSV File (Recommended)
+
+### Setting up an Election Session
+#### Method 1: Using a CSV File (Recommended)
 To use this method, when you go to the `admin` site and add an `ElectionSession` you must add an `ElectionSession` with a `name`, `start_date` and `end_date`, and CSV files for each section of `election`, `candidate` and `eligibility`. These CSV files have certain constraints that must be obeyed. The constraints are as follows:
    - The header (first row) of each CSV file must be the same as the ones in the `/csv_files` templates.
    - Within a single CSV file all rows must be of equal length (have the same number of comma separated values).
@@ -205,6 +207,19 @@ To use this method, when you go to the `admin` site and add an `ElectionSession`
 
 **Note**: once an ElectionSession has started you *cannot* edit it to change its `name`, `start_date`, or upload any new CSV files. Any changes required for `Elections`, `Candidates` and `Eligibilities` must be made manually. You *can* change the `ElectionSession's` `end_date` once it has started, also manually.
 
-### Method 2: Manually
+#### Method 2: Manually
 
 To use this method, when you go to the `admin` site and add an `ElectionSession` you must add an `ElectionSession` with only a `name`, `start_date` and `end_date`. You will then go and manually create each of `Election`, `Candidate` and `Eligibility`. Note that `Candidate` and `Eligibility` require an `Election` to connect to, so `Elections` should be created first.
+
+### Notes on the RON/No Candidate
+
+The `RON/No Candidate` is created by default on the creation of each `Election`. It is also deleted by cascade on deletion of any `Election`, which includes manual `Election` deletion or as a cascade from deleting an `ElectionSession`. We describe it as the `RON/No Candidate` since it can take the form of a `RON Candidate` in the case where there are two or more other `Candidates`, or the `No Candidate` in the case of a single other `Candidate`.
+
+The `RON/No Candidate` has a default statement that says `Choose this option to reopen nominations.`. This will appear to the user when `RON` is active. When `No` is active, we remove the message and change the name to `No`. This is all done in the frontend.
+
+The `RON/No Candidate` is protected from accidental deletion in the following ways:
+
+- When you go to the `Candidate` changelist on the admin site, you will not see any `RON Candidates` when in production more (you will see them in debug mode though).
+- When you go to the change view for a specific `Candidate` on the admin site, you should not see a `Delete` button for any `RON Candidates`, while you can see it for regular `Candidates` (you will see them in debug mode though).
+
+**Developer Note: If you wish to change any of these options they are found in the `backend/models.py` and `backend/admin.py` files.**

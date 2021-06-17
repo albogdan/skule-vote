@@ -1,6 +1,7 @@
 import React from "react";
 import { render, waitFor } from "@testing-library/react";
 import ElectionPage from "pages/ElectionPage";
+import { useSnackbar } from "notistack";
 import { mockElections } from "assets/mocks";
 import { getElectionSession } from "assets/hooks";
 import { readableDate } from "pages/ElectionPage";
@@ -8,6 +9,11 @@ import { readableDate } from "pages/ElectionPage";
 jest.mock("assets/hooks", () => ({
   ...jest.requireActual("assets/hooks"),
   getElectionSession: jest.fn(),
+}));
+
+jest.mock("notistack", () => ({
+  ...jest.requireActual("notistack"),
+  useSnackbar: jest.fn(),
 }));
 
 describe("<ElectionPage />", () => {
@@ -22,6 +28,7 @@ describe("<ElectionPage />", () => {
   beforeEach(() => {
     [, startTimeStr] = readableDate(electionSession.start_time);
     [, endTimeStr] = readableDate(electionSession.end_time);
+    useSnackbar.mockImplementation(() => ({ enqueueSnackbar: jest.fn() }));
   });
 
   it("renders election page with ballots during an election session", async () => {

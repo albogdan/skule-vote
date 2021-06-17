@@ -1,4 +1,6 @@
 from datetime import timedelta
+import random
+from unittest.mock import patch
 
 from django.conf import settings
 from django.test import TestCase
@@ -323,3 +325,89 @@ class ElectionSessionAdminTestCase(SetupMixin, TestCase):
             Candidate.objects.count(), 1 + Election.objects.count()
         )  # Factor in RON Candidate
         self.assertEqual(Eligibility.objects.count(), 1)
+
+
+class CandidateAdminTestCase(SetupMixin, TestCase):
+    """
+    Tests the changelist view for Candidates.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self._set_election_session_data()
+        election_session = self._create_election_session(self.data)
+
+        self.setUpElections(election_session)
+        self._login_admin()
+
+    def test_ron_candidates_do_not_appear_in_changelist_in_production_mode(self):
+        self.changelist_view = reverse("admin:backend_candidate_changelist")
+
+        response = self.client.get(self.changelist_view)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotContains(response, "Reopen Nominations")
+
+        # setUpElections() function doesn't create any Candidates.
+        self.assertContains(response, "0 candidates")
+
+    @patch("django.conf.settings.DEBUG")
+    def test_ron_candidates_appear_in_changelist_in_debug_mode(self, mock_debug):
+        mock_debug.return_value = True
+
+        self.changelist_view = reverse("admin:backend_candidate_changelist")
+
+        response = self.client.get(self.changelist_view)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(response, "Reopen Nominations")
+
+        # The only Candidates that were created were the RON ones.
+        self.assertContains(response, f"0 of {Candidate.objects.count()} selected")
+
+    def test_delete_button_does_not_appear_for_ron_candidates_in_production_mode(self):
+        # Create random Candidates for each Election that are not RON
+        for election in Election.objects.all():
+            data = {
+                "name": f"Candidate{str(random.randint(100, 1000))}",
+                "election": election,
+                "statement": "Insert voter statement here.",
+            }
+            candidate = Candidate(**data)
+            candidate.save()
+
+        for candidate in Candidate.objects.all():
+            change_view = reverse(
+                "admin:backend_candidate_change", kwargs={"object_id": candidate.id}
+            )
+            response = self.client.get(change_view)
+
+            if candidate.name == "Reopen Nominations":
+                self.assertRedirects(response, reverse("admin:index"))
+            else:
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                self.assertContains(response, "Delete")
+                self.assertNotContains(response, "Reopen Nominations")
+
+    @patch("django.conf.settings.DEBUG")
+    def test_delete_button_appears_for_ron_candidates_in_debug_mode(self, mock_debug):
+        mock_debug.return_value = True
+
+        # Create random Candidates for each Election that are not RON
+        for election in Election.objects.all():
+            data = {
+                "name": f"Candidate{str(random.randint(100, 1000))}",
+                "election": election,
+                "statement": "Insert voter statement here.",
+            }
+            candidate = Candidate(**data)
+            candidate.save()
+
+        for candidate in Candidate.objects.all():
+            change_view = reverse(
+                "admin:backend_candidate_change", kwargs={"object_id": candidate.id}
+            )
+            response = self.client.get(change_view)
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertContains(response, "Delete")

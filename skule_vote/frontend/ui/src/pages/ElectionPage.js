@@ -1,4 +1,5 @@
 import React from "react";
+import { useMount } from "react-use";
 import styled from "styled-components";
 import Typography from "@material-ui/core/Typography";
 import Hidden from "@material-ui/core/Hidden";
@@ -14,7 +15,7 @@ import Messages from "components/Messages";
 import { Spacer } from "assets/layout";
 import { mockElections } from "assets/mocks";
 import { responsive } from "assets/breakpoints";
-import { getElectionSession } from "assets/hooks";
+import { useGetElectionSession } from "hooks/ElectionHooks";
 
 const ElectionsWrapper = styled.div`
   display: flex;
@@ -86,6 +87,8 @@ export function readableDate(date) {
 const ElectionPage = () => {
   const isMobile = useMediaQuery(responsive.smDown);
 
+  const getElectionSession = useGetElectionSession();
+
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [filterCategory, setFilterCategory] = React.useState("All");
   const [electionSession, setElectionSession] = React.useState({});
@@ -118,19 +121,19 @@ const ElectionPage = () => {
     setBallotElectionId(null);
   };
 
-  React.useEffect(() => {
+  useMount(() => {
     async function fetchElectionSessions() {
       const getElecSession = await getElectionSession();
       if (getElecSession != null) {
         setElectionSession(getElecSession);
       }
+      // Call this every minute
       setTimeout(() => {
         fetchElectionSessions();
       }, 60000);
     }
     fetchElectionSessions();
-  }, []);
-
+  });
   return (
     <>
       <EnhancedBallotModal

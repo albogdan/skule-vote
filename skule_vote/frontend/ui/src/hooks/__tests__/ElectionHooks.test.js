@@ -1,23 +1,17 @@
 import axios from "axios";
-import notistack, { useSnackbar } from "notistack";
+import { useSnackbar } from "notistack";
 import { renderHook, act } from "@testing-library/react-hooks";
 import { useGetElectionSession } from "hooks/ElectionHooks";
-import { waitFor } from "@testing-library/react";
 
 jest.mock("axios");
-
-// jest.mock("notistack");
-
-const mockEnqueueSnackbar = jest.fn();
-jest.mock("notistack", () => ({
-  ...jest.requireActual("notistack"),
-  useSnackbar: () => ({ enqueueSnackbar: mockEnqueueSnackbar }),
-}));
+jest.mock("notistack");
 
 describe("useGetElectionSession", () => {
-  // beforeEach(() => {
-  //   useSnackbar.mockImplementation(() => ({ enqueueSnackbar: jest.fn() }));
-  // });
+  beforeEach(() => {
+    useSnackbar.mockImplementation(() => ({
+      enqueueSnackbar: jest.fn(),
+    }));
+  });
 
   it("fetches successfully from API with an election session", async () => {
     const response = {
@@ -67,34 +61,16 @@ describe("useGetElectionSession", () => {
   });
 
   it("fetches erroneously data from an API", async () => {
-    // const enqueueSnackbar = jest.fn();
-    // useSnackbar.mockImplementation(() => ({ enqueueSnackbar }));
+    const enqueueSnackbar = jest.fn();
+    useSnackbar.mockImplementation(() => ({ enqueueSnackbar }));
 
     axios.get.mockResolvedValueOnce(Promise.reject(new Error("Network Error")));
     const { result } = renderHook(() => useGetElectionSession());
 
     await act(async () => {
       const apiResponse = result.current();
-      // expect(mockEnqueueSnackbar).toHaveBeenCalled();
       return expect(apiResponse).resolves.toEqual(null);
     });
-
-    await expect(mockEnqueueSnackbar).toHaveBeenCalled();
-
-    // await waitFor(() => expect(mockEnqueueSnackbar).toHaveBeenCalled());
+    await expect(enqueueSnackbar).toHaveBeenCalled();
   });
 });
-
-// axios.get.mockImplementationOnce()
-// await getElectionSession();
-
-// await
-// await waitFor(() => {
-//   expect(enqueueSnackbar).toHaveBeenCalled();
-//   return expect(getElectionSession()).resolves.toEqual(null);
-// });
-
-// await expect(getElectionSession()).resolves.toEqual(response.data[0]);
-//
-
-// You need to mock the closeSnackbar function, something like this:

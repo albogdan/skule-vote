@@ -10,10 +10,10 @@ export const useGetElectionSession = () => {
       if (response.status === 200) {
         return response.data[0] ?? {};
       }
-    } catch {
+    } catch (e) {
       enqueueSnackbar(
         {
-          message: "Error: <error from response>.",
+          message: `Failed to fetch election session: ${e.message}`,
           variant: "error",
         },
         { variant: "error" }

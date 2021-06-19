@@ -14,7 +14,7 @@ describe("<Messages />", () => {
     times = [startTime, startTimeStr, endTimeStr];
   });
 
-  it("renders the message notifying the end of the election", () => {
+  it("renders message notifying the end of the election", () => {
     jest
       .spyOn(Date, "now")
       .mockImplementation(() => Date.parse("2021-06-13T00:00:00-04:00")); // June 13, 2021
@@ -28,7 +28,7 @@ describe("<Messages />", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("renders the message notifying the start of an upcoming election", () => {
+  it("renders message notifying the start of an upcoming election", () => {
     jest
       .spyOn(Date, "now")
       .mockImplementation(() => Date.parse("2021-06-10T00:00:00-04:00")); // June 10, 2021
@@ -49,10 +49,8 @@ describe("<Messages />", () => {
       <Messages times={[null, null, null]} electionIsLive={false} />
     );
     expect(
-      queryByText(`There's an upcoming election starting on ${times[1]}.`)
+      queryByText(/There's an upcoming election starting on/)
     ).not.toBeInTheDocument();
-    expect(
-      queryByText(`Elections close on ${times[2]}.`)
-    ).not.toBeInTheDocument();
+    expect(queryByText(/Elections close on/)).not.toBeInTheDocument();
   });
 });

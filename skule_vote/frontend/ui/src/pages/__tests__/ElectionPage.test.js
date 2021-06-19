@@ -8,7 +8,7 @@ import { withSnackbarProvider } from "assets/testing";
 
 jest.mock("hooks/ElectionHooks");
 
-describe("withSnackbarProvider(<ElectionPage />)", () => {
+describe("<ElectionPage />", () => {
   const electionSession = {
     election_session_name: "Test",
     start_time: "2021-06-12T00:00:00-04:00", // June 12, 2021

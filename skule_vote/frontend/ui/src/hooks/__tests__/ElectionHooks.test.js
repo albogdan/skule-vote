@@ -19,8 +19,8 @@ describe("useGetElectionSession", () => {
       data: [
         {
           name: "Test",
-          start_time: "",
-          end_time: "",
+          start_time: "2021-06-19T05:01:02.181Z",
+          end_time: "2021-06-19T05:01:02.181Z",
         },
       ],
     };
@@ -60,7 +60,7 @@ describe("useGetElectionSession", () => {
     });
   });
 
-  it("fetches erroneously data from an API", async () => {
+  it("enqueues snackbar if API errors out", async () => {
     const enqueueSnackbar = jest.fn();
     useSnackbar.mockImplementation(() => ({ enqueueSnackbar }));
 

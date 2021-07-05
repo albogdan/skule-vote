@@ -12,7 +12,7 @@ import { CustomAlert } from "components/Alerts";
 import Footer from "components/Footer";
 import Header from "components/Header";
 import { responsive } from "assets/breakpoints";
-import { useLocalStorage } from "assets/hooks";
+import { useLocalStorage } from "hooks/GeneralHooks";
 
 const AppWrapper = styled.div`
   min-height: 100vh;

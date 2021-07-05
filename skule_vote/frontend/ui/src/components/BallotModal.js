@@ -13,7 +13,7 @@ import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import { Spacer } from "assets/layout";
-import { useHandleSubmit } from "assets/hooks";
+import { useHandleSubmit } from "hooks/ElectionHooks";
 import { CustomMessage } from "components/Alerts";
 import { responsive } from "assets/breakpoints";
 import { useTheme } from "@material-ui/core/styles";

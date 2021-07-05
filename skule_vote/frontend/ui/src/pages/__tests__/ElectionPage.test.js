@@ -1,19 +1,17 @@
 import React from "react";
 import { render, waitFor } from "@testing-library/react";
 import ElectionPage from "pages/ElectionPage";
-import { mockElections } from "assets/mocks";
-import { useGetElectionSession } from "hooks/ElectionHooks";
+import {
+  useGetElectionSession,
+  useGetEligibleElections,
+} from "hooks/ElectionHooks";
 import { readableDate } from "pages/ElectionPage";
 import { withSnackbarProvider } from "assets/testing";
+import { electionSession, eligibleElections } from "assets/mocks";
 
 jest.mock("hooks/ElectionHooks");
 
 describe("<ElectionPage />", () => {
-  const electionSession = {
-    election_session_name: "Test",
-    start_time: "2021-06-12T00:00:00-04:00", // June 12, 2021
-    end_time: "2021-06-14T00:00:00-04:00", // June 14, 2021
-  };
   let startTimeStr;
   let endTimeStr;
 
@@ -21,8 +19,12 @@ describe("<ElectionPage />", () => {
     [, startTimeStr] = readableDate(electionSession.start_time);
     [, endTimeStr] = readableDate(electionSession.end_time);
     const getElectionSession = jest.fn(() => electionSession);
+    const getEligibleElections = jest.fn(() => eligibleElections);
     useGetElectionSession.mockImplementation(() => {
       return getElectionSession;
+    });
+    useGetEligibleElections.mockImplementation(() => {
+      return getEligibleElections;
     });
   });
 
@@ -39,8 +41,8 @@ describe("<ElectionPage />", () => {
     expect(getAllByText("Filter")).toHaveLength(2);
     expect(getByText("Selected Filter: All")).toBeInTheDocument();
     await waitFor(() => {
-      for (let e of mockElections) {
-        expect(getByText(e.electionName)).toBeInTheDocument();
+      for (let e of Object.values(eligibleElections)) {
+        expect(getByText(e.election_name)).toBeInTheDocument();
       }
     });
   });
@@ -49,6 +51,10 @@ describe("<ElectionPage />", () => {
     jest
       .spyOn(Date, "now")
       .mockImplementation(() => Date.parse("2021-06-10T00:00:00-04:00")); // June 10, 2021
+    const getEligibleElections = jest.fn(() => {});
+    useGetEligibleElections.mockImplementation(() => {
+      return getEligibleElections;
+    });
 
     const { getByText, queryByText, getAllByText } = render(
       withSnackbarProvider(<ElectionPage />)
@@ -63,8 +69,8 @@ describe("<ElectionPage />", () => {
           "There are no elections that you are currently eligible to vote in."
         )
       ).toBeInTheDocument();
-      for (let e of mockElections) {
-        expect(queryByText(e.electionName)).not.toBeInTheDocument();
+      for (let e of Object.values(eligibleElections)) {
+        expect(queryByText(e.election_name)).not.toBeInTheDocument();
       }
     });
   });

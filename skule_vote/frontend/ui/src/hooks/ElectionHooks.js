@@ -31,12 +31,15 @@ export const useGetEligibleElections = () => {
   return async function getEligibleElections() {
     try {
       const response = await get("/api/elections/");
-      console.log("response", response);
       if (response.status === 200) {
-        return response.data ?? [];
+        return response.data == null
+          ? {}
+          : response.data.reduce((accum, val) => {
+              accum[val.id] = val;
+              return accum;
+            }, {});
       }
     } catch (e) {
-      console.log("e", e);
       enqueueSnackbar(
         {
           message: `Failed to fetch eligible elections: ${

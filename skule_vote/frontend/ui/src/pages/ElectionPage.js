@@ -60,15 +60,15 @@ const FilterBtnDiv = styled.div`
   }
 `;
 
-export const listOfCategories = [
-  "All",
-  "Referenda",
-  "Officer",
-  "Board of Directors",
-  "Discipline Club",
-  "Class Representatives",
-  "Other",
-];
+export const listOfCategories = {
+  all: "All",
+  referenda: "Referenda",
+  officer: "Officer",
+  board_of_directors: "Board of Directors",
+  discipline_club: "Discipline Club",
+  class_representatives: "Class Representatives",
+  other: "Other",
+};
 
 export function readableDate(date) {
   if (date == null) {
@@ -96,20 +96,18 @@ const ElectionPage = () => {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [filterCategory, setFilterCategory] = React.useState("All");
   const [electionSession, setElectionSession] = React.useState({});
-  const [eligibleElections, setEligibleElections] = React.useState([]);
+  const [eligibleElections, setEligibleElections] = React.useState({});
 
   const [startTime, startTimeStr] = readableDate(electionSession?.start_time);
   const [endTime, endTimeStr] = readableDate(electionSession?.end_time);
   const electionIsLive =
     startTime && Date.now() >= startTime && Date.now() <= endTime;
 
-  // let eligibleElections = [];
-  // if (Object.keys(electionSession).length !== 0 && electionIsLive) {
-  // eligibleElections = mockElections;
-  // }
-
-  let filteredEligibleElections = eligibleElections.filter((election) =>
-    filterCategory === "All" ? true : filterCategory === election.category
+  let filteredEligibleElections = Object.values(eligibleElections).filter(
+    (election) =>
+      filterCategory === "All"
+        ? true
+        : filterCategory === listOfCategories[election.category]
   );
 
   const toggleDrawer = () => {
@@ -148,7 +146,7 @@ const ElectionPage = () => {
       <EnhancedBallotModal
         open={open}
         handleClose={handleClose}
-        id={ballotElectionId}
+        ballotInfo={eligibleElections[ballotElectionId]}
       />
       <ElectionsFilterDrawer
         drawerOpen={drawerOpen}
@@ -193,11 +191,11 @@ const ElectionPage = () => {
             filteredEligibleElections.map((election, i) => (
               <ElectionCard
                 key={i}
-                title={election.electionName}
-                numCandidates={election.numCandidates}
+                title={election.election_name}
+                numCandidates={election.seats_available}
                 openModal={() => {
                   setOpen(true);
-                  setBallotElectionId(election.electionId);
+                  setBallotElectionId(election.id);
                 }}
               />
             ))

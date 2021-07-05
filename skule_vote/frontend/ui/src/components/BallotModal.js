@@ -18,11 +18,7 @@ import { CustomMessage } from "components/Alerts";
 import { responsive } from "assets/breakpoints";
 import { useTheme } from "@material-ui/core/styles";
 
-import {
-  MockBallotVP,
-  MockBallotReferenda,
-  MockBallotPresident,
-} from "assets/mocks";
+export const REOPEN_NOMINATIONS = "Reopen Nominations";
 
 const ModalPaper = styled(Paper)`
   position: absolute;
@@ -164,22 +160,22 @@ const Statements = ({ isReferendum, candidates }) => (
         candidate.statement != null && (
           <Fragment key={candidate.id}>
             {!isReferendum && (
-              <Typography variant="h3">{candidate.candidateName}</Typography>
+              <Typography variant="h3">{candidate.name}</Typography>
             )}
-            {candidate.disqualificationRuling && (
+            {candidate.disqualified_message && (
               <>
                 <BallotRulingAlert
-                  ruling={candidate.disqualificationRuling}
-                  link={candidate.disqualificationLink}
+                  ruling={candidate.disqualified_message}
+                  link={candidate.disqualified_link}
                 />
                 <Spacer y={4} />
               </>
             )}
-            {candidate.ruleViolationRuling && (
+            {candidate.rule_violation_message && (
               <>
                 <BallotRulingAlert
-                  ruling={candidate.ruleViolationRuling}
-                  link={candidate.ruleViolationLink}
+                  ruling={candidate.rule_violation_message}
+                  link={candidate.rule_violation_link}
                 />
                 <Spacer y={4} />
               </>
@@ -235,7 +231,7 @@ const Selector = ({ i, candidates, ranking, isReferendum, changeRanking }) => {
           <MenuItem value={candidate.id} key={candidate.id}>
             {candidates.length === 2 && candidate.statement != null
               ? "Yes"
-              : candidate.candidateName}
+              : candidate.name}
           </MenuItem>
         ))}
       </Select>
@@ -294,7 +290,7 @@ const SelectedRanking = ({ isReferendum, ranking, candidates }) => {
   const idToNameMap = React.useMemo(
     () =>
       candidates.reduce((accum, val) => {
-        accum[val.id] = val.candidateName;
+        accum[val.id] = val.name;
         return accum;
       }, {}),
     [candidates]
@@ -326,7 +322,7 @@ const SelectedRanking = ({ isReferendum, ranking, candidates }) => {
           {Object.values(ranking)[0] ===
           candidates.filter((candidate) => candidate.statement != null)[0].id
             ? "Yes"
-            : idToNameMap[ranking[0]]}
+            : idToNameMap[Object.values(ranking)[0]]}
         </Typography>
       )}
       {/* Case: multiple candidates and vote(s) has been selected */}
@@ -510,29 +506,23 @@ export const BallotModal = ({
   );
 };
 
-const EnhancedBallotModal = ({ handleClose, open, id }) => {
-  const handleSubmit = useHandleSubmit(id);
-  // Remove this later with get from API
-  const mockElections = {
-    0: MockBallotReferenda,
-    2: MockBallotPresident,
-    3: MockBallotVP,
-  };
-  if (id == null || !Object.keys(mockElections).includes(id.toString())) {
+// handleClose: func, open: boolean, ballotInfo: {}
+const EnhancedBallotModal = ({ handleClose, open, ballotInfo }) => {
+  const handleSubmit = useHandleSubmit(ballotInfo?.id);
+
+  if (ballotInfo == null) {
     return null;
   }
-  const ballotInfo = mockElections[id];
-
-  const { category, candidates, electionName } = ballotInfo;
-  const isReferendum = category === "Referenda";
+  const { category, candidates, election_name } = ballotInfo;
+  const isReferendum = category === "referenda";
 
   let candidatesList = [];
   // Seperate ron from non-ron candidates
   const ron = candidates.filter(
-    (candidate) => candidate.candidateName === "Reopen Nominations"
+    (candidate) => candidate.name === REOPEN_NOMINATIONS
   )[0];
   let nonRon = candidates.filter(
-    (candidate) => candidate.candidateName !== "Reopen Nominations"
+    (candidate) => candidate.name !== REOPEN_NOMINATIONS
   );
 
   if (!isReferendum && candidates.length > 2) {
@@ -543,7 +533,7 @@ const EnhancedBallotModal = ({ handleClose, open, id }) => {
     // Replace ron with No
     const noSelection = {
       id: ron.id,
-      candidateName: "No",
+      name: "No",
       statement: null,
     };
     candidatesList = nonRon.concat(noSelection);
@@ -556,7 +546,7 @@ const EnhancedBallotModal = ({ handleClose, open, id }) => {
       open={open}
       isReferendum={isReferendum}
       sortedCandidates={candidatesList}
-      electionName={electionName}
+      electionName={election_name}
     />
   );
 };

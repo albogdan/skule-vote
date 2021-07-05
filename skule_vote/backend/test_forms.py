@@ -403,9 +403,7 @@ class ElectionSessionAdminFormTestCase(SetupMixin, TestCase):
 
         files_dict = self._build_admin_csv_files()
 
-        files_dict[
-            "upload_candidates"
-        ].name = "candidates_elections_2021 (32).ods"
+        files_dict["upload_candidates"].name = "candidates_elections_2021 (32).ods"
 
         form_2 = self._build_election_session_form(files=files_dict)
         self.assertFalse(form_2.is_valid())

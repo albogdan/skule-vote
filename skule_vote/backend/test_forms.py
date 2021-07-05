@@ -387,10 +387,10 @@ class ElectionSessionAdminFormTestCase(SetupMixin, TestCase):
             form.errors["upload_eligibilities"][0],
         )
 
-    def test_not_uploading_csv_content_type_throws_validation_error(self):
+    def test_not_uploading_csv_file_type_throws_validation_error(self):
         files_dict = self._build_admin_csv_files()
 
-        files_dict["upload_elections"].content_type = "application/vnd.ms-excel"
+        files_dict["upload_elections"].name = f"elections_testfile (1).xlsx"
 
         form_1 = self._build_election_session_form(files=files_dict)
         self.assertFalse(form_1.is_valid())
@@ -405,7 +405,7 @@ class ElectionSessionAdminFormTestCase(SetupMixin, TestCase):
 
         files_dict[
             "upload_candidates"
-        ].content_type = "application/vnd.oasis.opendocument.spreadsheet"
+        ].name = "candidates_elections_2021 (32).ods"
 
         form_2 = self._build_election_session_form(files=files_dict)
         self.assertFalse(form_2.is_valid())
@@ -418,7 +418,7 @@ class ElectionSessionAdminFormTestCase(SetupMixin, TestCase):
 
         files_dict = self._build_admin_csv_files()
 
-        files_dict["upload_eligibilities"].content_type = "text/plain"
+        files_dict["upload_eligibilities"].name = "eligibilities-for-2021-elections.txt"
 
         form_3 = self._build_election_session_form(files=files_dict)
         self.assertFalse(form_3.is_valid())

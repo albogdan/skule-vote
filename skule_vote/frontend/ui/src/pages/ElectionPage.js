@@ -122,17 +122,17 @@ const ElectionPage = () => {
   };
 
   useMount(() => {
-    async function fetchElectionSessions() {
+    async function fetchElectionSession() {
       const getElecSession = await getElectionSession();
       if (getElecSession != null) {
         setElectionSession(getElecSession);
       }
       // Call this every minute
       setTimeout(() => {
-        fetchElectionSessions();
+        fetchElectionSession();
       }, 60000);
     }
-    fetchElectionSessions();
+    fetchElectionSession();
   });
   return (
     <>

@@ -13,7 +13,6 @@ import ElectionCard, { NoElectionsCard } from "components/ElectionCard";
 import EnhancedBallotModal from "components/BallotModal";
 import Messages from "components/Messages";
 import { Spacer } from "assets/layout";
-import { mockElections } from "assets/mocks";
 import { responsive } from "assets/breakpoints";
 import {
   useGetElectionSession,

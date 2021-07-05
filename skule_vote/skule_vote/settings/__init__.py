@@ -35,7 +35,6 @@ if DEBUG:
     INTERNAL_IPS = ["localhost", "127.0.0.1"]
     CORS_ORIGIN_REGEX_WHITELIST = [
         r"^https?://localhost:?\d*$",
-        r"^https?://127.0.0.1:?\d*$",
     ]
 
 else:

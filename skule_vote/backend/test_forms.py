@@ -451,7 +451,7 @@ class ElectionSessionOverlappingDatesTestCase(SetupMixin, TestCase):
     """
     Tests the ElectionSession form specifically for overlapping dates between different ElectionSessions.
 
-    For the overloaded save function, the visualization is as follows
+    For the possible scenarios, the visualization is as follows
                          ExistingStartDate                                  ExistingEndDate
 
     1. NewStartDate                                                                             NewEndDate
@@ -459,8 +459,7 @@ class ElectionSessionOverlappingDatesTestCase(SetupMixin, TestCase):
     3. NewStartDate                         NewEndDate
     4.                                      NewStartDate        NewEndDate
 
-    In these four cases, the save() function should not save anything to the database. Otherwise it should
-    proceed as usual.
+    In these four cases, the check function should raise a ValidationError. Otherwise it should proceed as usual.
     """
 
     def setUp(self):

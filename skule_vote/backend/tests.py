@@ -499,7 +499,7 @@ class ElectionSessionViewTestCase(SetupMixin, APITestCase):
 
     def test_live_election_session_returns_future_election_does_not_success(self):
         future_session = self._set_election_session_data(
-            name="TestElectionSession", start_time_offset_days=1
+            name="TestElectionSession", start_time_offset_days=6
         )
         self._create_election_session()
         current_session = self._set_election_session_data()
@@ -526,7 +526,7 @@ class ElectionSessionViewTestCase(SetupMixin, APITestCase):
         past = self._set_election_session_data(
             name="TestElectionSession",
             start_time_offset_days=-4,
-            end_time_offset_days=-2,
+            end_time_offset_days=-3,
         )
         self._create_election_session()
         current_session = self._set_election_session_data()

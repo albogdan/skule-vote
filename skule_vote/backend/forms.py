@@ -228,34 +228,46 @@ class ElectionSessionAdminForm(forms.ModelForm):
         exclude_id = self.instance.id if self.instance is not None else -1
 
         # Check for ElectionSessions that have an overlapping start time within the new ElectionSession's time range
-        election_session_overlapping_start = ElectionSession.objects.filter(
-            start_time__gte=self.cleaned_data["start_time"].astimezone(
-                settings.TZ_INFO
-            ),
-            start_time__lte=self.cleaned_data["end_time"].astimezone(
-                settings.TZ_INFO
-            ),
-        ).exclude(id=exclude_id).exists()
+        election_session_overlapping_start = (
+            ElectionSession.objects.filter(
+                start_time__gte=self.cleaned_data["start_time"].astimezone(
+                    settings.TZ_INFO
+                ),
+                start_time__lte=self.cleaned_data["end_time"].astimezone(
+                    settings.TZ_INFO
+                ),
+            )
+            .exclude(id=exclude_id)
+            .exists()
+        )
 
         # Check for ElectionSessions that have an overlapping end time within the new ElectionSession's time range
-        election_session_overlapping_end = ElectionSession.objects.filter(
-            end_time__gte=self.cleaned_data["start_time"].astimezone(
-                settings.TZ_INFO
-            ),
-            end_time__lte=self.cleaned_data["end_time"].astimezone(
-                settings.TZ_INFO
-            ),
-        ).exclude(id=exclude_id).exists()
+        election_session_overlapping_end = (
+            ElectionSession.objects.filter(
+                end_time__gte=self.cleaned_data["start_time"].astimezone(
+                    settings.TZ_INFO
+                ),
+                end_time__lte=self.cleaned_data["end_time"].astimezone(
+                    settings.TZ_INFO
+                ),
+            )
+            .exclude(id=exclude_id)
+            .exists()
+        )
 
         # Check for ElectionSessions that envelop the new ElectionSession's time range
-        election_session_enveloping = ElectionSession.objects.filter(
-            start_time__lte=self.cleaned_data["start_time"].astimezone(
-                settings.TZ_INFO
-            ),
-            end_time__gte=self.cleaned_data["end_time"].astimezone(
-                settings.TZ_INFO
-            ),
-        ).exclude(id=exclude_id).exists()
+        election_session_enveloping = (
+            ElectionSession.objects.filter(
+                start_time__lte=self.cleaned_data["start_time"].astimezone(
+                    settings.TZ_INFO
+                ),
+                end_time__gte=self.cleaned_data["end_time"].astimezone(
+                    settings.TZ_INFO
+                ),
+            )
+            .exclude(id=exclude_id)
+            .exists()
+        )
 
         overlapping_election_sessions_present = (
             election_session_overlapping_start

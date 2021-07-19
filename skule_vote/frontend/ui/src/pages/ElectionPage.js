@@ -65,7 +65,7 @@ export const listOfCategories = {
   officer: "Officer",
   board_of_directors: "Board of Directors",
   discipline_club: "Discipline Club",
-  class_representatives: "Class Representatives",
+  class_representative: "Class Representatives",
   other: "Other",
 };
 

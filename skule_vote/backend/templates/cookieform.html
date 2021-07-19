@@ -2,175 +2,276 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
+
+    <title>Skule Vote</title>
+    <!-- Materialize: Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <!-- Materialize: Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script> 
+
+    <style>
+        body {
+            background-color: #3B739E;
+            color: #333;
+            font-size: 14px;
+        }
+        form {
+            max-width: 500px;
+            width: 90%;
+            background-color: white;
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        h1 {
+            font-size: 24px;
+            margin: 0 auto 20px;
+            text-align: center;
+        }
+        .form-group > label {
+            font-size: 14px;
+            color: #333;
+        }
+        .radio-group > p > label > span {
+            color: #555;
+        }
+    
+    </style>
 </head>
 <body>
 <form action="/api/bypasscookie/" method="post">
+    <h1>Skule Vote</h1>
     {% csrf_token %}
-    <div class="formbuilder-text form-group field-pid">
-        <label for="pid" class="formbuilder-text-label">Student ID Hash - Assumed to be unique per person. Will overwrite old info<span class="formbuilder-required">*</span></label>
-        <input type="text" class="form-control" name="pid" access="false" value="213asdf2348u9" maxlength="16" id="pid" required="required" aria-required="true">
-    </div>
-    <div class="formbuilder-radio-group form-group field-isstudent">
-        <label for="isstudent" class="formbuilder-radio-group-label">Is Student?<span class="formbuilder-required">*</span></label>
-        <div class="radio-group">
-            <div class="formbuilder-radio">
-                <input name="isstudent" access="false" id="isstudent-0" required="required" aria-required="true" value="True" type="radio">
-                <label for="isstudent-0">Yes</label>
-            </div>
-            <div class="formbuilder-radio">
-                <input name="isstudent" access="false" id="isstudent-1" required="required" aria-required="true" value="False" type="radio">
-                <label for="isstudent-1">No</label>
+    <div class="form-group">
+        <div class="row">
+            <div class="col s12" style="padding: 0; margin-bottom: 0;">
+                <div class="input-field" style="margin-bottom: 0;">
+                    <input placeholder="Student ID Hash" value="213asdf2348u9" maxlength="16" class="validate" type="text" name="pid" id="pid" required="required" aria-required="true">
+                    <label for="pid">Student ID Hash*</label>
+                    <span class="helper-text">Assumed to be unique per person. Will overwrite old info</span>
+                </div>
             </div>
         </div>
+
     </div>
-    <div class="formbuilder-radio-group form-group field-primaryorg">
-        <label for="primaryorg" class="formbuilder-radio-group-label">Is Engineering?<span class="formbuilder-required">*</span></label>
+    <div class="form-group">
+        <label for="isstudent">Is Student*</label>
         <div class="radio-group">
-            <div class="formbuilder-radio">
-                <input name="primaryorg" access="false" id="primaryorg-0" required="required" aria-required="true" value="APSE" type="radio">
-                <label for="primaryorg-0">Yes</label>
-            </div>
-            <div class="formbuilder-radio">
-                <input name="primaryorg" access="false" id="primaryorg-1" required="required" aria-required="true" value="null" type="radio">
-                <label for="primaryorg-1">No</label>
-            </div>
+            <p>
+                <label for="isstudent-0">
+                    <input class="with-gap" name="isstudent" id="isstudent-0" required="required" aria-required="true" value="True" type="radio" checked>
+                    <span>Yes</span>
+                </label>
+            </p>
+            <p>
+                <label for="isstudent-1">
+                    <input class="with-gap" name="isstudent" id="isstudent-1" required="required" aria-required="true" value="False" type="radio">
+                    <span>No</span>
+                </label>
+            </p>
         </div>
     </div>
-    <div class="formbuilder-radio-group form-group field-isundergrad">
-        <label for="isundergrad" class="formbuilder-radio-group-label">Is Undergrad?<span class="formbuilder-required">*</span></label>
+    <div class="form-group">
+        <label for="primaryorg">Is Engineering*</label>
         <div class="radio-group">
-            <div class="formbuilder-radio">
-                <input name="isundergrad" access="false" id="isundergrad-0" required="required" aria-required="true" value="True" type="radio">
-                <label for="isundergrad-0">Yes</label>
-            </div>
-            <div class="formbuilder-radio">
-                <input name="isundergrad" access="false" id="isundergrad-1" required="required" aria-required="true" value="False" type="radio">
-                <label for="isundergrad-1">No</label>
-            </div>
+            <p>
+                <label for="primaryorg-0">
+                    <input class="with-gap" name="primaryorg" id="primaryorg-0" required="required" aria-required="true" value="APSE" type="radio" checked>
+                    <span>Yes</span>
+                </label>
+            </p>
+            <p>
+                <label for="primaryorg-1">
+                    <input class="with-gap" name="primaryorg" id="primaryorg-1" required="required" aria-required="true" value="null" type="radio">
+                    <span>No</span>
+                </label>
+            </p>
         </div>
     </div>
-    <div class="formbuilder-radio-group form-group field-isregistered">
-        <label for="isregistered" class="formbuilder-radio-group-label">Is Registered?<span class="formbuilder-required">*</span></label>
+    <div class="form-group">
+        <label for="isundergrad">Is Undergrad*</label>
         <div class="radio-group">
-            <div class="formbuilder-radio">
-                <input name="isregistered" access="false" id="isregistered-0" required="required" aria-required="true" value="True" type="radio">
-                <label for="isregistered-0">Yes</label>
-            </div>
-            <div class="formbuilder-radio">
-                <input name="isregistered" access="false" id="isregistered-1" required="required" aria-required="true" value="False" type="radio">
-                <label for="isregistered-1">No</label>
-            </div>
+            <p>
+                <label for="isundergrad-0">
+                    <input class="with-gap" name="isundergrad" id="isundergrad-0" required="required" aria-required="true" value="True" type="radio" checked>
+                    <span>Yes</span>
+                </label>
+            </p>
+            <p>
+                <label for="isundergrad-1">
+                    <input class="with-gap" name="isundergrad" id="isundergrad-1" required="required" aria-required="true" value="False" type="radio">
+                    <span>No</span>
+                </label>
+            </p>
         </div>
     </div>
-    <div class="formbuilder-radio-group form-group field-assocorg">
-        <label for="assocorg" class="formbuilder-radio-group-label">Is PEY?<span class="formbuilder-required">*</span></label>
+    <div class="form-group">
+        <label for="isregistered">Is Registered*</label>
         <div class="radio-group">
-            <div class="formbuilder-radio">
-                <input name="assocorg" access="false" id="assocorg-0" required="required" aria-required="true" value="AEPEY" type="radio">
-                <label for="assocorg-0">Yes</label>
-            </div>
-            <div class="formbuilder-radio">
-                <input name="assocorg" access="false" id="assocorg-1" required="required" aria-required="true" value="null" type="radio">
-                <label for="assocorg-1">No</label>
-            </div>
+            <p>
+                <label for="isregistered-0">
+                    <input class="with-gap" name="isregistered" id="isregistered-0" required="required" aria-required="true" value="True" type="radio" checked>
+                    <span>Yes</span>
+                </label>
+            </p>
+            <p>
+                <label for="isregistered-1">
+                    <input class="with-gap" name="isregistered" id="isregistered-1" required="required" aria-required="true" value="False" type="radio">
+                    <span>No</span>
+                </label>
+            </p>
         </div>
     </div>
-    <div class="formbuilder-radio-group form-group field-yofstudy">
-        <label for="yofstudy" class="formbuilder-radio-group-label">Year of study? <span class="formbuilder-required">*</span> </label>
+    <div class="form-group">
+        <label for="assocorg">Is PEY*</label>
         <div class="radio-group">
-            <div class="formbuilder-radio">
-                <input name="yofstudy" access="false" id="yofstudy-0" required="required" value="1" type="radio">
-                <label for="yofstudy-0">1</label>
-            </div>
-            <div class="formbuilder-radio">
-                <input name="yofstudy" access="false" id="yofstudy-1" required="required" value="2" type="radio">
-                <label for="yofstudy-1">2</label>
-            </div>
-            <div class="formbuilder-radio">
-                <input name="yofstudy" access="false" id="yofstudy-2" required="required" value="3" type="radio">
-                <label for="yofstudy-2">3</label>
-            </div>
-            <div class="formbuilder-radio">
-                <input name="yofstudy" access="false" id="yofstudy-3" required="required" value="4" type="radio">
-                <label for="yofstudy-3">4</label>
-            </div>
+            <p>
+                <label for="assocorg-0">
+                    <input class="with-gap" name="assocorg" id="assocorg-0" required="required" aria-required="true" value="AEPEY" type="radio">
+                    <span>Yes</span>
+                </label>
+            </p>
+            <p>
+                <label for="assocorg-1">
+                    <input class="with-gap" name="assocorg" id="assocorg-1" required="required" aria-required="true" value="null" type="radio" checked>
+                    <span>No</span>
+                </label>
+            </p>
         </div>
     </div>
-    <div class="formbuilder-radio-group form-group field-attendance">
-        <label for="attendance" class="formbuilder-radio-group-label">Attendance?<span class="formbuilder-required">*</span></label>
+    <div class="form-group">
+        <label for="yofstudy">Year of study*</label>
         <div class="radio-group">
-            <div class="formbuilder-radio">
-                <input name="attendance" access="false" id="attendance-0" required="required" aria-required="true" value="FT" type="radio">
-                <label for="attendance-0">Full-time</label>
-            </div>
-            <div class="formbuilder-radio">
-                <input name="attendance" access="false" id="attendance-1" required="required" aria-required="true" value="PT" type="radio">
-                <label for="attendance-1">Part-time</label>
-            </div>
+            <p>
+                <label for="yofstudy-0">
+                    <input class="with-gap" name="yofstudy" id="yofstudy-0" required="required" value="1" type="radio" checked>
+                    <span>1</span>
+                </label>
+            </p>
+            <p>
+                <label for="yofstudy-1">
+                    <input class="with-gap" name="yofstudy" id="yofstudy-1" required="required" value="2" type="radio">
+                    <span>2</span>
+                </label>
+            </p>
+            <p>
+                <label for="yofstudy-2">
+                    <input class="with-gap" name="yofstudy" id="yofstudy-2" required="required" value="3" type="radio">
+                    <span>3</span>
+                </label>
+            </p>
+            <p>
+                <label for="yofstudy-3">
+                    <input class="with-gap" name="yofstudy" id="yofstudy-3" required="required" value="4" type="radio">
+                    <span>4</span>
+                </label>
+            </p>
         </div>
     </div>
-    <div class="formbuilder-radio-group form-group field-campus">
-        <label for="campus" class="formbuilder-radio-group-label">Campus?<span class="formbuilder-required">*</span></label>
+    <div class="form-group">
+        <label for="attendance">Attendance*</label>
         <div class="radio-group">
-            <div class="formbuilder-radio">
-                <input name="campus" access="false" id="campus-0" required="required" aria-required="true" value="utsg" type="radio">
-                <label for="campus-0">UTSG</label>
-            </div>
-            <div class="formbuilder-radio">
-                <input name="campus" access="false" id="campus-1" required="required" aria-required="true" value="utm" type="radio">
-                <label for="campus-1">UTM</label>
-            </div>
-            <div class="formbuilder-radio">
-                <input name="campus" access="false" id="campus-2" required="required" aria-required="true" value="utsc" type="radio">
-                <label for="campus-2">UTSC</label>
-            </div>
+            <p>
+                <label for="attendance-0">
+                    <input class="with-gap" name="attendance" id="attendance-0" required="required" aria-required="true" value="FT" type="radio" checked>
+                    <span>Full-time</span>
+                </label>
+            </p>
+            <p>
+                <label for="attendance-1">
+                    <input class="with-gap" name="attendance" id="attendance-1" required="required" aria-required="true" value="PT" type="radio">
+                    <span>Part-time</span>
+                </label>
+            </p>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="campus">Campus*</label>
+        <div class="radio-group">
+            <p>
+                <label for="campus-0">
+                    <input class="with-gap" name="campus" id="campus-0" required="required" aria-required="true" value="utsg" type="radio" checked>
+                    <span>UTSG</span>
+                </label>
+            </p>
+            <p>
+                <label for="campus-1">
+                    <input class="with-gap" name="campus" id="campus-1" required="required" aria-required="true" value="utm" type="radio">
+                    <span>UTM</span>
+                </label>
+            </p>
+            <p>
+                <label for="campus-2">
+                    <input class="with-gap" name="campus" id="campus-2" required="required" aria-required="true" value="utsc" type="radio">
+                    <span>UTSC</span>
+                </label>
+            </p>
         </div>
     </div>
 
-    <div class="formbuilder-radio-group form-group field-postcd">
-        <label for="postcd" class="formbuilder-radio-group-label">Discipline<span class="formbuilder-required">*</span></label>
+    <div class="form-group">
+        <label for="postcd">Discipline*</label>
         <div class="radio-group">
-            <div class="formbuilder-radio">
-                <input name="postcd" access="false" id="postcd-0" required="required" aria-required="true" value="AEESCBLAH" type="radio">
-                <label for="postcd-0">EngSci</label>
-            </div>
-            <div class="formbuilder-radio">
-                <input name="postcd" access="false" id="postcd-1" required="required" aria-required="true" value="AEELEBLAH" type="radio">
-                <label for="postcd-1">Elec</label>
-            </div>
-            <div class="formbuilder-radio">
-                <input name="postcd" access="false" id="postcd-2" required="required" aria-required="true" value="AECPEBLAH" type="radio">
-                <label for="postcd-2">Comp</label>
-            </div>
-            <div class="formbuilder-radio">
-                <input name="postcd" access="false" id="postcd-3" required="required" aria-required="true" value="AEMECBLAH" type="radio">
-                <label for="postcd-3">Mech</label>
-            </div>
-            <div class="formbuilder-radio">
-                <input name="postcd" access="false" id="postcd-4" required="required" aria-required="true" value="AECHEBLAH" type="radio">
-                <label for="postcd-4">Chem</label>
-            </div>
-            <div class="formbuilder-radio">
-                <input name="postcd" access="false" id="postcd-5" required="required" aria-required="true" value="AEINDBLAH" type="radio">
-                <label for="postcd-5">Indy</label>
-            </div>
-            <div class="formbuilder-radio">
-                <input name="postcd" access="false" id="postcd-6" required="required" aria-required="true" value="AEMMSBLAH" type="radio">
-                <label for="postcd-6">MSE</label>
-            </div>
-            <div class="formbuilder-radio">
-                <input name="postcd" access="false" id="postcd-7" required="required" aria-required="true" value="AELMEBLAH" type="radio">
-                <label for="postcd-7">Min</label>
-            </div>
-            <div class="formbuilder-radio">
-                <input name="postcd" access="false" id="postcd-8" required="required" aria-required="true" value="AEENGBLAH" type="radio">
-                <label for="postcd-8">Trackone</label>
-            </div>
+            <p>
+                <label for="postcd-0">
+                    <input class="with-gap" name="postcd" id="postcd-0" required="required" aria-required="true" value="AEESCBLAH" type="radio" checked>
+                    <span>EngSci</span>
+                </label>
+            </p>
+            <p>
+                <label for="postcd-1">
+                    <input class="with-gap" name="postcd" id="postcd-1" required="required" aria-required="true" value="AEELEBLAH" type="radio">
+                    <span>Elec</span>
+                </label>
+            </p>
+            <p>
+                <label for="postcd-2">
+                    <input class="with-gap" name="postcd" id="postcd-2" required="required" aria-required="true" value="AECPEBLAH" type="radio">
+                    <span>Comp</span>
+                </label>
+            </p>
+            <p>
+                <label for="postcd-3">
+                    <input class="with-gap" name="postcd" id="postcd-3" required="required" aria-required="true" value="AEMECBLAH" type="radio">
+                    <span>Mech</span>
+                </label>
+            </p>
+            <p>
+                <label for="postcd-4">
+                    <input class="with-gap" name="postcd" id="postcd-4" required="required" aria-required="true" value="AECHEBLAH" type="radio">
+                    <span>Chem</span>
+                </label>
+            </p>
+            <p>
+                <label for="postcd-5">
+                    <input class="with-gap" name="postcd" id="postcd-5" required="required" aria-required="true" value="AEINDBLAH" type="radio">
+                    <span>Indy</span>
+                </label>
+            </p>
+            <p>
+                <label for="postcd-6">
+                    <input class="with-gap" name="postcd" id="postcd-6" required="required" aria-required="true" value="AEMMSBLAH" type="radio">
+                    <span>MSE</span>
+                </label>
+            </p>
+            <p>
+                <label for="postcd-7">
+                    <input class="with-gap" name="postcd" id="postcd-7" required="required" aria-required="true" value="AELMEBLAH" type="radio">
+                    <span>Min</span>
+                </label>
+            </p>
+            <p>
+                <label for="postcd-8">
+                    <input class="with-gap" name="postcd" id="postcd-8" required="required" aria-required="true" value="AEENGBLAH" type="radio">
+                    <span>Trackone</span>
+                </label>
+            </p>
         </div>
     </div>
-    <div class="formbuilder-button form-group field-button-1621381732799">
-        <button type="submit" class="btn-primary btn" name="button-1621381732799" access="false" style="primary" id="button-1621381732799">Submit</button>
+    <div style="display: flex; justify-content: center;">
+        <button class="btn waves-effect waves-light" type="submit" name="action">Submit</button>
     </div>
 </form>
 </body>

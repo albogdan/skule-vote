@@ -90,7 +90,7 @@ const ElectionsFilter = ({ filterCategory, setAndCloseFilter }) => {
       <Typography variant="h2">Filter</Typography>
       <Divider />
       <FilterItemWrapper palette={theme.palette} isDark={isDark}>
-        {listOfCategories.map((category, i) => (
+        {Object.values(listOfCategories).map((category, i) => (
           <FilterItem
             $palette={theme.palette}
             $active={filterCategory === category}

@@ -1,191 +1,129 @@
-export const mockElections = [
-  {
-    electionName: "Referedum 1",
-    numCandidates: 0,
-    electionId: 0,
-    category: "Referenda",
-  },
-  {
-    electionName: "Referedum 2",
-    numCandidates: 0,
-    electionId: 1,
-    category: "Referenda",
-  },
-  {
-    electionName: "President",
-    numCandidates: 2,
-    electionId: 2,
-    category: "Officer",
-  },
-  {
-    electionName: "VP Finance",
-    numCandidates: 1,
-    electionId: 3,
-    category: "Officer",
-  },
-  {
-    electionName: "VP Communication",
-    numCandidates: 1,
-    electionId: 4,
-    category: "Officer",
-  },
-  {
-    electionName: "VP Academic",
-    numCandidates: 1,
-    electionId: 5,
-    category: "Officer",
-  },
-  {
-    electionName: "VP Student Life",
-    numCandidates: 1,
-    electionId: 6,
-    category: "Officer",
-  },
-  {
-    electionName: "Board of Directors 1",
-    numCandidates: 1,
-    electionId: 7,
-    category: "Board of Directors",
-  },
-  {
-    electionName: "Board of Directors 2",
-    numCandidates: 1,
-    electionId: 8,
-    category: "Board of Directors",
-  },
-  {
-    electionName: "Discipline Club 1",
-    numCandidates: 3,
-    electionId: 9,
-    category: "Discipline Club",
-  },
-  {
-    electionName: "Discipline Club 2",
-    numCandidates: 1,
-    electionId: 10,
-    category: "Discipline Club",
-  },
-];
+// Use these for BallotModal
+export const referendum = {
+  election_name: "Referedum 1",
+  id: 0,
+  category: "referenda",
+  candidates: [
+    {
+      id: 0,
+      name: "Referendum 1",
+      statement: "Test",
+    },
+    {
+      id: 1,
+      name: "No",
+      statement: null,
+    },
+  ],
+};
 
-export const MockBallotReferenda = {
-  electionName: "Referedum 1",
-  numCandidates: 1,
-  electionId: 0,
-  category: "Referenda",
+export const president = {
+  election_name: "President",
+  id: 1,
+  category: "officer",
   candidates: [
     {
       id: 0,
-      candidateName: "Referendum 1",
-      statement:
-        "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisinuli.",
-      isDisqualified: false,
-      disqualificationRuling: null,
-      disqualificationLink: null,
-      ruleViolationRuling: null,
-      ruleViolationLink: null,
+      name: "Lisa Li",
+      statement: "Test.",
     },
     {
       id: 1,
-      candidateName: "Reopen Nominations",
-      statement: "Choose this option to reopen nominations.",
-      isDisqualified: false,
-      disqualificationRuling: null,
-      disqualificationLink: null,
-      ruleViolationRuling: null,
-      ruleViolationLink: null,
+      name: "No",
+      statement: null,
     },
   ],
 };
-export const MockBallotPresident = {
-  electionName: "President",
-  numCandidates: 1,
-  electionId: 1,
-  category: "Officer",
+
+export const vp = {
+  election_name: "VP Finance",
+  id: 3,
+  category: "officer",
   candidates: [
     {
       id: 0,
-      candidateName: "Lisa Li",
-      statement:
-        "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisinuli.",
-      isDisqualified: false,
-      disqualificationRuling: null,
-      disqualificationLink: null,
-      ruleViolationRuling: null,
-      ruleViolationLink: null,
+      name: "Lisa Li",
+      statement: "Test 1",
+      disqualified_status: false,
     },
     {
       id: 1,
-      candidateName: "Reopen Nominations",
-      statement: "Choose this option to reopen nominations.",
-      isDisqualified: false,
-      disqualificationRuling: null,
-      disqualificationLink: null,
-      ruleViolationRuling: null,
-      ruleViolationLink: null,
-    },
-  ],
-};
-export const MockBallotVP = {
-  electionName: "VP Finance",
-  numCandidates: 5,
-  electionId: 3,
-  category: "Officer",
-  candidates: [
-    {
-      id: 0,
-      candidateName: "Lisa Li",
-      statement:
-        "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisinuli.",
-      isDisqualified: false,
-      disqualificationRuling: null,
-      disqualificationLink: null,
-      ruleViolationRuling: null,
-      ruleViolationLink: null,
-    },
-    {
-      id: 1,
-      candidateName: "Alex Bogdan",
-      statement:
-        "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisinuli.",
-      isDisqualified: true,
-      disqualificationRuling:
-        "This candidate was disqualified from the election on March 1, as noted in CRO Ruling #1. However, their name has been left on the ballot as the ruling may be appealed by the candidate and a sucessful appeal would overturn the disqualification.",
-      disqualificationLink: "http://digest.skule.ca/u/16",
-      ruleViolationRuling: null,
-      ruleViolationLink: null,
+      name: "Quin Sykora",
+      statement: "Test 2",
+      disqualified_status: false,
     },
     {
       id: 2,
-      candidateName: "Armin Ale",
-      statement:
-        "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisinuli.",
-      isDisqualified: false,
-      disqualificationRuling: null,
-      disqualificationLink: null,
-      ruleViolationRuling:
-        "This candidate has violated election rules on March 1, as noted in CRO Ruling #2.",
-      ruleViolationLink: "http://digest.skule.ca/u/16",
-    },
-    {
-      id: 3,
-      candidateName: "Quin Sykora",
-      statement:
-        "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisinuli.",
-      isDisqualified: false,
-      disqualificationRuling: null,
-      disqualificationLink: null,
-      ruleViolationRuling: null,
-      ruleViolationLink: null,
-    },
-    {
-      id: 4,
-      candidateName: "Reopen Nominations",
+      name: "Reopen Nominations",
       statement: "Choose this option to reopen nominations.",
-      isDisqualified: false,
-      disqualificationRuling: null,
-      disqualificationLink: null,
-      ruleViolationRuling: null,
-      ruleViolationLink: null,
+      disqualified_status: false,
     },
   ],
+};
+
+// Use these for EnhancedBallotModal
+export const engsciPres = {
+  election_name: "Engsci Club President",
+  id: 1,
+  category: "officer",
+  candidates: [
+    {
+      id: 0,
+      name: "Lisa Li",
+      statement: "Test.",
+    },
+    {
+      id: 1,
+      name: "Reopen Nominations",
+      statement: null,
+    },
+  ],
+};
+
+export const electionSession = {
+  election_session_name: "Test",
+  start_time: "2021-06-12T00:00:00-04:00", // June 12, 2021
+  end_time: "2021-06-14T00:00:00-04:00", // June 14, 2021
+};
+export const eligibleElections = {
+  10: {
+    election_name: "Referedum 1",
+    seats_available: 0,
+    id: 10,
+    category: "referenda",
+    candidate: [
+      {
+        id: 0,
+        name: "Referendum 1",
+        statement: "Vote pls",
+        disqualified_status: false,
+      },
+      {
+        id: 1,
+        name: "Reopen Nominations",
+        statement: "Choose this option to reopen nominations.",
+        disqualified_status: false,
+      },
+    ],
+  },
+  12: {
+    election_name: "President",
+    seats_available: 2,
+    id: 12,
+    category: "Officer",
+    candidates: [
+      {
+        id: 2,
+        name: "Reopen Nominations",
+        statement: "Choose this option to reopen nominations.",
+        disqualified_status: false,
+      },
+      {
+        id: 3,
+        name: "James Holden",
+        statement: "My name is James.",
+        disqualified_status: false,
+      },
+    ],
+  },
 };

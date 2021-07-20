@@ -25,6 +25,35 @@ export const useGetElectionSession = () => {
   };
 };
 
+export const useGetEligibleElections = () => {
+  const { enqueueSnackbar } = useSnackbar();
+
+  return async function getEligibleElections() {
+    try {
+      const response = await get("/api/elections/");
+      if (response.status === 200) {
+        return response.data == null
+          ? {}
+          : response.data.reduce((accum, val) => {
+              accum[val.id] = val;
+              return accum;
+            }, {});
+      }
+    } catch (e) {
+      enqueueSnackbar(
+        {
+          message: `Failed to fetch eligible elections: ${
+            e.message ?? e.response.status
+          }`,
+          variant: "error",
+        },
+        { variant: "error" }
+      );
+    }
+    return null;
+  };
+};
+
 export const useHandleSubmit = (electionId) => {
   const { enqueueSnackbar } = useSnackbar();
 

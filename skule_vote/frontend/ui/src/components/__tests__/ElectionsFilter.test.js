@@ -8,7 +8,7 @@ import { listOfCategories } from "pages/ElectionPage";
 describe("<ElectionsFilter />", () => {
   it("renders ElectionsFilter", () => {
     const { getByText } = render(<ElectionsFilter />);
-    for (let c of listOfCategories) {
+    for (let c of Object.values(listOfCategories)) {
       expect(getByText(c)).toBeInTheDocument();
     }
     expect(getByText("Filter")).toBeInTheDocument();
@@ -29,7 +29,7 @@ describe("<ElectionsFilter />", () => {
 describe("<ElectionsFilterDrawer />", () => {
   it("renders ElectionsFilterDrawer", () => {
     const { getByText } = render(<ElectionsFilterDrawer drawerOpen={true} />);
-    for (let c of listOfCategories) {
+    for (let c of Object.values(listOfCategories)) {
       expect(getByText(c)).toBeInTheDocument();
     }
     expect(getByText("Filter")).toBeInTheDocument();

@@ -1,68 +1,13 @@
 import React from "react";
 import { render, waitFor, fireEvent } from "@testing-library/react";
-import { BallotModal, ConfirmSpoilModal } from "components/BallotModal";
+import EnhancedBallotModal, {
+  BallotModal,
+  ConfirmSpoilModal,
+} from "components/BallotModal";
+import { useHandleSubmit } from "hooks/ElectionHooks";
+import { referendum, president, vp, engsciPres } from "assets/mocks";
 
-const referendum = {
-  electionName: "Referedum 1",
-  electionId: 0,
-  category: "Referenda",
-  candidates: [
-    {
-      id: 0,
-      candidateName: "Referendum 1",
-      statement: "Test",
-    },
-    {
-      id: 1,
-      candidateName: "No",
-      statement: null,
-    },
-  ],
-};
-
-const president = {
-  electionName: "President",
-  electionId: 1,
-  category: "Officer",
-  candidates: [
-    {
-      id: 0,
-      candidateName: "Lisa Li",
-      statement: "Test.",
-    },
-    {
-      id: 1,
-      candidateName: "No",
-      statement: null,
-    },
-  ],
-};
-
-const vp = {
-  electionName: "VP Finance",
-  electionId: 3,
-  category: "Officer",
-  candidates: [
-    {
-      id: 0,
-      candidateName: "Lisa Li",
-      statement: "Test 1",
-      isDisqualified: false,
-    },
-    {
-      id: 1,
-      candidateName: "Quin Sykora",
-      statement: "Test 2",
-      isDisqualified: false,
-    },
-    {
-      id: 2,
-      candidateName: "Reopen Nominations",
-      statement: "Choose this option to reopen nominations.",
-      isDisqualified: false,
-    },
-  ],
-};
+jest.mock("hooks/ElectionHooks");
 
 describe("<BallotModal />", () => {
   it("renders BallotModal for a referendum", () => {
@@ -77,12 +22,12 @@ describe("<BallotModal />", () => {
         open={true}
         isReferendum={true}
         sortedCandidates={referendum.candidates}
-        electionName={referendum.electionName}
-        electionId={referendum.electionId}
+        electionName={referendum.election_name}
+        electionId={referendum.id}
       />
     );
 
-    expect(getByText(referendum.electionName)).toBeInTheDocument();
+    expect(getByText(referendum.election_name)).toBeInTheDocument();
     expect(getByText(referendum.candidates[0].statement)).toBeInTheDocument();
     expect(queryByText("Candidates & Statements")).not.toBeInTheDocument();
     expect(getByText("Ballot")).toBeInTheDocument();
@@ -114,12 +59,12 @@ describe("<BallotModal />", () => {
         open={true}
         isReferendum={false}
         sortedCandidates={president.candidates}
-        electionName={president.electionName}
-        electionId={president.electionId}
+        electionName={president.election_name}
+        electionId={president.id}
       />
     );
 
-    expect(getByText(president.electionName)).toBeInTheDocument();
+    expect(getByText(president.election_name)).toBeInTheDocument();
     expect(getByText(president.candidates[0].statement)).toBeInTheDocument();
     expect(getByText("Candidates & Statements")).toBeInTheDocument();
     expect(
@@ -142,15 +87,15 @@ describe("<BallotModal />", () => {
           open={true}
           isReferendum={false}
           sortedCandidates={vp.candidates}
-          electionName={vp.electionName}
-          electionId={vp.electionId}
+          electionName={vp.election_name}
+          electionId={vp.id}
         />
       );
 
-    expect(getByText(vp.electionName)).toBeInTheDocument();
+    expect(getByText(vp.election_name)).toBeInTheDocument();
     expect(getByText("Candidates & Statements")).toBeInTheDocument();
     for (let v of vp.candidates) {
-      expect(getByText(v.candidateName)).toBeInTheDocument();
+      expect(getByText(v.name)).toBeInTheDocument();
       expect(getByText(v.statement)).toBeInTheDocument();
     }
     const selectors = getAllByRole("button", { name: /Rank/i });
@@ -176,12 +121,12 @@ describe("<BallotModal />", () => {
         handleClose={handleCloseSpy}
         isReferendum={false}
         sortedCandidates={vp.candidates}
-        electionName={vp.electionName}
-        electionId={vp.electionId}
+        electionName={vp.election_name}
+        electionId={vp.id}
       />
     );
 
-    expect(getByText(vp.electionName)).toBeInTheDocument();
+    expect(getByText(vp.election_name)).toBeInTheDocument();
     expect(queryByTestId("spoilModalConfirm")).not.toBeInTheDocument();
     expect(getByText(/Cast ballot/).closest("button")).toBeDisabled();
     const buttonSpoil = await findByText("Spoil ballot");
@@ -210,12 +155,12 @@ describe("<BallotModal />", () => {
         handleClose={handleCloseSpy}
         isReferendum={false}
         sortedCandidates={vp.candidates}
-        electionName={vp.electionName}
-        electionId={vp.electionId}
+        electionName={vp.election_name}
+        electionId={vp.id}
       />
     );
 
-    expect(getByText(vp.electionName)).toBeInTheDocument();
+    expect(getByText(vp.election_name)).toBeInTheDocument();
 
     // Select Lisa and Quin
     const select1 = getByRole("button", { name: /Rank 1/i });
@@ -249,12 +194,12 @@ describe("<BallotModal />", () => {
         handleClose={handleCloseSpy}
         isReferendum={false}
         sortedCandidates={vp.candidates}
-        electionName={vp.electionName}
-        electionId={vp.electionId}
+        electionName={vp.election_name}
+        electionId={vp.id}
       />
     );
 
-    expect(getByText(vp.electionName)).toBeInTheDocument();
+    expect(getByText(vp.election_name)).toBeInTheDocument();
 
     // Votes for Lisa twice
     const select1 = getByRole("button", { name: /Rank 1/i });
@@ -292,12 +237,12 @@ describe("<BallotModal />", () => {
         handleClose={handleCloseSpy}
         isReferendum={false}
         sortedCandidates={vp.candidates}
-        electionName={vp.electionName}
-        electionId={vp.electionId}
+        electionName={vp.election_name}
+        electionId={vp.id}
       />
     );
 
-    expect(getByText(vp.electionName)).toBeInTheDocument();
+    expect(getByText(vp.election_name)).toBeInTheDocument();
     const select2 = getByRole("button", { name: /Rank 2/i });
     fireEvent.mouseDown(select2);
     getByRole("option", { name: /Lisa Li/i }).click();
@@ -327,12 +272,12 @@ describe("<BallotModal />", () => {
         handleClose={handleCloseSpy}
         isReferendum={false}
         sortedCandidates={president.candidates}
-        electionName={president.electionName}
-        electionId={president.electionId}
+        electionName={president.election_name}
+        electionId={president.id}
       />
     );
 
-    expect(getByText(president.electionName)).toBeInTheDocument();
+    expect(getByText(president.election_name)).toBeInTheDocument();
     const select1 = getByRole("button", {
       name: /Do you support this candidate?/i,
     });
@@ -376,12 +321,12 @@ describe("<BallotModal />", () => {
         handleClose={handleCloseSpy}
         isReferendum={true}
         sortedCandidates={referendum.candidates}
-        electionName={referendum.electionName}
-        electionId={referendum.electionId}
+        electionName={referendum.election_name}
+        electionId={referendum.id}
       />
     );
 
-    expect(getByText(referendum.electionName)).toBeInTheDocument();
+    expect(getByText(referendum.election_name)).toBeInTheDocument();
     const select1 = getByRole("button", {
       name: /Do you support this referendum?/i,
     });
@@ -418,11 +363,11 @@ describe("<BallotModal />", () => {
   it("renders candidate's rule violation", () => {
     vp.candidates.push({
       id: 4,
-      candidateName: "Alex Bogdan",
+      name: "Alex Bogdan",
       statement: "Test 2",
-      isDisqualified: true,
-      disqualificationRuling: "Disqualified 1",
-      disqualificationLink: "http://digest.skule.ca/u/16",
+      disqualified_status: true,
+      disqualified_message: "Disqualified 1",
+      disqualified_link: "http://digest.skule.ca/u/16",
     });
 
     const { getByText } = render(
@@ -430,29 +375,29 @@ describe("<BallotModal />", () => {
         open={true}
         isReferendum={false}
         sortedCandidates={vp.candidates}
-        electionName={vp.electionName}
-        electionId={vp.electionId}
+        electionName={vp.election_name}
+        electionId={vp.id}
       />
     );
 
-    expect(getByText(vp.electionName)).toBeInTheDocument();
+    expect(getByText(vp.election_name)).toBeInTheDocument();
     expect(
-      getByText(vp.candidates[3].disqualificationRuling)
+      getByText(vp.candidates[3].disqualified_message)
     ).toBeInTheDocument();
     expect(getByText("here").closest("a")).toHaveAttribute(
       "href",
-      vp.candidates[3].disqualificationLink
+      vp.candidates[3].disqualified_link
     );
   });
 
   it("renders candidate's disqualification", () => {
     vp.candidates.push({
       id: 5,
-      candidateName: "Armin Ale",
+      name: "Armin Ale",
       statement: "Test 3",
-      isDisqualified: false,
-      ruleViolationRuling: "Warning 1",
-      ruleViolationLink: "http://digest.skule.ca/u/17",
+      disqualified_status: false,
+      rule_violation_message: "Warning 1",
+      rule_violation_link: "http://digest.skule.ca/u/17",
     });
 
     const { getByText, getAllByText } = render(
@@ -460,16 +405,18 @@ describe("<BallotModal />", () => {
         open={true}
         isReferendum={false}
         sortedCandidates={vp.candidates}
-        electionName={vp.electionName}
-        electionId={vp.electionId}
+        electionName={vp.election_name}
+        electionId={vp.id}
       />
     );
 
-    expect(getByText(vp.electionName)).toBeInTheDocument();
-    expect(getByText(vp.candidates[4].ruleViolationRuling)).toBeInTheDocument();
+    expect(getByText(vp.election_name)).toBeInTheDocument();
+    expect(
+      getByText(vp.candidates[4].rule_violation_message)
+    ).toBeInTheDocument();
     expect(getAllByText("here")[1].closest("a")).toHaveAttribute(
       "href",
-      vp.candidates[4].ruleViolationLink
+      vp.candidates[4].rule_violation_link
     );
   });
 });
@@ -523,5 +470,63 @@ describe("<ConfirmSpoilModal />", () => {
       expect(spoilBallotSpy).not.toHaveBeenCalled();
       expect(onCloseSpy).toHaveBeenCalled();
     });
+  });
+});
+
+describe("<EnhancedBallotModal />", () => {
+  let props;
+
+  beforeEach(() => {
+    props = {
+      handleClose: jest.fn(),
+      open: true,
+      ballotInfo: engsciPres,
+    };
+    useHandleSubmit.mockImplementation(() => {
+      return jest.fn();
+    });
+  });
+
+  it("renders EnhancedBallotModal", () => {
+    const {
+      getByText,
+      queryByText,
+      getByLabelText,
+      queryByLabelText,
+      getByRole,
+    } = render(<EnhancedBallotModal {...props} />);
+
+    expect(getByText(engsciPres.election_name)).toBeInTheDocument();
+    expect(getByText(engsciPres.candidates[0].statement)).toBeInTheDocument();
+    expect(queryByText("Candidates & Statements")).toBeInTheDocument();
+    expect(getByText("Ballot")).toBeInTheDocument();
+    expect(getByText(/Please select as many/i)).toBeInTheDocument();
+    expect(
+      getByLabelText(/Do you support this candidate?/i)
+    ).toBeInTheDocument();
+    const selector = getByRole("button", {
+      name: /Do you support this candidate?/i,
+    });
+    expect(selector.querySelector("span").innerHTML).toEqual("​");
+    expect(queryByLabelText(/Rank/i)).not.toBeInTheDocument();
+    expect(queryByText("Yes")).not.toBeInTheDocument();
+    expect(queryByText("No")).not.toBeInTheDocument();
+    expect(queryByText("Reopen Nominations")).not.toBeInTheDocument();
+    expect(getByText("Selected Ranking")).toBeInTheDocument();
+    expect(getByText(/Please confirm that your/i)).toBeInTheDocument();
+    expect(getByText(/No choice selected/i)).toBeInTheDocument();
+    expect(getByText(/Cancel/)).toBeInTheDocument();
+    expect(getByText(/Spoil ballot/)).toBeInTheDocument();
+    expect(getByText(/Cast ballot/).closest("button")).toBeDisabled();
+  });
+
+  it("renders null if ballotInfo is null", () => {
+    const modifiedProps = {
+      ...props,
+      ballotInfo: null,
+    };
+
+    const { container } = render(<EnhancedBallotModal {...modifiedProps} />);
+    expect(container.innerHTML).toBe("");
   });
 });

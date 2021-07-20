@@ -13,9 +13,11 @@ import ElectionCard, { NoElectionsCard } from "components/ElectionCard";
 import EnhancedBallotModal from "components/BallotModal";
 import Messages from "components/Messages";
 import { Spacer } from "assets/layout";
-import { mockElections } from "assets/mocks";
 import { responsive } from "assets/breakpoints";
-import { useGetElectionSession } from "hooks/ElectionHooks";
+import {
+  useGetElectionSession,
+  useGetEligibleElections,
+} from "hooks/ElectionHooks";
 
 const ElectionsWrapper = styled.div`
   display: flex;
@@ -57,15 +59,15 @@ const FilterBtnDiv = styled.div`
   }
 `;
 
-export const listOfCategories = [
-  "All",
-  "Referenda",
-  "Officer",
-  "Board of Directors",
-  "Discipline Club",
-  "Class Representatives",
-  "Other",
-];
+export const listOfCategories = {
+  all: "All",
+  referenda: "Referenda",
+  officer: "Officer",
+  board_of_directors: "Board of Directors",
+  discipline_club: "Discipline Club",
+  class_representative: "Class Representatives",
+  other: "Other",
+};
 
 export function readableDate(date) {
   if (date == null) {
@@ -88,23 +90,23 @@ const ElectionPage = () => {
   const isMobile = useMediaQuery(responsive.smDown);
 
   const getElectionSession = useGetElectionSession();
+  const getEligibleElections = useGetEligibleElections();
 
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [filterCategory, setFilterCategory] = React.useState("All");
   const [electionSession, setElectionSession] = React.useState({});
+  const [eligibleElections, setEligibleElections] = React.useState({});
 
   const [startTime, startTimeStr] = readableDate(electionSession?.start_time);
   const [endTime, endTimeStr] = readableDate(electionSession?.end_time);
   const electionIsLive =
     startTime && Date.now() >= startTime && Date.now() <= endTime;
 
-  let listOfElections = [];
-  if (Object.keys(electionSession).length !== 0 && electionIsLive) {
-    listOfElections = mockElections;
-  }
-
-  let filteredListOfElections = listOfElections.filter((election) =>
-    filterCategory === "All" ? true : filterCategory === election.category
+  let filteredEligibleElections = Object.values(eligibleElections).filter(
+    (election) =>
+      filterCategory === "All"
+        ? true
+        : filterCategory === listOfCategories[election.category]
   );
 
   const toggleDrawer = () => {
@@ -122,24 +124,28 @@ const ElectionPage = () => {
   };
 
   useMount(() => {
-    async function fetchElectionSession() {
+    async function fetchElection() {
       const getElecSession = await getElectionSession();
+      const getEligibleElecs = await getEligibleElections();
       if (getElecSession != null) {
         setElectionSession(getElecSession);
       }
+      if (getEligibleElecs != null) {
+        setEligibleElections(getEligibleElecs);
+      }
       // Call this every minute
       setTimeout(() => {
-        fetchElectionSession();
+        fetchElection();
       }, 60000);
     }
-    fetchElectionSession();
+    fetchElection();
   });
   return (
     <>
       <EnhancedBallotModal
         open={open}
         handleClose={handleClose}
-        id={ballotElectionId}
+        ballotInfo={eligibleElections[ballotElectionId]}
       />
       <ElectionsFilterDrawer
         drawerOpen={drawerOpen}
@@ -178,19 +184,20 @@ const ElectionPage = () => {
           </FilterBtnDiv>
         </Hidden>
         <CardDiv>
-          {filteredListOfElections.map((election, i) => (
-            <ElectionCard
-              key={i}
-              title={election.electionName}
-              numCandidates={election.numCandidates}
-              openModal={() => {
-                setOpen(true);
-                setBallotElectionId(election.electionId);
-              }}
-            />
-          ))}
-          {filteredListOfElections.length === 0 && (
+          {filteredEligibleElections.length === 0 ? (
             <NoElectionsCard filterCategory={filterCategory} />
+          ) : (
+            filteredEligibleElections.map((election, i) => (
+              <ElectionCard
+                key={i}
+                title={election.election_name}
+                numCandidates={election.seats_available}
+                openModal={() => {
+                  setOpen(true);
+                  setBallotElectionId(election.id);
+                }}
+              />
+            ))
           )}
         </CardDiv>
       </ElectionsWrapper>

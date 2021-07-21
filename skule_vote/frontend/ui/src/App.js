@@ -106,6 +106,12 @@ const App = () => {
                 fontSize: 16,
               },
             },
+            sizeLarge: {
+              fontSize: 20,
+              "@media (max-width:600px)": {
+                fontSize: 18,
+              },
+            },
           },
         },
         palette: {

@@ -77,7 +77,7 @@ const SelectorDiv = styled.div`
   }
 `;
 
-const ButtonDiv = styled.div`
+const TwoButtonDiv = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -87,6 +87,9 @@ const ButtonDiv = styled.div`
       margin-left: 16px;
     }
   }
+`;
+
+const ThreeButtonDiv = styled(TwoButtonDiv)`
   @media (max-width: 460px) {
     flex-direction: column;
     align-items: flex-start;
@@ -112,6 +115,16 @@ const ErrorText = styled(Typography)`
 const SpoilBallotBtn = styled(Button)`
   color: ${(props) => (props.$isDark ? "#DCD1DD" : "#4D33A3")};
   border-color: ${(props) => (props.$isDark ? "#DCD1DD" : "#4D33A3")};
+`;
+
+const BlueCard = styled.div`
+  background-color: ${(props) =>
+    props.$theme.palette.type === "dark"
+      ? props.$theme.palette.primary.main
+      : "#DDECF6"};
+  border-radius: 4px;
+  padding: 20px;
+  width: fit-content;
 `;
 
 // Randomize array in-place using Durstenfeld shuffle algorithm
@@ -187,9 +200,16 @@ const Statements = ({ isReferendum, candidates }) => (
   </>
 );
 
-// i: number, candidates: Array<{}>, ranking: {[number]: number}, isReferendum: boolean, changeRanking: func
-const Selector = ({ i, candidates, ranking, isReferendum, changeRanking }) => {
-  const theme = useTheme();
+// i: number, candidates: Array<{}>, ranking: {[number]: number},
+// isReferendum: boolean, changeRanking: func, isDark: boolean
+const Selector = ({
+  i,
+  candidates,
+  ranking,
+  isReferendum,
+  changeRanking,
+  isDark,
+}) => {
   const [selectVal, setSelectVal] = React.useState(ranking[i] ?? "");
   const handleRankOnchange = (event) => {
     setSelectVal(event.target.value);
@@ -236,14 +256,14 @@ const Selector = ({ i, candidates, ranking, isReferendum, changeRanking }) => {
         ))}
       </Select>
       {duplicateSelected && (
-        <ErrorText variant="subtitle2" $isDark={theme.palette.type === "dark"}>
+        <ErrorText variant="subtitle2" $isDark={isDark}>
           <FormHelperText>
             Same candidate selected multiple times
           </FormHelperText>
         </ErrorText>
       )}
       {outOfOrder && (
-        <ErrorText variant="subtitle2" $isDark={theme.palette.type === "dark"}>
+        <ErrorText variant="subtitle2" $isDark={isDark}>
           <FormHelperText>Choices not performed in order</FormHelperText>
         </ErrorText>
       )}
@@ -257,6 +277,7 @@ const BallotDropdowns = ({
   candidates,
   ranking,
   changeRanking,
+  isDark,
 }) => {
   return (
     <>
@@ -275,6 +296,7 @@ const BallotDropdowns = ({
                 changeRanking={changeRanking}
                 ranking={ranking}
                 isReferendum={isReferendum}
+                isDark={isDark}
               />
             )
         )}
@@ -284,8 +306,9 @@ const BallotDropdowns = ({
 };
 
 // Summarizes who/what user voted for
-// isReferendum: boolean, ranking: {[number]: number}, candidates: Array<{}>
-const SelectedRanking = ({ isReferendum, ranking, candidates }) => {
+// isReferendum: boolean, ranking: {[number]: number}, candidates: Array<{}>, isDark: boolean
+const SelectedRanking = ({ isReferendum, ranking, candidates, isDark }) => {
+  const theme = useTheme();
   // idToNameMap: {[id: number]: [name: string]}
   const idToNameMap = React.useMemo(
     () =>
@@ -314,25 +337,30 @@ const SelectedRanking = ({ isReferendum, ranking, candidates }) => {
       )}
       {/* Case: is a single candidate or referendum and vote has been selected */}
       {rankingLen === 1 && candidates.length === 2 && (
-        <Typography variant="body2">
-          {isReferendum
-            ? "Do you support this referendum?"
-            : "Do you support this candidate?"}
-          &nbsp;
-          {Object.values(ranking)[0] ===
-          candidates.filter((candidate) => candidate.statement != null)[0].id
-            ? "Yes"
-            : idToNameMap[Object.values(ranking)[0]]}
-        </Typography>
+        <BlueCard $theme={theme}>
+          <Typography variant="body2">
+            {isReferendum
+              ? "Do you support this referendum?"
+              : "Do you support this candidate?"}
+            &nbsp;
+            {Object.values(ranking)[0] ===
+            candidates.filter((candidate) => candidate.statement != null)[0].id
+              ? "Yes"
+              : idToNameMap[Object.values(ranking)[0]]}
+          </Typography>
+        </BlueCard>
       )}
       {/* Case: multiple candidates and vote(s) has been selected */}
-      {rankingLen > 0 &&
-        candidates.length > 2 &&
-        Object.entries(ranking).map((rank) => (
-          <Typography variant="body2" key={rank[0]}>
-            {parseInt(rank[0], 10) + 1}. {idToNameMap?.[rank[1]] ?? "error bro"}
-          </Typography>
-        ))}
+      {rankingLen > 0 && candidates.length > 2 && (
+        <BlueCard $theme={theme}>
+          {Object.entries(ranking).map((rank) => (
+            <Typography variant="body2" key={rank[0]}>
+              {parseInt(rank[0], 10) + 1}. {idToNameMap?.[rank[1]] ?? "Error"}
+              {/* The above error should never happen */}
+            </Typography>
+          ))}
+        </BlueCard>
+      )}
     </>
   );
 };
@@ -351,7 +379,7 @@ export const ConfirmSpoilModal = ({ open, onClose, spoilBallot, isDark }) => (
         Are you sure you want to spoil your ballot?
       </Typography>
       <Divider />
-      <ButtonDiv>
+      <TwoButtonDiv>
         <Button
           variant="outlined"
           color="secondary"
@@ -369,7 +397,7 @@ export const ConfirmSpoilModal = ({ open, onClose, spoilBallot, isDark }) => (
         >
           Spoil ballot
         </SpoilBallotBtn>
-      </ButtonDiv>
+      </TwoButtonDiv>
     </SpoilModalPaper>
   </Modal>
 );
@@ -458,15 +486,17 @@ export const BallotModal = ({
             candidates={sortedCandidates}
             changeRanking={changeRanking}
             ranking={ranking}
+            isDark={isDark}
           />
           <Divider />
           <SelectedRanking
             isReferendum={isReferendum}
             ranking={ranking}
             candidates={sortedCandidates}
+            isDark={isDark}
           />
           <Divider />
-          <ButtonDiv>
+          <ThreeButtonDiv>
             <SpoilBallotBtn
               $isDark={isDark}
               variant="outlined"
@@ -499,7 +529,7 @@ export const BallotModal = ({
                 Cast ballot
               </Button>
             </div>
-          </ButtonDiv>
+          </ThreeButtonDiv>
         </ModalPaper>
       </Modal>
     </>

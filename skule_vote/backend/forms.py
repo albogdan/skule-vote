@@ -154,7 +154,7 @@ class ElectionSessionAdminForm(forms.ModelForm):
         elif raw_uploads.count(None) == 0:
             # Check to make sure user uploads a CSV and not a different type of file.
             for file in raw_uploads:
-                if file.content_type != "text/csv":
+                if file.name[-4:] != ".csv":
                     raise forms.ValidationError(
                         "Ensure all uploaded files are CSV files. ODS, XLS and other spreadsheet extensions are not "
                         f"supported. Please upload your files again. Error at: [{file.name}]"

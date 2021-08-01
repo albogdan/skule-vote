@@ -612,3 +612,33 @@ class ElectionSessionViewTestCase(SetupMixin, APITestCase):
         self.assertEqual(
             response.json()[0]["end_time"], first_session["end_time"].isoformat()
         )
+
+
+class VoterEligibleViewTestCase(SetupMixin, APITestCase):
+    def setUp(self):
+        super().setUp()
+        self.cookie_view = reverse("api:backend:bypass-cookie")
+        self.voter_eligible_view = reverse("api:backend:voter-eligible")
+
+    def test_no_cookie_returns_not_eligible(self):
+        # Query the API endpoint we're testing
+        response = self.client.get(self.voter_eligible_view)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertJSONEqual(
+            str(response.content, encoding="utf8"), {"voter_eligible": False}
+        )
+
+    def test_yes_cookie_returns_eligible(self):
+        # Create a cookie (POST for the same reason as in CookieViewTestCase:test_get_cookie)
+        voter_dict = self._urlencode_cookie_request(year=1, pey=False, discipline="ENG")
+        response = self.client.post(self.cookie_view, voter_dict, follow=True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Query the API endpoint we're testing
+        response = self.client.get(self.voter_eligible_view)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertJSONEqual(
+            str(response.content, encoding="utf8"), {"voter_eligible": True}
+        )

@@ -261,8 +261,6 @@ class VoterEligibleView(generics.GenericAPIView):
     def get(self, request, *args, **kwargs):
         try:
             student_number_hash = self.request.get_signed_cookie("student_number_hash")
-            return JsonResponse(
-                {"voter_hash": student_number_hash, "voter_eligible": True}
-            )
+            return JsonResponse({"voter_eligible": True})
         except (django.core.signing.BadSignature, KeyError):
-            return JsonResponse({"voter_hash": None, "voter_eligible": False})
+            return JsonResponse({"voter_eligible": False})

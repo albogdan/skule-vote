@@ -1,6 +1,10 @@
 import copy
+from datetime import timedelta
 
 from django.test import TestCase
+from django.urls import reverse
+
+from rest_framework import status
 
 from backend.models import ElectionSession, Election, Candidate, Eligibility
 from skule_vote.tests import SetupMixin
@@ -440,4 +444,214 @@ class ElectionSessionAdminFormTestCase(SetupMixin, TestCase):
         self.assertIn(
             "The ElectionSession must start before it ends. Ensure that your start time is before your end time.",
             form.errors["__all__"],
+        )
+
+
+class ElectionSessionOverlappingDatesTestCase(SetupMixin, TestCase):
+    """
+    Tests the ElectionSession form specifically for overlapping dates between different ElectionSessions.
+
+    For the possible scenarios, the visualization is as follows
+                         ExistingStartDate                                  ExistingEndDate
+
+    1. NewStartDate                                                                             NewEndDate
+    2.                                      NewStartDate                                        NewEndDate
+    3. NewStartDate                         NewEndDate
+    4.                                      NewStartDate        NewEndDate
+
+    In these four cases, the check function should raise a ValidationError. Otherwise it should proceed as usual.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self._set_election_session_data()
+
+    def test_election_session_outside_existing_election_session_date_range_created(
+        self,
+    ):
+        existing_election_session = self._create_election_session(self.data)
+
+        self._set_election_session_data(
+            name="NewElectionSession", start_time_offset_days=7, end_time_offset_days=8
+        )
+        new_election_session_form = self._build_election_session_form(self.data)
+        self.assertTrue(new_election_session_form.is_valid())
+        self.assertDictEqual(new_election_session_form.errors, {})
+
+        new_election_session_form.save()
+
+        self.assertEqual(ElectionSession.objects.count(), 2)
+
+    def test_election_session_starting_before_ending_after_existing_election_session_date_range_not_created(
+        self,
+    ):
+        existing_election_session = self._create_election_session(self.data)
+
+        self._set_election_session_data(
+            name="NewElectionSession", start_time_offset_days=-4, end_time_offset_days=8
+        )
+        new_election_session_form = self._build_election_session_form(self.data)
+        self.assertFalse(new_election_session_form.is_valid())
+
+        self.assertIn(
+            "Election Sessions must be non-overlapping. Please ensure the date range of the Election Session is not "
+            "contained within any other Election Session.",
+            new_election_session_form.errors["__all__"],
+        )
+
+        self.assertEqual(ElectionSession.objects.count(), 1)
+
+    def test_election_session_starting_after_ending_after_existing_election_session_date_range_not_created(
+        self,
+    ):
+        existing_election_session = self._create_election_session(self.data)
+
+        self._set_election_session_data(
+            name="NewElectionSession", start_time_offset_days=0, end_time_offset_days=8
+        )
+        new_election_session_form = self._build_election_session_form(self.data)
+        self.assertFalse(new_election_session_form.is_valid())
+
+        self.assertIn(
+            "Election Sessions must be non-overlapping. Please ensure the date range of the Election Session is not "
+            "contained within any other Election Session.",
+            new_election_session_form.errors["__all__"],
+        )
+
+        self.assertEqual(ElectionSession.objects.count(), 1)
+
+    def test_election_session_starting_before_ending_before_existing_election_session_date_range_not_created(
+        self,
+    ):
+        existing_election_session = self._create_election_session(self.data)
+
+        self._set_election_session_data(
+            name="NewElectionSession", start_time_offset_days=-4, end_time_offset_days=3
+        )
+        new_election_session_form = self._build_election_session_form(self.data)
+        self.assertFalse(new_election_session_form.is_valid())
+
+        self.assertIn(
+            "Election Sessions must be non-overlapping. Please ensure the date range of the Election Session is not "
+            "contained within any other Election Session.",
+            new_election_session_form.errors["__all__"],
+        )
+
+        self.assertEqual(ElectionSession.objects.count(), 1)
+
+    def test_election_session_starting_after_ending_before_existing_election_session_date_range_not_created(
+        self,
+    ):
+        existing_election_session = self._create_election_session(self.data)
+
+        self._set_election_session_data(
+            name="NewElectionSession", start_time_offset_days=0, end_time_offset_days=3
+        )
+        new_election_session_form = self._build_election_session_form(self.data)
+        self.assertFalse(new_election_session_form.is_valid())
+
+        self.assertIn(
+            "Election Sessions must be non-overlapping. Please ensure the date range of the Election Session is not "
+            "contained within any other Election Session.",
+            new_election_session_form.errors["__all__"],
+        )
+
+        self.assertEqual(ElectionSession.objects.count(), 1)
+
+    def test_election_session_form_modified_with_overlapping_start_date_throws_validation_error(
+        self,
+    ):
+        self._login_admin()
+        existing_election_session = self._create_election_session(self.data)
+        self._set_election_session_data(
+            name="NewElectionSession", start_time_offset_days=7, end_time_offset_days=8
+        )
+        new_election_session = self._create_election_session(self.data)
+        self.assertEqual(ElectionSession.objects.count(), 2)
+
+        list_view = reverse(
+            "admin:backend_electionsession_change",
+            kwargs={"object_id": new_election_session.id},
+        )
+
+        new_start = self._now() + timedelta(days=3)
+        new_end = self._now() + timedelta(days=8)
+        new_data = {
+            "election_session_name": "NewElectionSession",
+            "start_time_0": new_start.date(),
+            "start_time_1": new_start.time(),
+            "end_time_0": new_end.date(),
+            "end_time_1": new_end.time(),
+        }
+
+        response = self.client.post(list_view, data=new_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response,
+            "Election Sessions must be non-overlapping. Please ensure the date range of the Election Session is not "
+            "contained within any other Election Session.",
+        )
+
+    def test_election_session_form_modified_with_overlapping_end_date_throws_validation_error(
+        self,
+    ):
+        self._login_admin()
+        existing_election_session = self._create_election_session(self.data)
+        self._set_election_session_data(
+            name="NewElectionSession", start_time_offset_days=7, end_time_offset_days=8
+        )
+        new_election_session = self._create_election_session(self.data)
+        self.assertEqual(ElectionSession.objects.count(), 2)
+
+        list_view = reverse(
+            "admin:backend_electionsession_change",
+            kwargs={"object_id": new_election_session.id},
+        )
+
+        new_start = self._now() + timedelta(days=-4)
+        new_end = self._now() + timedelta(days=3)
+        new_data = {
+            "election_session_name": "NewElectionSession",
+            "start_time_0": new_start.date(),
+            "start_time_1": new_start.time(),
+            "end_time_0": new_end.date(),
+            "end_time_1": new_end.time(),
+        }
+
+        response = self.client.post(list_view, data=new_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response,
+            "Election Sessions must be non-overlapping. Please ensure the date range of the Election Session is not "
+            "contained within any other Election Session.",
+        )
+
+    def test_election_session_form_modified_without_overlapping_date_range_redirects_to_changelist(
+        self,
+    ):
+        self._login_admin()
+        existing_election_session = self._create_election_session(self.data)
+        self._set_election_session_data(
+            name="NewElectionSession", start_time_offset_days=7, end_time_offset_days=8
+        )
+        new_election_session = self._create_election_session(self.data)
+        self.assertEqual(ElectionSession.objects.count(), 2)
+
+        list_view = reverse(
+            "admin:backend_electionsession_change",
+            kwargs={"object_id": new_election_session.id},
+        )
+        new_start = self._now() + timedelta(days=8)
+        new_end = self._now() + timedelta(days=10)
+        new_data = {
+            "election_session_name": "NewElectionSession",
+            "start_time_0": new_start.date(),
+            "start_time_1": new_start.time(),
+            "end_time_0": new_end.date(),
+            "end_time_1": new_end.time(),
+        }
+        response = self.client.post(list_view, data=new_data)
+
+        self.assertRedirects(
+            response, reverse("admin:backend_electionsession_changelist")
         )

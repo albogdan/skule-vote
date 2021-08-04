@@ -56,7 +56,7 @@ describe("<Header />", () => {
     expect(toggleDarkSpy).toHaveBeenCalled();
   });
 
-  it("calles getEligibility when the Check eligibility button is clicked", () => {
+  it("calls getEligibility when the Check eligibility button is clicked", () => {
     const getEligibility = jest.fn();
     useGetEligibility.mockImplementation(() => {
       return getEligibility;

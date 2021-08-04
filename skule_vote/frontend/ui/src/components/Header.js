@@ -7,6 +7,7 @@ import Brightness6Icon from "@material-ui/icons/Brightness6";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
+import { useGetEligibility } from "hooks/GeneralHooks";
 import { responsive } from "assets/breakpoints";
 
 const SkuleVote = styled.h1`
@@ -40,6 +41,7 @@ const FlexToolbar = styled(Toolbar)`
 const Header = ({ isDark, toggleDark }) => {
   const isMobile = useMediaQuery(responsive.smDown);
   const location = useLocation();
+  const getEligibility = useGetEligibility();
 
   const darkLightModeButton = isMobile ? (
     <IconButton
@@ -68,7 +70,12 @@ const Header = ({ isDark, toggleDark }) => {
         <Nav>
           {darkLightModeButton}
           {location.pathname === "/elections" ? (
-            <Button aria-label="Check status">Check status</Button>
+            <Button
+              aria-label="Check eligibility"
+              onClick={() => getEligibility()}
+            >
+              Check eligibility
+            </Button>
           ) : (
             <nav>
               <Link to={"/elections"}>

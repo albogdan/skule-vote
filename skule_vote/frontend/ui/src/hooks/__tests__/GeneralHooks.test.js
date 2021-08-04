@@ -1,5 +1,5 @@
 import { renderHook, act } from "@testing-library/react-hooks";
-import { useLocalStorage } from "assets/hooks";
+import { useLocalStorage } from "hooks/GeneralHooks";
 
 describe("useLocalStorage", () => {
   it("return value as undefined if not specified", () => {
@@ -7,7 +7,7 @@ describe("useLocalStorage", () => {
     expect(result.current[0]).toBeUndefined();
   });
 
-  it("renderz initial value and updates localStorage values", () => {
+  it("renders initial value and updates localStorage values", () => {
     const setItemSpy = jest.spyOn(Storage.prototype, "setItem");
     const { result } = renderHook(() => useLocalStorage("KEY", "INIT_VAL"));
 

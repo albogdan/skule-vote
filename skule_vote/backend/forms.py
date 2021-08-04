@@ -116,6 +116,8 @@ class ElectionSessionAdminForm(forms.ModelForm):
                 "The ElectionSession must start before it ends. Ensure that your start time is before your end time."
             )
 
+        self.overlapping_election_sessions_check()
+
         # Get a list of the field names that should be readonly
         read_only_field_names = [field["field_name"] for field in self.read_only_fields]
         illegally_changed_fields = list(
@@ -152,7 +154,7 @@ class ElectionSessionAdminForm(forms.ModelForm):
         elif raw_uploads.count(None) == 0:
             # Check to make sure user uploads a CSV and not a different type of file.
             for file in raw_uploads:
-                if file.content_type != "text/csv":
+                if file.name[-4:] != ".csv":
                     raise forms.ValidationError(
                         "Ensure all uploaded files are CSV files. ODS, XLS and other spreadsheet extensions are not "
                         f"supported. Please upload your files again. Error at: [{file.name}]"
@@ -218,6 +220,66 @@ class ElectionSessionAdminForm(forms.ModelForm):
             # Call the csv_checks
             self.csv_checks()
         return cleaned_data
+
+    def overlapping_election_sessions_check(self):
+
+        # Check if creating a new ElectionSession, or modifying an existing one
+        # Exclude only if modifying an existing one
+        exclude_id = self.instance.id if self.instance is not None else -1
+
+        # Check for ElectionSessions that have an overlapping start time within the new ElectionSession's time range
+        election_session_overlapping_start = (
+            ElectionSession.objects.filter(
+                start_time__gte=self.cleaned_data["start_time"].astimezone(
+                    settings.TZ_INFO
+                ),
+                start_time__lte=self.cleaned_data["end_time"].astimezone(
+                    settings.TZ_INFO
+                ),
+            )
+            .exclude(id=exclude_id)
+            .exists()
+        )
+
+        # Check for ElectionSessions that have an overlapping end time within the new ElectionSession's time range
+        election_session_overlapping_end = (
+            ElectionSession.objects.filter(
+                end_time__gte=self.cleaned_data["start_time"].astimezone(
+                    settings.TZ_INFO
+                ),
+                end_time__lte=self.cleaned_data["end_time"].astimezone(
+                    settings.TZ_INFO
+                ),
+            )
+            .exclude(id=exclude_id)
+            .exists()
+        )
+
+        # Check for ElectionSessions that envelop the new ElectionSession's time range
+        election_session_enveloping = (
+            ElectionSession.objects.filter(
+                start_time__lte=self.cleaned_data["start_time"].astimezone(
+                    settings.TZ_INFO
+                ),
+                end_time__gte=self.cleaned_data["end_time"].astimezone(
+                    settings.TZ_INFO
+                ),
+            )
+            .exclude(id=exclude_id)
+            .exists()
+        )
+
+        overlapping_election_sessions_present = (
+            election_session_overlapping_start
+            or election_session_overlapping_end
+            or election_session_enveloping
+        )
+
+        if overlapping_election_sessions_present:
+            raise forms.ValidationError(
+                f"Election Sessions must be non-overlapping. Please ensure the date range of "
+                f"the Election Session is not contained within any other Election Session."
+            )
 
     def csv_checks(self):
         """

@@ -93,7 +93,12 @@ const LandingPage = () => {
             websites.
           </Typography>
           <Link to={"/elections"}>
-            <Button color="primary" variant="contained" disableElevation>
+            <Button
+              color="primary"
+              size="large"
+              variant="contained"
+              disableElevation
+            >
               Vote
             </Button>
           </Link>

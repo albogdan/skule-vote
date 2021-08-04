@@ -4,7 +4,7 @@ import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 import { responsive } from "assets/breakpoints";
 
-const Card = styled(Paper)`
+const BaseCard = styled(Paper)`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -12,20 +12,23 @@ const Card = styled(Paper)`
   width: 100%;
   padding: 24px;
   box-shadow: none;
-  cursor: pointer;
   text-align: center;
-  &:hover {
-    opacity: 0.9;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.14), 0px 3px 4px rgba(0, 0, 0, 0.12);
-  }
   @media ${responsive.smDown} {
     padding: 16px;
   }
 `;
 
+const Card = styled(BaseCard)`
+  cursor: pointer;
+  &:hover {
+    opacity: 0.9;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.14), 0px 3px 4px rgba(0, 0, 0, 0.12);
+  }
+`;
+
 const Subtitle = styled(Typography)`
   margin-top: 4px;
-  opacity: 0.57;
+  opacity: 0.65;
 `;
 
 const ElectionCard = ({ title, numCandidates, openModal }) => {
@@ -52,9 +55,9 @@ export const NoElectionsCard = ({ filterCategory }) => {
         } that you are currently eligible to vote in.`;
 
   return (
-    <Card>
+    <BaseCard>
       <Typography variant="body1">{message}</Typography>
-    </Card>
+    </BaseCard>
   );
 };
 

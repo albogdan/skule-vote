@@ -2,9 +2,14 @@ import React from "react";
 import { render, fireEvent } from "@testing-library/react";
 import { withHistoryRouter } from "assets/testing";
 import Header from "components/Header";
+import { useGetEligibility } from "hooks/GeneralHooks";
 
 jest.mock("notistack", () => ({
   useSnackbar: () => ({ enqueueSnackbar: jest.fn() }),
+}));
+
+jest.mock("hooks/GeneralHooks", () => ({
+  useGetEligibility: jest.fn(() => jest.fn()),
 }));
 
 describe("<Header />", () => {
@@ -36,7 +41,7 @@ describe("<Header />", () => {
     expect(getByText("Skule Vote").closest("a")).toHaveAttribute("href", "/");
   });
 
-  it("called toggleDark when the Dark/Light mode button is clicked", () => {
+  it("calls toggleDark when the Dark/Light mode button is clicked", () => {
     const toggleDarkSpy = jest.fn();
     const isDark = true;
     const { getByText } = render(
@@ -49,5 +54,18 @@ describe("<Header />", () => {
     let button = getByText("Light mode");
     fireEvent.click(button);
     expect(toggleDarkSpy).toHaveBeenCalled();
+  });
+
+  it("calles getEligibility when the Check eligibility button is clicked", () => {
+    const getEligibility = jest.fn();
+    useGetEligibility.mockImplementation(() => {
+      return getEligibility;
+    });
+
+    const { getByText } = render(withHistoryRouter(<Header />, "/elections"));
+
+    let button = getByText("Check eligibility");
+    fireEvent.click(button);
+    expect(getEligibility).toHaveBeenCalled();
   });
 });

@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  django:
+    build:
+      context: ..
+      dockerfile: ./deployment/Dockerfile
+    command: gunicorn skule_vote.wsgi:application --bind 0.0.0.0:8001 --workers 5 --capture-output --access-logfile - --error-logfile -
+    ports:
+      - 8001:8001
+    env_file: ENV_VARS
+    deploy:
+      restart_policy:
+        condition: on-failure

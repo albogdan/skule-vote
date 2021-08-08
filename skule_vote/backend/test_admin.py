@@ -8,7 +8,14 @@ from django.urls import reverse
 
 from rest_framework import status
 
-from backend.models import ElectionSession, Election, Candidate, Eligibility
+from backend.models import (
+    Ballot,
+    Candidate,
+    ElectionSession,
+    Election,
+    Eligibility,
+    Voter,
+)
 from skule_vote.tests import SetupMixin
 
 
@@ -410,4 +417,130 @@ class CandidateAdminTestCase(SetupMixin, TestCase):
             response = self.client.get(change_view)
 
             self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertContains(response, "Delete")
+
+
+class VoterAdminTestCase(SetupMixin, TestCase):
+    """
+    Tests the changelist view for Voters.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self._set_election_session_data()
+        election_session = self._create_election_session(self.data)
+
+        self.setUpElections(election_session)
+        self._login_admin()
+
+        self.changelist_view = reverse("admin:backend_voter_changelist")
+
+        self.voters = self._generate_voters(count=4)
+        self.assertEqual(Voter.objects.count(), 4)
+
+    def test_voter_changelist_only_view_permissions_in_production_mode(self):
+        response = self.client.get(self.changelist_view)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(response, "Select voter to view")
+        self.assertNotContains(response, "Add voter")
+
+    @patch("django.conf.settings.DEBUG")
+    def test_voter_changelist_all_permissions_in_debug_mode(self, mock_debug):
+        mock_debug.return_value = True
+
+        response = self.client.get(self.changelist_view)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(response, "Select voter to change")
+        self.assertContains(response, "Add voter")
+
+    def test_specific_voter_only_view_permissions_in_production_mode(self):
+        for voter in Voter.objects.all():
+            change_view = reverse(
+                "admin:backend_voter_change", kwargs={"object_id": voter.id}
+            )
+            response = self.client.get(change_view)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+            # Can't delete or save in production mode
+            self.assertNotContains(response, "Save")
+            self.assertNotContains(response, "Delete")
+
+    @patch("django.conf.settings.DEBUG")
+    def test_specific_voter_all_permissions_in_debug_mode(self, mock_debug):
+        mock_debug.return_value = True
+
+        for voter in Voter.objects.all():
+            change_view = reverse(
+                "admin:backend_voter_change", kwargs={"object_id": voter.id}
+            )
+            response = self.client.get(change_view)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+            # Can't delete or save in production mode
+            self.assertContains(response, "Save")
+            self.assertContains(response, "Delete")
+
+
+class BallotAdminTestCase(SetupMixin, TestCase):
+    """
+    Tests the changelist view for Ballots.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self._set_election_session_data()
+        election_session = self._create_election_session(self.data)
+
+        self.setUpElections(election_session)
+        self._login_admin()
+        self.changelist_view = reverse("admin:backend_ballot_changelist")
+
+        self.voters = self._generate_voters(count=4)
+        self.assertEqual(Voter.objects.count(), 4)
+        self._generate_ron_ballots()
+
+    def test_ballot_changelist_only_view_permissions_in_production_mode(self):
+        response = self.client.get(self.changelist_view)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(response, "Select ballot to view")
+        self.assertNotContains(response, "Add ballot")
+
+    @patch("django.conf.settings.DEBUG")
+    def test_ballot_changelist_all_permissions_in_debug_mode(self, mock_debug):
+        mock_debug.return_value = True
+
+        response = self.client.get(self.changelist_view)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(response, "Select ballot to change")
+        self.assertContains(response, "Add ballot")
+
+    def test_specific_ballot_only_view_permissions_in_production_mode(self):
+        for ballot in Ballot.objects.all():
+            change_view = reverse(
+                "admin:backend_ballot_change", kwargs={"object_id": ballot.id}
+            )
+            response = self.client.get(change_view)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+            # Can't delete or save in production mode
+            self.assertNotContains(response, "Save")
+            self.assertNotContains(response, "Delete")
+
+    @patch("django.conf.settings.DEBUG")
+    def test_specific_ballot_all_permissions_in_debug_mode(self, mock_debug):
+        mock_debug.return_value = True
+
+        for ballot in Ballot.objects.all():
+            change_view = reverse(
+                "admin:backend_ballot_change", kwargs={"object_id": ballot.id}
+            )
+            response = self.client.get(change_view)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+            # Can't delete or save in production mode
+            self.assertContains(response, "Save")
             self.assertContains(response, "Delete")

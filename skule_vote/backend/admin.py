@@ -140,7 +140,36 @@ class CandidateAdmin(admin.ModelAdmin):
 
 @admin.register(Voter)
 class VoterAdmin(admin.ModelAdmin):
-    pass
+    if not settings.DEBUG:
+        actions = None
+
+    # We cannot call super().get_fields(request, obj) because that method calls
+    # get_readonly_fields(request, obj), causing infinite recursion. Ditto for
+    # super().get_form(request, obj). So we  assume the default ModelForm.
+    def get_readonly_fields(self, request, obj=None):
+        if settings.DEBUG:
+            return super().get_readonly_fields(request, obj)
+        return self.fields or [f.name for f in self.model._meta.fields]
+
+    def has_add_permission(self, request):
+        if settings.DEBUG:
+            return super().has_add_permission(request)
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        if settings.DEBUG:
+            return super().has_change_permission(request, obj)
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        if settings.DEBUG:
+            return super().has_delete_permission(request, obj)
+        return False
+
+    def has_view_permission(self, request, obj=None):
+        if settings.DEBUG:
+            return super().has_view_permission(request, obj)
+        return True
 
 
 class BallotResource(resources.ModelResource):
@@ -176,6 +205,36 @@ class BallotResource(resources.ModelResource):
 @admin.register(Ballot)
 class BallotAdmin(ExportMixin, admin.ModelAdmin):
     resource_class = BallotResource
+    if not settings.DEBUG:
+        actions = None
+
+    # We cannot call super().get_fields(request, obj) because that method calls
+    # get_readonly_fields(request, obj), causing infinite recursion. Ditto for
+    # super().get_form(request, obj). So we  assume the default ModelForm.
+    def get_readonly_fields(self, request, obj=None):
+        if settings.DEBUG:
+            return super().get_readonly_fields(request, obj)
+        return self.fields or [f.name for f in self.model._meta.fields]
+
+    def has_add_permission(self, request):
+        if settings.DEBUG:
+            return super().has_add_permission(request)
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        if settings.DEBUG:
+            return super().has_change_permission(request, obj)
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        if settings.DEBUG:
+            return super().has_delete_permission(request, obj)
+        return False
+
+    def has_view_permission(self, request, obj=None):
+        if settings.DEBUG:
+            return super().has_view_permission(request, obj)
+        return True
 
 
 @admin.register(Eligibility)

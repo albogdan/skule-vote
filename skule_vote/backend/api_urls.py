@@ -16,6 +16,7 @@ urlpatterns = [
         views.ElectionSessionListView.as_view(),
         name="election-session-list",
     ),
+    path("votereligible/", views.VoterEligibleView.as_view(), name="voter-eligible"),
 ]
 
 if not settings.CONNECT_TO_UOFT:

@@ -1,4 +1,6 @@
 import { useState, useCallback } from "react";
+import { get } from "api/api";
+import { useSnackbar } from "notistack";
 
 export function useLocalStorage(key, initValue) {
   const [storedValue, setStoredValue] = useState(() => {
@@ -29,3 +31,43 @@ export function useLocalStorage(key, initValue) {
 
   return [storedValue, setValue, removeKey];
 }
+
+export const useGetEligibility = () => {
+  const { enqueueSnackbar } = useSnackbar();
+
+  return async function getEligibility() {
+    try {
+      const response = await get("/api/votereligible");
+      if (response.status === 200) {
+        if (response.data.voter_eligible) {
+          enqueueSnackbar(
+            {
+              message: "You are an eligible student",
+              variant: "success",
+            },
+            { variant: "success" }
+          );
+        } else {
+          enqueueSnackbar(
+            {
+              message: "You are not an eligible student",
+              variant: "warning",
+            },
+            { variant: "warning" }
+          );
+        }
+      }
+    } catch (e) {
+      enqueueSnackbar(
+        {
+          message: `Failed to get voter eligibility: ${
+            e.message ?? e.response.status
+          }`,
+          variant: "error",
+        },
+        { variant: "error" }
+      );
+    }
+    return null;
+  };
+};

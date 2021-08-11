@@ -55,19 +55,27 @@ class BallotSerializer(serializers.Serializer):
         Ensure election exists and candidates belong to the election.
         """
         if Election.objects.filter(id=data["electionId"]).count() != 1:
-            raise serializers.ValidationError("The election you are trying to vote in does not exist")
+            raise serializers.ValidationError(
+                "The election you are trying to vote in does not exist"
+            )
 
-        candidate_ids = [c.id for c in Candidate.objects.filter(election=data["electionId"])]
+        candidate_ids = [
+            c.id for c in Candidate.objects.filter(election=data["electionId"])
+        ]
         for _, candidate in data["ranking"].items():
             if candidate not in candidate_ids:
-                raise serializers.ValidationError(f"No candidate with id: {candidate} exists in election {data['electionId']}")
+                raise serializers.ValidationError(
+                    f"No candidate with id: {candidate} exists in election {data['electionId']}"
+                )
 
         return data
 
     def save(self):
         election = Election.objects.get(id=self.validated_data["electionId"])
         candidates_dict = {c.id: c for c in Candidate.objects.filter(election=election)}
-        voter = Voter.objects.get(student_number_hash=self.context["student_number_hash"])
+        voter = Voter.objects.get(
+            student_number_hash=self.context["student_number_hash"]
+        )
 
         with transaction.atomic(durable=True):
             if self.validated_data["ranking"]:
@@ -76,7 +84,7 @@ class BallotSerializer(serializers.Serializer):
                         voter=voter,
                         candidate=candidates_dict[self.validated_data["ranking"][rank]],
                         election=election,
-                        rank=int(rank)
+                        rank=int(rank),
                     )
                     ballot.save()
             else:

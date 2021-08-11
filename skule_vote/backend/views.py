@@ -1,10 +1,8 @@
 from datetime import datetime
 import hashlib
-import json
 
 import django.core.signing
 from django.conf import settings
-from django.db import transaction, DatabaseError
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
@@ -12,7 +10,6 @@ from django.urls import reverse_lazy
 from django.views import View
 from rest_framework import exceptions, generics
 from rest_framework.generics import CreateAPIView
-from rest_framework.views import APIView
 
 from backend.models import (
     Ballot,
@@ -21,7 +18,11 @@ from backend.models import (
     Voter,
     Candidate,
 )
-from backend.serializers import ElectionSerializer, ElectionSessionSerializer, BallotSerializer
+from backend.serializers import (
+    ElectionSerializer,
+    ElectionSessionSerializer,
+    BallotSerializer,
+)
 
 
 class IneligibleVoterError(Exception):
@@ -278,9 +279,13 @@ class BallotSubmitView(CreateAPIView):
     def get_serializer_context(self):
         # Bypass for swagger schema generator
         if getattr(self, "swagger_fake_view", False):
-            return super().get_serializer_context() | {"student_number_hash": "debug only" }
+            return super().get_serializer_context() | {
+                "student_number_hash": "debug only"
+            }
 
-        return super().get_serializer_context() | {"student_number_hash": self.request.get_signed_cookie("student_number_hash") }
+        return super().get_serializer_context() | {
+            "student_number_hash": self.request.get_signed_cookie("student_number_hash")
+        }
 
     def check_permissions(self, request):
         """
@@ -290,14 +295,19 @@ class BallotSubmitView(CreateAPIView):
         try:
             student_number_hash = self.request.get_signed_cookie("student_number_hash")
         except (django.core.signing.BadSignature, KeyError):
-            self.permission_denied(request, message="You are not logged in as a valid student.")
+            self.permission_denied(
+                request, message="You are not logged in as a valid student."
+            )
 
         voter = Voter.objects.get(student_number_hash=student_number_hash)
         try:
             election_id = request.data["electionId"]
             election = Election.objects.get(id=election_id)
         except (KeyError, ValueError, Election.DoesNotExist):
-            self.permission_denied(request, message="You did not provide an election Id or the election does not exist")
+            self.permission_denied(
+                request,
+                message="You did not provide an election Id or the election does not exist",
+            )
 
         if voter.pey:
             eligible = (
@@ -319,7 +329,11 @@ class BallotSubmitView(CreateAPIView):
             )
 
         if not eligible:
-            self.permission_denied(request, message="You are not eligible to vote in this election.")
+            self.permission_denied(
+                request, message="You are not eligible to vote in this election."
+            )
 
         if Ballot.objects.filter(voter=voter, election=election).count() > 0:
-            self.permission_denied(request, message="You have already voted in this election.")
+            self.permission_denied(
+                request, message="You have already voted in this election."
+            )

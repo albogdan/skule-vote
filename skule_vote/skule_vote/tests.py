@@ -11,6 +11,7 @@ from django.contrib.auth import get_user_model
 from backend.forms import ElectionSessionAdminForm
 
 from backend.models import (
+    Candidate,
     DISCIPLINE_CHOICES,
     STUDY_YEAR_CHOICES,
     Election,
@@ -213,6 +214,7 @@ class SetupMixin:
             election=election, status_eligible="part_time", **kwargs
         )
         elgibility.save()
+        return election
 
     def _create_discipline_club_chair(self, election_session):
 
@@ -284,6 +286,8 @@ class SetupMixin:
         )
         elgibility.save()
 
+        return election
+
     def _create_officer(self, election_session):
         election = Election(
             election_name="President",
@@ -304,6 +308,20 @@ class SetupMixin:
             election=election, status_eligible="full_and_part_time", **kwargs
         )
         elgibility.save()
+
+        return election
+
+    def add_candidates(self, election, num=2):
+        candidate_list = []
+        for i in range(num):
+            candidate = Candidate(
+                name=f"test candidate {i}",
+                election=election,
+                statement=f"test statement for candidate {i}",
+            )
+            candidate.save()
+            candidate_list.append(candidate)
+        return candidate_list
 
     def _login_admin(self):
         self.client.login(username=self.user.username, password=self.password)

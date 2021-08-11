@@ -896,7 +896,11 @@ class BallotSubmitViewTestCase(SetupMixin, APITestCase):
         candidates = self.add_candidates(election, num=3)
         payload = {
             "electionId": election.id,
-            "ranking": {"1": candidates[0].id, "2": candidates[1].id, "3": candidates[2].id},
+            "ranking": {
+                "1": candidates[0].id,
+                "2": candidates[1].id,
+                "3": candidates[2].id,
+            },
         }
         response = self.client.post(self.ballot_submit_view, payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -946,7 +950,9 @@ class BallotSubmitViewTestCase(SetupMixin, APITestCase):
             self.assertEqual(ballot.candidate.id, payload["ranking"][str(ballot.rank)])
 
     def test_successful_vote_referendum(self):
-        voter_dict = self._urlencode_cookie_request(discipline="CIV", attendance="PT", year=4)
+        voter_dict = self._urlencode_cookie_request(
+            discipline="CIV", attendance="PT", year=4
+        )
         response = self.client.post(self.cookie_view, voter_dict, follow=True)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

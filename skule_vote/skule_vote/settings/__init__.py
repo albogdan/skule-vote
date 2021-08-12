@@ -39,7 +39,7 @@ if DEBUG:
 
 else:
     ALLOWED_HOSTS = ["vote.skule.ca", "*"]
-    CORS_ORIGIN_REGEX_WHITELIST = [r"^https://vote\.skule.ca:?\d*$", "*"]
+    CORS_ORIGIN_REGEX_WHITELIST = [r"^https://vote\.skule.ca:?\d*$", ".*"]
 
 CORS_ALLOW_CREDENTIALS = True
 

@@ -8,8 +8,7 @@ on:
 jobs:
   aws-deployment:
     runs-on: ubuntu-latest
-    needs: [ backend-checks, frontend-checks ]
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/develop'
     steps:
       # Step 1
       - name: Configure AWS credentials

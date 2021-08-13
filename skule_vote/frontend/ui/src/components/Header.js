@@ -68,7 +68,7 @@ const Header = ({ isDark, toggleDark }) => {
     <AppBar color={!isDark ? "primary" : "inherit"} position="sticky">
       <FlexToolbar>
         <Link to={"/"}>
-          <LogoWhite />
+          <LogoWhite data-testid="skuleVoteLogo" />
         </Link>
         <Nav>
           {darkLightModeButton}

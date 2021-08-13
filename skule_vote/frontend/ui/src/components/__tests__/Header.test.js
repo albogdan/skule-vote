@@ -17,12 +17,15 @@ describe("<Header />", () => {
     const { getByText, queryByText, getByTestId } = render(
       withHistoryRouter(<Header />, "/")
     );
-    expect(getByText("Skule Vote")).toBeInTheDocument();
+    expect(getByTestId("skuleVoteLogo")).toBeInTheDocument();
     expect(getByTestId("darkLightModeIcon")).toBeInTheDocument();
     expect(getByText("Vote")).toBeInTheDocument();
     expect(queryByText("Check eligibility")).not.toBeInTheDocument();
     expect(getByText("Logout")).toBeInTheDocument();
-    expect(getByText("Skule Vote").closest("a")).toHaveAttribute("href", "/");
+    expect(getByTestId("skuleVoteLogo").closest("a")).toHaveAttribute(
+      "href",
+      "/"
+    );
     expect(getByText("Vote").closest("a")).toHaveAttribute(
       "href",
       "/elections"
@@ -33,12 +36,15 @@ describe("<Header />", () => {
     const { getByText, queryByText, getByTestId } = render(
       withHistoryRouter(<Header />, "/elections")
     );
-    expect(getByText("Skule Vote")).toBeInTheDocument();
+    expect(getByTestId("skuleVoteLogo")).toBeInTheDocument();
     expect(getByTestId("darkLightModeIcon")).toBeInTheDocument();
     expect(queryByText("Vote")).not.toBeInTheDocument();
     expect(getByText("Check eligibility")).toBeInTheDocument();
     expect(getByText("Logout")).toBeInTheDocument();
-    expect(getByText("Skule Vote").closest("a")).toHaveAttribute("href", "/");
+    expect(getByTestId("skuleVoteLogo").closest("a")).toHaveAttribute(
+      "href",
+      "/"
+    );
   });
 
   it("calls toggleDark when the Dark/Light mode button is clicked", () => {

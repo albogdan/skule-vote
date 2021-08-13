@@ -8,15 +8,8 @@ import useMediaQuery from "@material-ui/core/useMediaQuery";
 import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
 import { useGetEligibility } from "hooks/GeneralHooks";
+import { ReactComponent as SkuleVoteLogo } from "images/SkuleVoteLogo.svg";
 import { responsive } from "assets/breakpoints";
-
-const SkuleVote = styled.h1`
-  font-weight: 600;
-  font-size: 16px;
-  white-space: nowrap;
-  margin-right: 16px;
-  color: white;
-`;
 
 const Nav = styled.div`
   display: flex;
@@ -36,6 +29,16 @@ const Nav = styled.div`
 const FlexToolbar = styled(Toolbar)`
   display: flex;
   justify-content: space-between;
+`;
+
+const LogoWhite = styled(SkuleVoteLogo)`
+  height: 25px;
+  width: auto;
+  padding-top: 3px;
+  margin-right: 16px;
+  @media ${responsive.smDown} {
+    padding-top: 5px;
+  }
 `;
 
 const Header = ({ isDark, toggleDark }) => {
@@ -65,7 +68,7 @@ const Header = ({ isDark, toggleDark }) => {
     <AppBar color={!isDark ? "primary" : "inherit"} position="sticky">
       <FlexToolbar>
         <Link to={"/"}>
-          <SkuleVote>Skule Vote</SkuleVote>
+          <LogoWhite data-testid="skuleVoteLogo" />
         </Link>
         <Nav>
           {darkLightModeButton}

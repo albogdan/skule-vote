@@ -409,7 +409,7 @@ class SetupMixin:
                 ballot = Ballot(
                     voter=voter,
                     candidate=candidate,
-                    rank=1,
+                    rank=0,
                     election=candidate.election,
                 )
                 ballot.save()

@@ -7,15 +7,19 @@ import string
 from django.conf import settings
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.contrib.auth import get_user_model
+from django.urls import reverse
 
 from backend.forms import ElectionSessionAdminForm
 
 from backend.models import (
     DISCIPLINE_CHOICES,
     STUDY_YEAR_CHOICES,
+    Ballot,
+    Candidate,
     Election,
     ElectionSession,
     Eligibility,
+    Voter,
 )
 
 User = get_user_model()
@@ -379,6 +383,41 @@ class SetupMixin:
             )
 
         return file_dict
+
+    def _generate_voters(self, count=4):
+        voters = []
+        cookie_view = reverse("api:backend:bypass-cookie")
+
+        for i in range(count):
+            voter = self._urlencode_cookie_request(year=(i % 4) + 1)
+            voters.append(voter)
+            self.client.post(cookie_view, voter, follow=True)
+        return voters
+
+    def _generate_ron_ballots(self, max_ballots=4, voter_count=4, voters=None):
+        if voters is None:
+            voters = self._generate_voters(count=voter_count)
+        if Candidate.objects.count() == 0:
+            self._set_election_session_data()
+            election_session = self._create_election_session(self.data)
+            self.setUpElections(election_session)
+
+        ballots = []
+        ballot_count = 0
+        for voter in Voter.objects.all():
+            for candidate in Candidate.objects.all():
+                ballot = Ballot(
+                    voter=voter,
+                    candidate=candidate,
+                    rank=0,
+                    election=candidate.election,
+                )
+                ballot.save()
+                ballots.append(ballot)
+                ballot_count += 1
+                if ballot_count >= max_ballots:
+                    return ballots
+        return ballots
 
     @staticmethod
     def _now():

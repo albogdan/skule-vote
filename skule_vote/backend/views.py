@@ -9,19 +9,18 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views import View
 from rest_framework import exceptions, generics
-from rest_framework.generics import CreateAPIView
 
 from backend.models import (
     Ballot,
+    Candidate,
     Election,
     ElectionSession,
     Voter,
-    Candidate,
 )
 from backend.serializers import (
+    BallotSerializer,
     ElectionSerializer,
     ElectionSessionSerializer,
-    BallotSerializer,
 )
 
 
@@ -273,7 +272,7 @@ class VoterEligibleView(generics.GenericAPIView):
             return JsonResponse({"voter_eligible": False})
 
 
-class BallotSubmitView(CreateAPIView):
+class BallotSubmitView(generics.CreateAPIView):
     serializer_class = BallotSerializer
 
     def get_serializer_context(self):

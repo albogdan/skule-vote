@@ -1,6 +1,6 @@
 from django.db import transaction
 
-from backend.models import Candidate, Election, ElectionSession, Ballot, Voter
+from backend.models import Ballot, Candidate, Election, ElectionSession, Voter
 from rest_framework import serializers
 
 
@@ -52,12 +52,8 @@ class BallotSerializer(serializers.Serializer):
 
     def validate(self, data):
         """
-        Ensure election exists and candidates belong to the election.
+        Ensure candidates belong to the election.
         """
-        if Election.objects.filter(id=data["electionId"]).count() != 1:
-            raise serializers.ValidationError(
-                "The election you are trying to vote in does not exist"
-            )
 
         candidate_ids = [
             c.id for c in Candidate.objects.filter(election=data["electionId"])
@@ -65,7 +61,7 @@ class BallotSerializer(serializers.Serializer):
         for _, candidate in data["ranking"].items():
             if candidate not in candidate_ids:
                 raise serializers.ValidationError(
-                    f"No candidate with id: {candidate} exists in election {data['electionId']}"
+                    f"No candidate with id: {candidate} exists in election: {data['electionId']}"
                 )
 
         return data

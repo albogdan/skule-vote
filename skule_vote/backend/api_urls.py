@@ -10,7 +10,7 @@ urlpatterns = [
         views.ElectionListView.as_view(),
         name="election-list",
     ),
-    path("ballots/", views.BallotSubmitView.as_view(), name="ballot-submit"),
+    path("vote/", views.BallotSubmitView.as_view(), name="ballot-submit"),
     path(
         "electionsession/",
         views.ElectionSessionListView.as_view(),

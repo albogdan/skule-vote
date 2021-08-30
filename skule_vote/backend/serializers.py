@@ -46,7 +46,7 @@ class ElectionSessionSerializer(serializers.ModelSerializer):
 
 
 class BallotSerializer(serializers.Serializer):
-    electionId = serializers.IntegerField(min_value=0, allow_blank=False)
+    electionId = serializers.IntegerField(min_value=0)
     # rank -> candidate_id
     ranking = serializers.DictField(child=serializers.IntegerField(), allow_empty=True)
 

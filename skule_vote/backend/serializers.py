@@ -46,9 +46,9 @@ class ElectionSessionSerializer(serializers.ModelSerializer):
 
 
 class BallotSerializer(serializers.Serializer):
-    electionId = serializers.CharField(max_length=200, allow_blank=False)
+    electionId = serializers.IntegerField(min_value=0, allow_blank=False)
     # rank -> candidate_id
-    ranking = serializers.DictField(allow_empty=True)
+    ranking = serializers.DictField(child=serializers.IntegerField(), allow_empty=True)
 
     def validate(self, data):
         """

@@ -691,7 +691,7 @@ class BallotSubmitViewTestCase(SetupMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Invalid election Id
-        payload = {"electionId": "doesn't exist", "ranking": {}}
+        payload = {"electionId": 999999, "ranking": {}}
         response = self.client.post(self.ballot_submit_view, payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -706,7 +706,7 @@ class BallotSubmitViewTestCase(SetupMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         election = self._create_officer(self.election_session)
-        payload = {"electionId": election.id, "ranking": {"1": "does not exist"}}
+        payload = {"electionId": election.id, "ranking": {"1": 9999999}}
         response = self.client.post(self.ballot_submit_view, payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 

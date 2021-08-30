@@ -262,7 +262,7 @@ class EligibilityAdmin(admin.ModelAdmin):
 
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
-    list_display = ("election_session", "get_short_message", "active", "hideable")
+    list_display = ("election_session", "get_short_message", "active")
     list_filter = ("election_session", "active")
     search_fields = ["message"]
 
@@ -276,8 +276,8 @@ class MessageAdmin(admin.ModelAdmin):
             {"fields": ("election_session",)},
         ),
         (
-            "Define whether the message is active (visible) and whether it is hideable by the user.",
-            {"fields": ("active", "hideable")},
+            "Define whether the message is active (visible).",
+            {"fields": ("active",)},
         ),
     )
 

@@ -5,9 +5,12 @@ from rest_framework.test import APITestCase
 
 from skule_vote.tests import SetupMixin
 from backend.models import (
+    Ballot,
     DISCIPLINE_CHOICES,
     STUDY_YEAR_CHOICES,
+    Election,
     ElectionSession,
+    Eligibility,
     Voter,
 )
 
@@ -642,3 +645,377 @@ class VoterEligibleViewTestCase(SetupMixin, APITestCase):
         self.assertJSONEqual(
             str(response.content, encoding="utf8"), {"voter_eligible": True}
         )
+
+
+class BallotSubmitViewTestCase(SetupMixin, APITestCase):
+    def setUp(self):
+        super().setUp()
+        self.ballot_submit_view = reverse("api:backend:ballot-submit")
+        self.cookie_view = reverse("api:backend:bypass-cookie")
+
+        # Empty and started election session
+        self.election_session = self._create_election_session(
+            self._set_election_session_data()
+        )
+
+    def test_no_cookie_permission_denied(self):
+        response = self.client.get(self.ballot_submit_view)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_invalid_cookie_permission_denied(self):
+        voter_dict = self._urlencode_cookie_request()
+
+        response = self.client.post(self.cookie_view, voter_dict, follow=True)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            self.client.cookies["student_number_hash"].value.split(":")[0],
+            voter_dict["pid"],
+        )
+
+        hash_signature = "".join(
+            self.client.cookies["student_number_hash"].value.split(":")[1:]
+        )
+        self.client.cookies["student_number_hash"].set(
+            "student_number_hash",
+            "im hacking the hash:" + hash_signature,
+            "im hacking the hash:" + hash_signature,
+        )
+
+        response = self.client.get(self.ballot_submit_view)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_invalid_election_id(self):
+        voter_dict = self._urlencode_cookie_request()
+        response = self.client.post(self.cookie_view, voter_dict, follow=True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Invalid election Id
+        payload = {"electionId": 999999, "ranking": {}}
+        response = self.client.post(self.ballot_submit_view, payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Not including election Id
+        payload = {"ranking": {}}
+        response = self.client.post(self.ballot_submit_view, payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_invalid_candidate(self):
+        voter_dict = self._urlencode_cookie_request()
+        response = self.client.post(self.cookie_view, voter_dict, follow=True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        election = self._create_officer(self.election_session)
+        payload = {"electionId": election.id, "ranking": {"1": 9999999}}
+        response = self.client.post(self.ballot_submit_view, payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_ineligible_election_discipline(self):
+        voter_dict = self._urlencode_cookie_request(discipline="CHE", year=1)
+        response = self.client.post(self.cookie_view, voter_dict, follow=True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        election = Election(
+            election_name="Engineering Science 1st Year Rep",
+            seats_available=1,
+            category="class_representative",
+            election_session=self.election_session,
+        )
+        election.save()
+        eligibility = Eligibility(
+            election=election,
+            esc_eligible=True,
+            year_1_eligible=True,
+            status_eligible="full_and_part_time",
+        )
+        eligibility.save()
+
+        candidate_list = self.add_candidates(election)
+        payload = {
+            "electionId": election.id,
+            "ranking": {"1": candidate_list[0].id, "2": candidate_list[1].id},
+        }
+        response = self.client.post(self.ballot_submit_view, payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        ballot = Ballot.objects.filter(election=election)
+        self.assertEqual(len(ballot), 0)
+
+    def test_ineligible_election_year(self):
+        voter_dict = self._urlencode_cookie_request(discipline="ESC", year=2)
+        response = self.client.post(self.cookie_view, voter_dict, follow=True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        election = Election(
+            election_name="Engineering Science 1st Year Rep",
+            seats_available=1,
+            category="class_representative",
+            election_session=self.election_session,
+        )
+        election.save()
+        eligibility = Eligibility(
+            election=election,
+            esc_eligible=True,
+            year_1_eligible=True,
+            status_eligible="full_and_part_time",
+        )
+        eligibility.save()
+
+        candidate_list = self.add_candidates(election)
+        payload = {
+            "electionId": election.id,
+            "ranking": {"1": candidate_list[0].id, "2": candidate_list[1].id},
+        }
+        response = self.client.post(self.ballot_submit_view, payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        ballot = Ballot.objects.filter(election=election)
+        self.assertEqual(len(ballot), 0)
+
+    def test_ineligible_election_pey(self):
+        voter_dict = self._urlencode_cookie_request(discipline="ESC", pey=True)
+        response = self.client.post(self.cookie_view, voter_dict, follow=True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        election = Election(
+            election_name="Engineering Science 1st Year Rep",
+            seats_available=1,
+            category="class_representative",
+            election_session=self.election_session,
+        )
+        election.save()
+        eligibility = Eligibility(
+            election=election,
+            esc_eligible=True,
+            year_1_eligible=True,
+            status_eligible="full_and_part_time",
+        )
+        eligibility.save()
+
+        candidate_list = self.add_candidates(election)
+        payload = {
+            "electionId": election.id,
+            "ranking": {"1": candidate_list[0].id, "2": candidate_list[1].id},
+        }
+        response = self.client.post(self.ballot_submit_view, payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        ballot = Ballot.objects.filter(election=election)
+        self.assertEqual(len(ballot), 0)
+
+        voter_dict = self._urlencode_cookie_request(discipline="ESC", year=1)
+        response = self.client.post(self.cookie_view, voter_dict, follow=True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        election = Election(
+            election_name="Engineering Science PEY Rep",
+            seats_available=1,
+            category="class_representative",
+            election_session=self.election_session,
+        )
+        election.save()
+        eligibility = Eligibility(
+            election=election,
+            esc_eligible=True,
+            pey_eligible=True,
+            status_eligible="full_and_part_time",
+        )
+        eligibility.save()
+
+        candidate_list = self.add_candidates(election)
+        payload = {
+            "electionId": election.id,
+            "ranking": {"1": candidate_list[0].id, "2": candidate_list[1].id},
+        }
+        response = self.client.post(self.ballot_submit_view, payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        ballot = Ballot.objects.filter(election=election)
+        self.assertEqual(len(ballot), 0)
+
+    def test_ineligible_election_status(self):
+        voter_dict = self._urlencode_cookie_request(discipline="ESC", attendance="FT")
+        response = self.client.post(self.cookie_view, voter_dict, follow=True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        election = self._create_parttime_chair(self.election_session)
+        candidates = self.add_candidates(election)
+
+        payload = {
+            "electionId": election.id,
+            "ranking": {"1": candidates[0].id, "2": candidates[1].id},
+        }
+        response = self.client.post(self.ballot_submit_view, payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        ballot = Ballot.objects.filter(election=election)
+        self.assertEqual(len(ballot), 0)
+
+    def test_successful_vote_officer(self):
+        voter_dict = self._urlencode_cookie_request()
+        response = self.client.post(self.cookie_view, voter_dict, follow=True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        election = self._create_officer(self.election_session)
+        candidates = self.add_candidates(election)
+        payload = {
+            "electionId": election.id,
+            "ranking": {"1": candidates[0].id, "2": candidates[1].id},
+        }
+        response = self.client.post(self.ballot_submit_view, payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        ballots = Ballot.objects.filter(election=election)
+        self.assertEqual(len(ballots), 2)
+        for ballot in ballots:
+            self.assertEqual(
+                ballot.voter, Voter.objects.get(student_number_hash=voter_dict["pid"])
+            )
+            self.assertEqual(ballot.candidate.id, payload["ranking"][str(ballot.rank)])
+
+    def test_successful_vote_class_rep(self):
+        voter_dict = self._urlencode_cookie_request(discipline="ESC", year=1)
+        response = self.client.post(self.cookie_view, voter_dict, follow=True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        election = Election(
+            election_name="Engineering Science 1st Year Rep",
+            seats_available=1,
+            category="class_representative",
+            election_session=self.election_session,
+        )
+        election.save()
+        eligibility = Eligibility(
+            election=election,
+            esc_eligible=True,
+            year_1_eligible=True,
+            status_eligible="full_and_part_time",
+        )
+        eligibility.save()
+
+        candidates = self.add_candidates(election, num=3)
+        payload = {
+            "electionId": election.id,
+            "ranking": {
+                "1": candidates[0].id,
+                "2": candidates[1].id,
+                "3": candidates[2].id,
+            },
+        }
+        response = self.client.post(self.ballot_submit_view, payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        ballots = Ballot.objects.filter(election=election)
+        self.assertEqual(len(ballots), 3)
+        for ballot in ballots:
+            self.assertEqual(
+                ballot.voter, Voter.objects.get(student_number_hash=voter_dict["pid"])
+            )
+            self.assertEqual(ballot.candidate.id, payload["ranking"][str(ballot.rank)])
+
+    def test_successful_vote_class_rep_pey(self):
+        voter_dict = self._urlencode_cookie_request(discipline="CIV", pey=True)
+        response = self.client.post(self.cookie_view, voter_dict, follow=True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        election = Election(
+            election_name="Engineering Science PEY Rep",
+            seats_available=1,
+            category="class_representative",
+            election_session=self.election_session,
+        )
+        election.save()
+        eligibility = Eligibility(
+            election=election,
+            civ_eligible=True,
+            pey_eligible=True,
+            status_eligible="full_and_part_time",
+        )
+        eligibility.save()
+
+        candidates = self.add_candidates(election, num=4)
+        payload = {
+            "electionId": election.id,
+            "ranking": {"1": candidates[0].id},
+        }
+        response = self.client.post(self.ballot_submit_view, payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        ballots = Ballot.objects.filter(election=election)
+        self.assertEqual(len(ballots), 1)
+        for ballot in ballots:
+            self.assertEqual(
+                ballot.voter, Voter.objects.get(student_number_hash=voter_dict["pid"])
+            )
+            self.assertEqual(ballot.candidate.id, payload["ranking"][str(ballot.rank)])
+
+    def test_successful_vote_referendum(self):
+        voter_dict = self._urlencode_cookie_request(
+            discipline="CIV", attendance="PT", year=4
+        )
+        response = self.client.post(self.cookie_view, voter_dict, follow=True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        election = self._create_referendum(self.election_session)
+
+        candidates = self.add_candidates(election, num=1)
+        payload = {
+            "electionId": election.id,
+            "ranking": {"1": candidates[0].id},
+        }
+        response = self.client.post(self.ballot_submit_view, payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        ballots = Ballot.objects.filter(election=election)
+        self.assertEqual(len(ballots), 1)
+        for ballot in ballots:
+            self.assertEqual(
+                ballot.voter, Voter.objects.get(student_number_hash=voter_dict["pid"])
+            )
+            self.assertEqual(ballot.candidate.id, payload["ranking"][str(ballot.rank)])
+
+    def test_prevent_double_vote(self):
+        voter_dict = self._urlencode_cookie_request()
+        response = self.client.post(self.cookie_view, voter_dict, follow=True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        election = self._create_officer(self.election_session)
+        candidates = self.add_candidates(election)
+
+        # First attempt should go through
+        payload = {"electionId": election.id, "ranking": {}}
+        response = self.client.post(self.ballot_submit_view, payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # This should fail
+        payload = {"electionId": election.id, "ranking": {"1": candidates[0].id}}
+        response = self.client.post(self.ballot_submit_view, payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Make sure the ballots in the db are correct
+        ballot = Ballot.objects.filter(election=election)
+        self.assertEqual(len(ballot), 1)
+        self.assertEqual(
+            ballot[0].voter, Voter.objects.get(student_number_hash=voter_dict["pid"])
+        )
+        self.assertEqual(ballot[0].candidate, None)
+        self.assertEqual(ballot[0].rank, None)
+
+    def test_successful_spoiled_ballot(self):
+        voter_dict = self._urlencode_cookie_request()
+        response = self.client.post(self.cookie_view, voter_dict, follow=True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        election = self._create_officer(self.election_session)
+        self.add_candidates(election)
+        payload = {"electionId": election.id, "ranking": {}}
+        response = self.client.post(self.ballot_submit_view, payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        ballot = Ballot.objects.filter(election=election)
+        self.assertEqual(len(ballot), 1)
+        self.assertEqual(
+            ballot[0].voter, Voter.objects.get(student_number_hash=voter_dict["pid"])
+        )
+        self.assertEqual(ballot[0].candidate, None)
+        self.assertEqual(ballot[0].rank, None)

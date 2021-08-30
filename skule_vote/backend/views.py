@@ -11,11 +11,17 @@ from django.views import View
 from rest_framework import exceptions, generics
 
 from backend.models import (
+    Ballot,
+    Candidate,
     Election,
     ElectionSession,
     Voter,
 )
-from backend.serializers import ElectionSerializer, ElectionSessionSerializer
+from backend.serializers import (
+    BallotSerializer,
+    ElectionSerializer,
+    ElectionSessionSerializer,
+)
 
 
 class IneligibleVoterError(Exception):
@@ -264,3 +270,69 @@ class VoterEligibleView(generics.GenericAPIView):
             return JsonResponse({"voter_eligible": True})
         except (django.core.signing.BadSignature, KeyError):
             return JsonResponse({"voter_eligible": False})
+
+
+class BallotSubmitView(generics.CreateAPIView):
+    serializer_class = BallotSerializer
+
+    def get_serializer_context(self):
+        # Bypass for swagger schema generator
+        if getattr(self, "swagger_fake_view", False):
+            return super().get_serializer_context() | {
+                "student_number_hash": "debug only"
+            }
+
+        return super().get_serializer_context() | {
+            "student_number_hash": self.request.get_signed_cookie("student_number_hash")
+        }
+
+    def check_permissions(self, request):
+        """
+        Checks that the user is logged in with a valid signed cookie, is eligible to vote in the election, and has not
+        previously voted in this election
+        """
+        try:
+            student_number_hash = self.request.get_signed_cookie("student_number_hash")
+        except (django.core.signing.BadSignature, KeyError):
+            self.permission_denied(
+                request, message="You are not logged in as a valid student."
+            )
+
+        voter = Voter.objects.get(student_number_hash=student_number_hash)
+        try:
+            election_id = request.data["electionId"]
+            election = Election.objects.get(id=election_id)
+        except (KeyError, ValueError, Election.DoesNotExist):
+            self.permission_denied(
+                request,
+                message="You did not provide an election Id or the election does not exist",
+            )
+
+        if voter.pey:
+            eligible = (
+                election.eligibilities.pey_eligible
+                and getattr(
+                    election.eligibilities, f"{voter.discipline.lower()}_eligible"
+                )
+                and election.eligibilities.status_eligible
+                in [voter.student_status, "full_and_part_time"]
+            )
+        else:
+            eligible = (
+                getattr(election.eligibilities, f"year_{voter.study_year}_eligible")
+                and getattr(
+                    election.eligibilities, f"{voter.discipline.lower()}_eligible"
+                )
+                and election.eligibilities.status_eligible
+                in [voter.student_status, "full_and_part_time"]
+            )
+
+        if not eligible:
+            self.permission_denied(
+                request, message="You are not eligible to vote in this election."
+            )
+
+        if Ballot.objects.filter(voter=voter, election=election).count() > 0:
+            self.permission_denied(
+                request, message="You have already voted in this election."
+            )

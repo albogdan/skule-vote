@@ -1,6 +1,6 @@
 from django.db import transaction
 
-from backend.models import Ballot, Candidate, Election, ElectionSession, Voter
+from backend.models import Ballot, Candidate, Election, ElectionSession, Message, Voter
 from rest_framework import serializers
 
 
@@ -90,3 +90,9 @@ class BallotSerializer(serializers.Serializer):
                     election=election,
                 )
                 ballot.save()
+
+
+class MessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Message
+        fields = ("message",)

@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -11,6 +10,7 @@ from backend.models import (
     Election,
     ElectionSession,
     Eligibility,
+    Message,
     Voter,
 )
 
@@ -1019,3 +1019,120 @@ class BallotSubmitViewTestCase(SetupMixin, APITestCase):
         )
         self.assertEqual(ballot[0].candidate, None)
         self.assertEqual(ballot[0].rank, None)
+
+
+class MessageViewTestCase(SetupMixin, APITestCase):
+    def setUp(self):
+        super().setUp()
+        self.cookie_view = reverse("api:backend:bypass-cookie")
+        self.message_view = reverse("api:backend:messages")
+
+    def test_inactive_election_session_no_messages_returned(self):
+        self._set_election_session_data(
+            name="TestElectionSession",
+            start_time_offset_days=-4,
+            end_time_offset_days=-3,
+        )
+        past_election_session = self._create_election_session()
+
+        past_message = Message(
+            message="PastMessageElectiondf ;test ",
+            active=True,
+            election_session=past_election_session,
+        )
+        past_message.save()
+
+        response = self.client.get(self.message_view)
+
+        self.assertEqual(Message.objects.count(), 1)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json(), [])
+
+    def test_active_election_session_returns_only_active_messages(self):
+        self._set_election_session_data(
+            name="TestElectionSession",
+            start_time_offset_days=-4,
+            end_time_offset_days=5,
+        )
+        live_election_session = self._create_election_session()
+
+        active_1 = Message(
+            message="Current session test message active 1 asdfgfa",
+            active=True,
+            election_session=live_election_session,
+        )
+        active_1.save()
+        active_2 = Message(
+            message="Current session active test message 2 asdgfa ",
+            active=True,
+            election_session=live_election_session,
+        )
+        active_2.save()
+        inactive_1 = Message(
+            message="Current session inactive message asdgfa ",
+            active=False,
+            election_session=live_election_session,
+        )
+        inactive_1.save()
+
+        response = self.client.get(self.message_view)
+
+        self.assertEqual(Message.objects.count(), 3)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertContains(response, active_1.message)
+        self.assertContains(response, active_2.message)
+        self.assertNotContains(response, inactive_1.message)
+
+    def test_past_and_active_and_future_election_session_only_returns_active_messages(self):
+        self._set_election_session_data(
+            name="TestLiveElectionSession",
+            start_time_offset_days=-1,
+            end_time_offset_days=5,
+        )
+        live_election_session = self._create_election_session()
+
+        live_message = Message(
+            message="This is a message for the live election session",
+            active=True,
+            election_session=live_election_session,
+        )
+        live_message.save()
+
+        self._set_election_session_data(
+            name="TestPastElectionSession",
+            start_time_offset_days=-5,
+            end_time_offset_days=-3,
+        )
+        past_election_session = self._create_election_session()
+
+        past_message = Message(
+            message="This is a message for the past election session",
+            active=True,
+            election_session=past_election_session,
+        )
+        past_message.save()
+
+        self._set_election_session_data(
+            name="TestFutureElectionSession",
+            start_time_offset_days=5,
+            end_time_offset_days=8,
+        )
+        future_election_session = self._create_election_session()
+
+        future_message = Message(
+            message="This is a message for the future election session",
+            active=True,
+            election_session=future_election_session,
+        )
+        future_message.save()
+
+        response = self.client.get(self.message_view)
+
+        self.assertEqual(Message.objects.count(), 3)
+        self.assertEqual(ElectionSession.objects.count(), 3)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertContains(response, live_message.message)
+        self.assertNotContains(response, past_message.message)
+        self.assertNotContains(response, future_message.message)

@@ -12,15 +12,16 @@ from rest_framework import exceptions, generics
 
 from backend.models import (
     Ballot,
-    Candidate,
     Election,
     ElectionSession,
+    Message,
     Voter,
 )
 from backend.serializers import (
     BallotSerializer,
     ElectionSerializer,
     ElectionSessionSerializer,
+    MessageSerializer,
 )
 
 
@@ -336,3 +337,32 @@ class BallotSubmitView(generics.CreateAPIView):
             self.permission_denied(
                 request, message="You have already voted in this election."
             )
+
+
+class MessageView(generics.ListAPIView):
+    """
+    Returns all of the messages that are within currently active ElectionSessions and which
+    are marked themselves as "Active"
+    """
+
+    serializer_class = MessageSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def get_queryset(self):
+        now = _now()
+
+        # This is guaranteed to return <=1 ElectionSessions due to the constraints implemented
+        # in the ElectionSession save() method.
+        current_election_session = ElectionSession.objects.filter(
+            Q(start_time__lt=now) & Q(end_time__gt=now)
+        )
+
+        if len(current_election_session) > 0:
+            messages = Message.objects.filter(
+                Q(election_session=current_election_session[0]) & Q(active=True)
+            )
+            return messages
+
+        return []

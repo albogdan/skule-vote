@@ -17,6 +17,7 @@ urlpatterns = [
         name="election-session-list",
     ),
     path("votereligible/", views.VoterEligibleView.as_view(), name="voter-eligible"),
+    path("messages/", views.MessageView.as_view(), name="messages"),
 ]
 
 if not settings.CONNECT_TO_UOFT:

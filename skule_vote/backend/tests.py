@@ -1084,7 +1084,9 @@ class MessageViewTestCase(SetupMixin, APITestCase):
         self.assertContains(response, active_2.message)
         self.assertNotContains(response, inactive_1.message)
 
-    def test_past_and_active_and_future_election_session_only_returns_active_messages(self):
+    def test_past_and_active_and_future_election_session_only_returns_active_messages(
+        self,
+    ):
         self._set_election_session_data(
             name="TestLiveElectionSession",
             start_time_offset_days=-1,

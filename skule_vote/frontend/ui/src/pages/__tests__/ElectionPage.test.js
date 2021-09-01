@@ -4,6 +4,7 @@ import ElectionPage from "pages/ElectionPage";
 import {
   useGetElectionSession,
   useGetEligibleElections,
+  useGetMessages,
 } from "hooks/ElectionHooks";
 import { readableDate } from "pages/ElectionPage";
 import { withSnackbarProvider } from "assets/testing";
@@ -25,6 +26,9 @@ describe("<ElectionPage />", () => {
     });
     useGetEligibleElections.mockImplementation(() => {
       return getEligibleElections;
+    });
+    useGetMessages.mockImplementation(() => {
+      return jest.fn(() => []);
     });
   });
 

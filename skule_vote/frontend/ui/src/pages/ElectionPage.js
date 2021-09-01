@@ -17,6 +17,7 @@ import { responsive } from "assets/breakpoints";
 import {
   useGetElectionSession,
   useGetEligibleElections,
+  useGetMessages,
 } from "hooks/ElectionHooks";
 
 const ElectionsWrapper = styled.div`
@@ -91,11 +92,13 @@ const ElectionPage = () => {
 
   const getElectionSession = useGetElectionSession();
   const getEligibleElections = useGetEligibleElections();
+  const getMessages = useGetMessages();
 
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [filterCategory, setFilterCategory] = React.useState("All");
   const [electionSession, setElectionSession] = React.useState({});
   const [eligibleElections, setEligibleElections] = React.useState({});
+  const [messages, setMessages] = React.useState([]);
 
   const [startTime, startTimeStr] = readableDate(electionSession?.start_time);
   const [endTime, endTimeStr] = readableDate(electionSession?.end_time);
@@ -127,11 +130,15 @@ const ElectionPage = () => {
     async function fetchElection() {
       const getElecSession = await getElectionSession();
       const getEligibleElecs = await getEligibleElections();
+      const getMsgs = await getMessages();
       if (getElecSession != null) {
         setElectionSession(getElecSession);
       }
       if (getEligibleElecs != null) {
         setEligibleElections(getEligibleElecs);
+      }
+      if (getMsgs != null) {
+        setMessages(getMsgs);
       }
       // Call this every minute
       setTimeout(() => {
@@ -157,6 +164,7 @@ const ElectionPage = () => {
       <Messages
         electionIsLive={electionIsLive}
         times={[startTime, startTimeStr, endTimeStr]}
+        messages={messages}
       />
       <Spacer y={isMobile ? 20 : 48} />
       <Typography variant="h1">Elections</Typography>

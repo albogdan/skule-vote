@@ -166,6 +166,82 @@ class ElectionSessionAdminTestCase(SetupMixin, TestCase):
             self.data["end_time"],
         )
 
+    def test_start_time_and_end_time_must_be_valid_times(
+        self,
+    ):
+        # Get an ElectionSession that has not started
+        self._set_election_session_data(start_time_offset_days=1)
+        election_session = self._create_election_session()
+
+        list_view = reverse(
+            "admin:backend_electionsession_change",
+            kwargs={"object_id": election_session.id},
+        )
+
+        # Try changing the start_date
+        new_start = self._now() + timedelta(days=1)
+        new_data = {
+            "election_session_name": self.data["election_session_name"],
+            "start_time_0": "2021-09-31",  # September 31 doesn't exist
+            "start_time_1": new_start.time(),
+            "end_time_0": self.data["end_time"].date(),
+            "end_time_1": self.data["end_time"].time(),
+        }
+        response = self.client.post(list_view, data=new_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response, "The ElectionSession must have a valid start and end time."
+        )
+        self.assertContains(response, "Enter a valid date.")
+
+        # Try changing the end_date
+        new_start = self._now() + timedelta(days=1)
+        new_data = {
+            "election_session_name": self.data["election_session_name"],
+            "start_time_0": new_start.date(),
+            "start_time_1": new_start.time(),
+            "end_time_0": "2021-09-31",  # September 31 doesn't exist
+            "end_time_1": self.data["end_time"].time(),
+        }
+        response = self.client.post(list_view, data=new_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response, "The ElectionSession must have a valid start and end time."
+        )
+        self.assertContains(response, "Enter a valid date.")
+
+        # Try changing the start_time
+        new_start = self._now() + timedelta(days=1)
+        new_data = {
+            "election_session_name": self.data["election_session_name"],
+            "start_time_0": new_start.date(),
+            "start_time_1": "17:555:51",  # Minute 555 doesn't exist
+            "end_time_0": self.data["end_time"].date(),
+            "end_time_1": self.data["end_time"].time(),
+        }
+        response = self.client.post(list_view, data=new_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response, "The ElectionSession must have a valid start and end time."
+        )
+        self.assertContains(response, "Enter a valid time.")
+
+        # Try changing the end_time
+        new_start = self._now() + timedelta(days=1)
+        new_data = {
+            "election_session_name": self.data["election_session_name"],
+            "start_time_0": new_start.date(),
+            "start_time_1": new_start.time(),
+            "end_time_0": self.data["end_time"].date(),
+            "end_time_1": "17:555:51",  # Minute 555 doesn't exist
+        }
+        response = self.client.post(list_view, data=new_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response, "The ElectionSession must have a valid start and end time."
+        )
+        self.assertContains(response, "Enter a valid time.")
+
     def test_csv_uploads_can_be_changed_before_session_start(
         self,
     ):

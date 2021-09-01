@@ -15,7 +15,7 @@ export const useGetElectionSession = () => {
       enqueueSnackbar(
         {
           message: `Failed to fetch election session: ${
-            e.response?.data?.detail ?? e.response?.status
+            e.response?.data?.detail ?? e.message ?? e.response?.status
           }`,
           variant: "error",
         },
@@ -44,7 +44,7 @@ export const useGetEligibleElections = () => {
       enqueueSnackbar(
         {
           message: `Failed to fetch eligible elections: ${
-            e.response?.data?.detail ?? e.response?.status
+            e.response?.data?.detail ?? e.message ?? e.response?.status
           }`,
           variant: "error",
         },
@@ -87,7 +87,7 @@ export const useHandleSubmit = (setEligibleElections) => {
       enqueueSnackbar(
         {
           message: `Failed to submit vote: ${
-            e.response?.data?.detail ?? e.response?.status
+            e.response?.data?.detail ?? e.message ?? e.response?.status
           }`,
           variant: "error",
         },

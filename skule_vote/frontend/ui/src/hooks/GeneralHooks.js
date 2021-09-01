@@ -65,7 +65,7 @@ export const useGetEligibility = () => {
       enqueueSnackbar(
         {
           message: `Failed to get voter eligibility: ${
-            e.response?.data?.detail ?? e.response?.status
+            e.response?.data?.detail ?? e.message ?? e.response?.status
           }`,
           variant: "error",
         },

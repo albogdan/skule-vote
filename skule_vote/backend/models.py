@@ -290,11 +290,6 @@ class Message(models.Model):
         default=True,
         help_text="Check to make alert active. Active alerts will appear on the website, inactive ones will not.",
     )
-    hideable = models.BooleanField(
-        null=False,
-        default=False,
-        help_text="Check to allow user to hide the alert on the website. Unchecked alerts will be persistent",
-    )
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     updated_at = models.DateTimeField(auto_now=True, null=False)

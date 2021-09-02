@@ -33,10 +33,12 @@ class ElectionSession(models.Model):
         help_text="Name your Election Session (i.e., Fall 2021).",
     )
     start_time = models.DateTimeField(
-        null=False, help_text="When does your Election Session start?"
+        null=False,
+        help_text="When does your Election Session start? (YYYY-MM-DD and HH:MM:SS)",
     )
     end_time = models.DateTimeField(
-        null=False, help_text="When does your Election Session finish?"
+        null=False,
+        help_text="When does your Election Session finish? (YYYY-MM-DD and HH:MM:SS)",
     )
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)

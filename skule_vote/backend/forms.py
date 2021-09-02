@@ -107,6 +107,14 @@ class ElectionSessionAdminForm(forms.ModelForm):
         cleaned_data = super().clean()
 
         if (
+            "start_time" not in self.cleaned_data.keys()
+            or "end_time" not in self.cleaned_data.keys()
+        ):
+            raise forms.ValidationError(
+                "The ElectionSession must have a valid start and end time."
+            )
+
+        if (
             self.cleaned_data["start_time"] is not None
             and self.cleaned_data["end_time"] is not None
             and self.cleaned_data["start_time"].astimezone(settings.TZ_INFO)

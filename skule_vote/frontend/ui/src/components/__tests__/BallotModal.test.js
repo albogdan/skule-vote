@@ -140,7 +140,7 @@ describe("<BallotModal />", () => {
     fireEvent.click(buttonSpoilConfirm);
 
     await waitFor(() => {
-      expect(handleSubmitSpy).toHaveBeenCalledWith({});
+      expect(handleSubmitSpy).toHaveBeenCalledWith(vp.id, {});
       expect(handleCloseSpy).toHaveBeenCalled();
     });
   });
@@ -179,7 +179,7 @@ describe("<BallotModal />", () => {
     fireEvent.click(buttonSubmit);
 
     await waitFor(() => {
-      expect(handleSubmitSpy).toHaveBeenCalledWith({ 0: 0, 1: 1 });
+      expect(handleSubmitSpy).toHaveBeenCalledWith(vp.id, { 0: 0, 1: 1 });
       expect(handleCloseSpy).toHaveBeenCalled();
     });
   });
@@ -306,7 +306,7 @@ describe("<BallotModal />", () => {
     fireEvent.click(buttonSubmit);
 
     await waitFor(() => {
-      expect(handleSubmitSpy).toHaveBeenCalledWith({ 0: 1 });
+      expect(handleSubmitSpy).toHaveBeenCalledWith(president.id, { 0: 1 });
       expect(handleCloseSpy).toHaveBeenCalled();
     });
   });
@@ -355,7 +355,7 @@ describe("<BallotModal />", () => {
     fireEvent.click(buttonSubmit);
 
     await waitFor(() => {
-      expect(handleSubmitSpy).toHaveBeenCalledWith({ 0: 1 });
+      expect(handleSubmitSpy).toHaveBeenCalledWith(referendum.id, { 0: 1 });
       expect(handleCloseSpy).toHaveBeenCalled();
     });
   });
@@ -478,6 +478,7 @@ describe("<EnhancedBallotModal />", () => {
 
   beforeEach(() => {
     props = {
+      handleSubmit: jest.fn(),
       handleClose: jest.fn(),
       open: true,
       ballotInfo: engsciPres,

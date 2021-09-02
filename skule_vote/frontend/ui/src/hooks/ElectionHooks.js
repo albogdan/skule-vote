@@ -1,5 +1,6 @@
-import { get } from "api/api";
+import { get, post } from "api/api";
 import { useSnackbar } from "notistack";
+import { statusIsGood } from "hooks/GeneralHooks";
 
 export const useGetElectionSession = () => {
   const { enqueueSnackbar } = useSnackbar();
@@ -7,14 +8,14 @@ export const useGetElectionSession = () => {
   return async function getElectionSession() {
     try {
       const response = await get("/api/electionsession/");
-      if (response.status === 200) {
+      if (statusIsGood(response.status)) {
         return response.data[0] ?? {};
       }
     } catch (e) {
       enqueueSnackbar(
         {
           message: `Failed to fetch election session: ${
-            e.message ?? e.response.status
+            e.response?.data?.detail ?? e.message ?? e.response?.status
           }`,
           variant: "error",
         },
@@ -31,7 +32,7 @@ export const useGetEligibleElections = () => {
   return async function getEligibleElections() {
     try {
       const response = await get("/api/elections/");
-      if (response.status === 200) {
+      if (statusIsGood(response.status)) {
         return response.data == null
           ? {}
           : response.data.reduce((accum, val) => {
@@ -43,7 +44,7 @@ export const useGetEligibleElections = () => {
       enqueueSnackbar(
         {
           message: `Failed to fetch eligible elections: ${
-            e.message ?? e.response.status
+            e.response?.data?.detail ?? e.message ?? e.response?.status
           }`,
           variant: "error",
         },
@@ -54,24 +55,45 @@ export const useGetEligibleElections = () => {
   };
 };
 
-export const useHandleSubmit = (electionId) => {
+export const useHandleSubmit = (setEligibleElections) => {
   const { enqueueSnackbar } = useSnackbar();
 
-  return function handleSubmit(ranking) {
-    // Get response here once API is set up
-    console.log(JSON.stringify({ electionId, ranking }, null, 2));
-
-    // Variant is repeated as a hack in order to use a custom snackbar
-    enqueueSnackbar(
-      { message: "Your vote has been successfully cast", variant: "success" },
-      { variant: "success" }
-    );
-    enqueueSnackbar(
-      {
-        message: "Unable with vote due to Error: <error from response>.",
-        variant: "error",
-      },
-      { variant: "error" }
-    );
+  return async function handleSubmit(electionId, ranking) {
+    if (electionId == null) {
+      return null;
+    }
+    try {
+      const response = await post("/api/vote/", { electionId, ranking });
+      if (statusIsGood(response.status)) {
+        enqueueSnackbar(
+          {
+            message: "Your vote has been successfully cast",
+            variant: "success",
+          },
+          { variant: "success" }
+        );
+        // Remove this election from the list of eligible elections
+        setEligibleElections((prevState) => {
+          if (prevState == null) {
+            return prevState;
+          }
+          const updated = { ...prevState };
+          updated[electionId] = null;
+          delete updated[electionId];
+          return updated;
+        });
+      }
+    } catch (e) {
+      enqueueSnackbar(
+        {
+          message: `Failed to submit vote: ${
+            e.response?.data?.detail ?? e.message ?? e.response?.status
+          }`,
+          variant: "error",
+        },
+        { variant: "error" }
+      );
+    }
+    return null;
   };
 };

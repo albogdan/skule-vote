@@ -9,7 +9,7 @@ export const useGetMessages = () => {
     try {
       const response = await get("/api/messages/");
       if (statusIsGood(response.status)) {
-        return response.data[0] ?? [];
+        return response.data ?? [];
       }
     } catch (e) {
       enqueueSnackbar(

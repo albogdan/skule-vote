@@ -21,14 +21,14 @@ describe("useGetMessages", () => {
   it("fetches messages successfully from API", async () => {
     const response = {
       status: 200,
-      data: ["Hi", "Bye"],
+      data: [{ message: "Hi" }, { message: "Bye" }],
     };
     axios.get.mockResolvedValueOnce(response);
     const { result } = renderHook(() => useGetMessages());
 
     await act(async () => {
       const apiResponse = result.current();
-      return expect(apiResponse).resolves.toEqual(response.data[0]);
+      return expect(apiResponse).resolves.toEqual(response.data);
     });
   });
 

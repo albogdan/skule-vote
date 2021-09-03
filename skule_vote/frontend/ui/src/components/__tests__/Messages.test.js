@@ -19,7 +19,10 @@ describe("<Messages />", () => {
       <Messages
         times={times}
         electionIsLive={true}
-        messages={["Lisa is cool", "Skule Vote is cool"]}
+        messages={[
+          { message: "Lisa is cool" },
+          { message: "Skule Vote is cool" },
+        ]}
       />
     );
     expect(getByText("Lisa is cool")).toBeInTheDocument();

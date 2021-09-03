@@ -29,7 +29,7 @@ const Messages = ({ electionIsLive, times, messages }) => {
         />
       )}
       {messages.map((msg, i) => (
-        <CustomMessage variant="info" message={msg} key={i} />
+        <CustomMessage variant="info" message={msg.message} key={i} />
       ))}
     </MessagesDiv>
   );

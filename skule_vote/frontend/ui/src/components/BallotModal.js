@@ -403,7 +403,7 @@ export const ConfirmSpoilModal = ({ open, onClose, spoilBallot, isDark }) => (
 );
 
 // handleClose: func, handleSubmit: func, open: boolean, isReferendum: boolean,
-// sortedCandidates: Array<{}>, electionName: string
+// sortedCandidates: Array<{}>, electionName: string, electionId: number
 export const BallotModal = ({
   handleClose,
   handleSubmit,
@@ -411,6 +411,7 @@ export const BallotModal = ({
   isReferendum,
   sortedCandidates,
   electionName,
+  electionId,
 }) => {
   const theme = useTheme();
   const isDark = theme.palette.type === "dark";
@@ -433,11 +434,11 @@ export const BallotModal = ({
   };
 
   const castBallot = () => {
-    handleSubmit(ranking);
+    handleSubmit(electionId, ranking);
     closeForm();
   };
   const spoilBallot = () => {
-    handleSubmit({});
+    handleSubmit(electionId, {});
     closeForm();
   };
 
@@ -536,14 +537,17 @@ export const BallotModal = ({
   );
 };
 
-// handleClose: func, open: boolean, ballotInfo: {}
-const EnhancedBallotModal = ({ handleClose, open, ballotInfo }) => {
-  const handleSubmit = useHandleSubmit(ballotInfo?.id);
-
+// handleSubmit: func, handleClose: func, open: boolean, ballotInfo: {}
+const EnhancedBallotModal = ({
+  handleSubmit,
+  handleClose,
+  open,
+  ballotInfo,
+}) => {
   if (ballotInfo == null) {
     return null;
   }
-  const { category, candidates, election_name } = ballotInfo;
+  const { category, candidates, election_name, id } = ballotInfo;
   const isReferendum = category === "referenda";
 
   let candidatesList = [];
@@ -577,6 +581,7 @@ const EnhancedBallotModal = ({ handleClose, open, ballotInfo }) => {
       isReferendum={isReferendum}
       sortedCandidates={candidatesList}
       electionName={election_name}
+      electionId={id}
     />
   );
 };

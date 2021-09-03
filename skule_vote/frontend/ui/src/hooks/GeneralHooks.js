@@ -2,6 +2,10 @@ import { useState, useCallback } from "react";
 import { get } from "api/api";
 import { useSnackbar } from "notistack";
 
+export const statusIsGood = (code) => {
+  return code >= 200 && code < 300;
+};
+
 export function useLocalStorage(key, initValue) {
   const [storedValue, setStoredValue] = useState(() => {
     try {
@@ -38,7 +42,7 @@ export const useGetEligibility = () => {
   return async function getEligibility() {
     try {
       const response = await get("/api/votereligible");
-      if (response.status === 200) {
+      if (statusIsGood(response.status)) {
         if (response.data.voter_eligible) {
           enqueueSnackbar(
             {
@@ -61,7 +65,7 @@ export const useGetEligibility = () => {
       enqueueSnackbar(
         {
           message: `Failed to get voter eligibility: ${
-            e.message ?? e.response.status
+            e.response?.data?.detail ?? e.message ?? e.response?.status
           }`,
           variant: "error",
         },

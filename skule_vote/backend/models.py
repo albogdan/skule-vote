@@ -33,10 +33,12 @@ class ElectionSession(models.Model):
         help_text="Name your Election Session (i.e., Fall 2021).",
     )
     start_time = models.DateTimeField(
-        null=False, help_text="When does your Election Session start?"
+        null=False,
+        help_text="When does your Election Session start? (YYYY-MM-DD and HH:MM:SS)",
     )
     end_time = models.DateTimeField(
-        null=False, help_text="When does your Election Session finish?"
+        null=False,
+        help_text="When does your Election Session finish? (YYYY-MM-DD and HH:MM:SS)",
     )
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
@@ -289,11 +291,6 @@ class Message(models.Model):
         null=False,
         default=True,
         help_text="Check to make alert active. Active alerts will appear on the website, inactive ones will not.",
-    )
-    hideable = models.BooleanField(
-        null=False,
-        default=False,
-        help_text="Check to allow user to hide the alert on the website. Unchecked alerts will be persistent",
     )
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)

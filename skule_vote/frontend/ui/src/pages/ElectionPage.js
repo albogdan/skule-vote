@@ -19,6 +19,7 @@ import {
   useGetEligibleElections,
   useGetMessages,
 } from "hooks/ElectionHooks";
+import { useHandleSubmit } from "hooks/ElectionHooks";
 
 const ElectionsWrapper = styled.div`
   display: flex;
@@ -90,15 +91,16 @@ export function readableDate(date) {
 const ElectionPage = () => {
   const isMobile = useMediaQuery(responsive.smDown);
 
-  const getElectionSession = useGetElectionSession();
-  const getEligibleElections = useGetEligibleElections();
-  const getMessages = useGetMessages();
-
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [filterCategory, setFilterCategory] = React.useState("All");
   const [electionSession, setElectionSession] = React.useState({});
   const [eligibleElections, setEligibleElections] = React.useState({});
   const [messages, setMessages] = React.useState([]);
+
+  const handleSubmit = useHandleSubmit(setEligibleElections);
+  const getElectionSession = useGetElectionSession();
+  const getEligibleElections = useGetEligibleElections();
+  const getMessages = useGetMessages();
 
   const [startTime, startTimeStr] = readableDate(electionSession?.start_time);
   const [endTime, endTimeStr] = readableDate(electionSession?.end_time);
@@ -151,6 +153,7 @@ const ElectionPage = () => {
     <>
       <EnhancedBallotModal
         open={open}
+        handleSubmit={handleSubmit}
         handleClose={handleClose}
         ballotInfo={eligibleElections[ballotElectionId]}
       />

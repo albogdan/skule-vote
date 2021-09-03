@@ -5,6 +5,7 @@ import {
   useGetElectionSession,
   useGetEligibleElections,
   useGetMessages,
+  useHandleSubmit,
 } from "hooks/ElectionHooks";
 
 jest.mock("axios");
@@ -216,6 +217,49 @@ describe("useGetEligibleElections", () => {
 
     await act(async () => {
       const apiResponse = result.current();
+      return expect(apiResponse).resolves.toEqual(null);
+    });
+    await expect(enqueueSnackbar).toHaveBeenCalled();
+  });
+});
+
+describe("useHandleSubmit", () => {
+  let enqueueSnackbar = jest.fn();
+  beforeEach(() => {
+    useSnackbar.mockImplementation(() => ({
+      enqueueSnackbar,
+    }));
+  });
+
+  it("successfully votes in election", async () => {
+    const electionId = 59;
+    const ranking = { 0: 127, 1: 131 };
+    const response = {
+      status: 201,
+    };
+    axios.post.mockResolvedValueOnce(response);
+    const { result } = renderHook(() => useHandleSubmit(jest.fn()));
+
+    await act(async () => {
+      const apiResponse = result.current(electionId, ranking);
+      return expect(apiResponse).resolves.toEqual(null);
+    });
+    await expect(enqueueSnackbar).toHaveBeenCalledWith(
+      { message: "Your vote has been successfully cast", variant: "success" },
+      { variant: "success" }
+    );
+  });
+
+  it("enqueues snackbar if API errors out", async () => {
+    const electionId = 59;
+    const ranking = { 0: 127, 1: 131 };
+    axios.post.mockResolvedValueOnce(
+      Promise.reject(new Error("Network Error"))
+    );
+    const { result } = renderHook(() => useHandleSubmit(jest.fn()));
+
+    await act(async () => {
+      const apiResponse = result.current(electionId, ranking);
       return expect(apiResponse).resolves.toEqual(null);
     });
     await expect(enqueueSnackbar).toHaveBeenCalled();

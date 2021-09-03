@@ -24,4 +24,8 @@ class Migration(migrations.Migration):
                 help_text="When does your Election Session start? (YYYY-MM-DD and HH:MM:SS)"
             ),
         ),
+        migrations.RemoveField(
+            model_name="message",
+            name="hideable",
+        ),
     ]

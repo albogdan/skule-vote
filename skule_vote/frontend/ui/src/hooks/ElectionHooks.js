@@ -2,6 +2,30 @@ import { get, post } from "api/api";
 import { useSnackbar } from "notistack";
 import { statusIsGood } from "hooks/GeneralHooks";
 
+export const useGetMessages = () => {
+  const { enqueueSnackbar } = useSnackbar();
+
+  return async function getMessages() {
+    try {
+      const response = await get("/api/messages/");
+      if (statusIsGood(response.status)) {
+        return response.data ?? [];
+      }
+    } catch (e) {
+      enqueueSnackbar(
+        {
+          message: `Failed to fetch messages: ${
+            e.response?.data?.detail ?? e.message ?? e.response?.status
+          }`,
+          variant: "error",
+        },
+        { variant: "error" }
+      );
+    }
+    return null;
+  };
+};
+
 export const useGetElectionSession = () => {
   const { enqueueSnackbar } = useSnackbar();
 

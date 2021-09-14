@@ -66,7 +66,7 @@ class ElectionAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
     )
-    list_filter = ("election_session", "category")
+    list_filter = ("election_session__election_session_name", "category")
 
     fieldsets = (
         ("Name of Election.", {"fields": ("election_name",)}),
@@ -90,7 +90,7 @@ class CandidateAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
     )
-    list_filter = ("election", "election__election_session")
+    list_filter = ("election", "election__election_session__election_session_name")
 
     fieldsets = (
         ("Name of Candidate or Referendum.", {"fields": ("name",)}),
@@ -205,6 +205,7 @@ class BallotResource(resources.ModelResource):
 @admin.register(Ballot)
 class BallotAdmin(ExportMixin, admin.ModelAdmin):
     resource_class = BallotResource
+    list_filter = ("election__election_session__election_session_name",)
     if not settings.DEBUG:
         actions = None
 
@@ -246,7 +247,7 @@ class EligibilityAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
     )
-    list_filter = ("election__election_session",)
+    list_filter = ("election__election_session__election_session_name",)
 
     def get_election_id(self, obj):
         return obj.election.id
@@ -263,7 +264,7 @@ class EligibilityAdmin(admin.ModelAdmin):
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
     list_display = ("election_session", "get_short_message", "active")
-    list_filter = ("election_session", "active")
+    list_filter = ("election_session__election_session_name", "active")
     search_fields = ["message"]
 
     fieldsets = (

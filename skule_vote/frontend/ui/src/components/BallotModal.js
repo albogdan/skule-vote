@@ -13,7 +13,6 @@ import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import { Spacer } from "assets/layout";
-import { useHandleSubmit } from "hooks/ElectionHooks";
 import { CustomMessage } from "components/Alerts";
 import { responsive } from "assets/breakpoints";
 import { useTheme } from "@material-ui/core/styles";
@@ -115,6 +114,14 @@ const ErrorText = styled(Typography)`
 const SpoilBallotBtn = styled(Button)`
   color: ${(props) => (props.$isDark ? "#DCD1DD" : "#4D33A3")};
   border-color: ${(props) => (props.$isDark ? "#DCD1DD" : "#4D33A3")};
+`;
+
+const SpoilBallotBtnFilled = styled(Button)`
+  color: #fff;
+  background-color: #5f518d;
+  :hover {
+    background-color: #51496b;
+  }
 `;
 
 const BlueCard = styled.div`
@@ -388,15 +395,14 @@ export const ConfirmSpoilModal = ({ open, onClose, spoilBallot, isDark }) => (
         >
           Cancel
         </Button>
-        <SpoilBallotBtn
-          $isDark={isDark}
-          variant="outlined"
+        <SpoilBallotBtnFilled
+          variant="contained"
           onClick={() => spoilBallot()}
           data-testid="spoilModalConfirm"
           disableElevation
         >
           Spoil ballot
-        </SpoilBallotBtn>
+        </SpoilBallotBtnFilled>
       </TwoButtonDiv>
     </SpoilModalPaper>
   </Modal>

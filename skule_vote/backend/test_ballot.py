@@ -1,6 +1,7 @@
 from django.test import TestCase
 
 from backend.ballot import calculate_results
+
 # from backend.ballot_new import results as calculate_results # Uncomment to test with the new file
 
 from backend.models import (
@@ -207,7 +208,6 @@ class BallotTestCase(SetupMixin, TestCase):
         #   as a single vote (i.e., voters[0] ranking two candidates is 1 vote.
         # 2. We don't consider spoiled ballots as votes
         self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
-
 
     # YES/NO election with a tie
     def test_one_candidate_tie(self):

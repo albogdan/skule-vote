@@ -50,45 +50,10 @@ class BallotSerializer(serializers.Serializer):
                 )
                 ballot.save()
 
+
 # Specialized Ballot serializer used for converting to the format that
 # the calculate_results function in ballot.py expects
 class BallotResultsCalculationSerializer(serializers.BaseSerializer):
-    # Note: queryset must be a list
-    def to_representation(self, queryset):
-        ballots_formatted = []
-        ballots_intermediate = {}
-        """
-        ballots_intermediate = {
-            "voter": {"rank_1": "candidate_1", "rank_2": "candidate_2"}
-        }
-        """
-
-        # Get all the voters and create a ballot dict with voters as keys
-        for ballot in queryset:
-            if ballot.voter not in ballots_intermediate.keys():
-                ballots_intermediate[ballot.voter] = {}
-            ballots_intermediate[ballot.voter][ballot.rank] = ballot.candidate
-
-        for voter in ballots_intermediate.keys():
-            voter_ballots = {"voter_id": voter.student_number_hash, "ranking": []}
-            for rank in sorted(
-                ballots_intermediate[voter].keys()
-            ):  # Want ranks in order
-                if rank is not None:
-                    voter_ballots["ranking"].append(ballots_intermediate[voter][rank])
-            ballots_formatted.append(voter_ballots)
-        return ballots_formatted
-
-    @staticmethod
-    def map_candidates_in_ballots_to_choices(ballots, choices):
-        new_ballots = ballots.copy()
-        for ballot in new_ballots:
-            for i in range(len(ballot["ranking"])):
-                ballot["ranking"][i] = list(choices).index(ballot["ranking"][i])
-        return new_ballots
-
-
-class BallotSerializer(serializers.BaseSerializer):
     # Note: queryset must be a list
     def to_representation(self, queryset):
         ballots_formatted = []

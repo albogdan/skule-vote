@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from backend.ballot import calculate_results, map_candidates_in_ballots_to_choices
+from backend.ballot import calculate_results
 from backend.models import (
     Ballot,
     ElectionSession,
@@ -106,7 +106,7 @@ class BallotTestCase(SetupMixin, TestCase):
         ballot_dict = BallotSerializer(Ballot.objects.all())
 
         # Ballot dict gives us Candidate objects, we need indicies from the choices list.
-        ballots_formatted = map_candidates_in_ballots_to_choices(
+        ballots_formatted = ballot_dict.map_candidates_in_ballots_to_choices(
             ballots=ballot_dict.data, choices=choices
         )
 
@@ -202,7 +202,7 @@ class BallotTestCase(SetupMixin, TestCase):
         ballot_dict = BallotSerializer(Ballot.objects.all())
 
         # Ballot dict gives us Candidate objects, we need indicies from the choices list.
-        ballots_formatted = map_candidates_in_ballots_to_choices(
+        ballots_formatted = ballot_dict.map_candidates_in_ballots_to_choices(
             ballots=ballot_dict.data, choices=choices
         )
 
@@ -281,7 +281,7 @@ class BallotTestCase(SetupMixin, TestCase):
         ballot_dict = BallotSerializer(Ballot.objects.all())
 
         # Ballot dict gives us Candidate objects, we need indicies from the choices list.
-        ballots_formatted = map_candidates_in_ballots_to_choices(
+        ballots_formatted = ballot_dict.map_candidates_in_ballots_to_choices(
             ballots=ballot_dict.data, choices=choices
         )
 

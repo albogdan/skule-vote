@@ -4,15 +4,6 @@ import math
 
 RON = "Reopen Nominations"
 
-# Note this will be moved to the view that calls the calculate results
-# function later
-def map_candidates_in_ballots_to_choices(ballots, choices):
-    new_ballots = ballots.copy()
-    for ballot in new_ballots:
-        for i in range(len(ballot["ranking"])):
-            ballot["ranking"][i] = list(choices).index(ballot["ranking"][i])
-    return new_ballots
-
 
 def calculate_results(ballots, choices, numSeats):
     result = {

@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 
 class BallotSerializer(serializers.BaseSerializer):
+    # Note: queryset must be a list
     def to_representation(self, queryset):
         ballots_formatted = []
         ballots_intermediate = {}
@@ -27,6 +28,14 @@ class BallotSerializer(serializers.BaseSerializer):
                     voter_ballots["ranking"].append(ballots_intermediate[voter][rank])
             ballots_formatted.append(voter_ballots)
         return ballots_formatted
+
+    @staticmethod
+    def map_candidates_in_ballots_to_choices(ballots, choices):
+        new_ballots = ballots.copy()
+        for ballot in new_ballots:
+            for i in range(len(ballot["ranking"])):
+                ballot["ranking"][i] = list(choices).index(ballot["ranking"][i])
+        return new_ballots
 
 
 class CandidateSerializer(serializers.ModelSerializer):

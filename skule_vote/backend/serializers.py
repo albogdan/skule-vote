@@ -3,8 +3,56 @@ from django.db import transaction
 from backend.models import Ballot, Candidate, Election, ElectionSession, Message, Voter
 from rest_framework import serializers
 
+# General Ballot serializer used for views and recording ballots
+class BallotSerializer(serializers.Serializer):
+    electionId = serializers.IntegerField(min_value=0)
+    # rank -> candidate_id
+    ranking = serializers.DictField(child=serializers.IntegerField(), allow_empty=True)
 
-class BallotSerializer(serializers.BaseSerializer):
+    def validate(self, data):
+        """
+        Ensure candidates belong to the election.
+        """
+
+        candidate_ids = [
+            c.id for c in Candidate.objects.filter(election=data["electionId"])
+        ]
+        for _, candidate in data["ranking"].items():
+            if candidate not in candidate_ids:
+                raise serializers.ValidationError(
+                    f"No candidate with id: {candidate} exists in election: {data['electionId']}"
+                )
+
+        return data
+
+    def save(self):
+        election = Election.objects.get(id=self.validated_data["electionId"])
+        candidates_dict = {c.id: c for c in Candidate.objects.filter(election=election)}
+        voter = Voter.objects.get(
+            student_number_hash=self.context["student_number_hash"]
+        )
+
+        with transaction.atomic(durable=True):
+            if self.validated_data["ranking"]:
+                for rank in self.validated_data["ranking"]:
+                    ballot = Ballot(
+                        voter=voter,
+                        candidate=candidates_dict[self.validated_data["ranking"][rank]],
+                        election=election,
+                        rank=int(rank),
+                    )
+                    ballot.save()
+            else:
+                # Spoiled ballot
+                ballot = Ballot(
+                    voter=voter,
+                    election=election,
+                )
+                ballot.save()
+
+# Specialized Ballot serializer used for converting to the format that
+# the calculate_results function in ballot.py expects
+class BallotResultsCalculationSerializer(serializers.BaseSerializer):
     # Note: queryset must be a list
     def to_representation(self, queryset):
         ballots_formatted = []
@@ -79,53 +127,6 @@ class ElectionSessionSerializer(serializers.ModelSerializer):
             "start_time",
             "end_time",
         )
-
-
-class BallotSerializer(serializers.Serializer):
-    electionId = serializers.IntegerField(min_value=0)
-    # rank -> candidate_id
-    ranking = serializers.DictField(child=serializers.IntegerField(), allow_empty=True)
-
-    def validate(self, data):
-        """
-        Ensure candidates belong to the election.
-        """
-
-        candidate_ids = [
-            c.id for c in Candidate.objects.filter(election=data["electionId"])
-        ]
-        for _, candidate in data["ranking"].items():
-            if candidate not in candidate_ids:
-                raise serializers.ValidationError(
-                    f"No candidate with id: {candidate} exists in election: {data['electionId']}"
-                )
-
-        return data
-
-    def save(self):
-        election = Election.objects.get(id=self.validated_data["electionId"])
-        candidates_dict = {c.id: c for c in Candidate.objects.filter(election=election)}
-        voter = Voter.objects.get(
-            student_number_hash=self.context["student_number_hash"]
-        )
-
-        with transaction.atomic(durable=True):
-            if self.validated_data["ranking"]:
-                for rank in self.validated_data["ranking"]:
-                    ballot = Ballot(
-                        voter=voter,
-                        candidate=candidates_dict[self.validated_data["ranking"][rank]],
-                        election=election,
-                        rank=int(rank),
-                    )
-                    ballot.save()
-            else:
-                # Spoiled ballot
-                ballot = Ballot(
-                    voter=voter,
-                    election=election,
-                )
-                ballot.save()
 
 
 class MessageSerializer(serializers.ModelSerializer):

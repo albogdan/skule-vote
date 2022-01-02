@@ -290,7 +290,7 @@ def results(ballots, choices, numSeats):
 
             currentRound += 1
     return {
-        "winner": _winners,
+        "winners": _winners,
         "rounds": _rounds,
         "quota": _quota,
         "totalVotes": _totalVotes,

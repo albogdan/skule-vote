@@ -1,15 +1,18 @@
 from django.test import TestCase
 
 from backend.ballot import calculate_results
+# from backend.ballot_new import results as calculate_results # Uncomment to test with the new file
+
 from backend.models import (
     Ballot,
-    ElectionSession,
     Election,
     Candidate,
-    Eligibility,
     Voter,
 )
-from backend.serializers import BallotSerializer, CandidateSerializer
+from backend.serializers import (
+    BallotResultsCalculationSerializer as BallotSerializer,
+    CandidateSerializer,
+)
 from skule_vote.tests import SetupMixin
 
 
@@ -65,7 +68,7 @@ class BallotTestCase(SetupMixin, TestCase):
 
         NUM_VOTERS = 4
         NUM_SPOILED = 1
-        self._generate_random_voters(num_voters=NUM_VOTERS)
+        self._generate_voters(count=NUM_VOTERS)
         voters = Voter.objects.all()
         ballots = [
             {  # First vote (2 candidates ranked)
@@ -149,7 +152,7 @@ class BallotTestCase(SetupMixin, TestCase):
 
         NUM_VOTERS = 5
         NUM_SPOILED = 1
-        self._generate_random_voters(num_voters=NUM_VOTERS)
+        self._generate_voters(count=NUM_VOTERS)
         voters = Voter.objects.all()
         ballots = [
             {  # First vote (2 candidates ranked)
@@ -246,7 +249,7 @@ class BallotTestCase(SetupMixin, TestCase):
         NUM_VOTERS = 4
         NUM_SPOILED = 1
         NUM_ERRORED = 1
-        self._generate_random_voters(num_voters=NUM_VOTERS)
+        self._generate_voters(count=NUM_VOTERS)
         voters = Voter.objects.all()
         ballots = [
             {  # First vote (1 candidate ranked)

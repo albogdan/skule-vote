@@ -1,5 +1,32 @@
-from backend.models import Candidate, Election, ElectionSession
+from backend.models import Ballot, Candidate, Election, ElectionSession
 from rest_framework import serializers
+
+
+class BallotSerializer(serializers.BaseSerializer):
+    def to_representation(self, queryset):
+        ballots_formatted = []
+        ballots_intermediate = {}
+        """
+        ballots_intermediate = {
+            "voter": {"rank_1": "candidate_1", "rank_2": "candidate_2"}
+        }
+        """
+
+        # Get all the voters and create a ballot dict with voters as keys
+        for ballot in queryset:
+            if ballot.voter not in ballots_intermediate.keys():
+                ballots_intermediate[ballot.voter] = {}
+            ballots_intermediate[ballot.voter][ballot.rank] = ballot.candidate
+
+        for voter in ballots_intermediate.keys():
+            voter_ballots = {"voter_id": voter.student_number_hash, "ranking": []}
+            for rank in sorted(
+                ballots_intermediate[voter].keys()
+            ):  # Want ranks in order
+                if rank is not None:
+                    voter_ballots["ranking"].append(ballots_intermediate[voter][rank])
+            ballots_formatted.append(voter_ballots)
+        return ballots_formatted
 
 
 class CandidateSerializer(serializers.ModelSerializer):

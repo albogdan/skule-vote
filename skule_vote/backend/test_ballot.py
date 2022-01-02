@@ -13,6 +13,7 @@ from backend.serializers import (
     BallotResultsCalculationSerializer as BallotSerializer,
     CandidateSerializer,
 )
+
 from skule_vote.tests import SetupMixin
 
 

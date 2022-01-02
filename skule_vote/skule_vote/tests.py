@@ -12,7 +12,6 @@ from django.urls import reverse
 from backend.forms import ElectionSessionAdminForm
 
 from backend.models import (
-    Candidate,
     DISCIPLINE_CHOICES,
     STUDY_YEAR_CHOICES,
     Ballot,
@@ -436,13 +435,6 @@ class SetupMixin:
                 if ballot_count >= max_ballots:
                     return ballots
         return ballots
-    # Generate num_voters random voters
-    def _generate_random_voters(self, num_voters, **kwargs):
-        self.cookie_view = reverse("api:backend:bypass-cookie")
-
-        for i in range(num_voters):
-            voter_dict = self._urlencode_cookie_request(**kwargs)
-            self.client.post(self.cookie_view, voter_dict, follow=True)
 
     @staticmethod
     def _now():

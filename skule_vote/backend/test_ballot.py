@@ -77,12 +77,6 @@ class BallotTestCase(SetupMixin, TestCase):
                 "rank": 0,
                 "election": referendum,
             },
-            {
-                "voter": voters[0],
-                "candidate": ron,
-                "rank": 1,
-                "election": referendum,
-            },
             {  # Second vote (1 candidate ranked)
                 "voter": voters[1],
                 "candidate": candidate,
@@ -136,6 +130,84 @@ class BallotTestCase(SetupMixin, TestCase):
         # 2. We don't consider spoiled ballots as votes
         self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
 
+    def test_one_candidate_no_tie_ron_wins(self):
+        self._create_referendum(self.election_session)
+        referendum = Election.objects.filter(category="referenda")[0]
+
+        # Add a Candidate
+        candidate = Candidate(
+            name="Lisa Li", statement="Insert statement here.", election=referendum
+        )
+        candidate.save()
+
+        choices = Candidate.objects.filter(election=referendum)
+        ron, candidate = choices[0], choices[1]
+
+        NUM_VOTERS = 4
+        NUM_SPOILED = 1
+        self._generate_voters(count=NUM_VOTERS)
+        voters = Voter.objects.all()
+        ballots = [
+            {  # First vote (2 candidates ranked)
+                "voter": voters[0],
+                "candidate": ron,
+                "rank": 0,
+                "election": referendum,
+            },
+            {  # Second vote (1 candidate ranked)
+                "voter": voters[1],
+                "candidate": candidate,
+                "rank": 0,
+                "election": referendum,
+            },
+            {  # Third vote (1 candidate ranked)
+                "voter": voters[2],
+                "candidate": ron,
+                "rank": 0,
+                "election": referendum,
+            },
+            {  # Spoiled ballot
+                "voter": voters[3],
+                "candidate": None,
+                "rank": None,
+                "election": referendum,
+            },
+        ]
+
+        # Create and serialize the ballots
+        for ballot in ballots:
+            Ballot.objects.create(**ballot)
+        ballot_dict = BallotSerializer(Ballot.objects.all())
+
+        # Ballot dict gives us Candidate objects, we need indicies from the choices list.
+        ballots_formatted = ballot_dict.map_candidates_in_ballots_to_choices(
+            ballots=ballot_dict.data, choices=choices
+        )
+
+        # The choice array is a queryset, we need a dictionary
+        choices_dict = CandidateSerializer(choices, many=True).data
+        for i in range(len(choices_dict)):
+            choices_dict[i] = dict(choices_dict[i])
+
+        # Calculate the results and assert
+        results = calculate_results(
+            ballots=ballots_formatted,
+            choices=choices_dict,
+            numSeats=referendum.seats_available,
+        )
+        self.assertEqual(results["winners"], ["Reopen Nominations"])
+        self.assertEqual(results["rounds"][0]["Lisa Li"], 1)
+        self.assertEqual(results["rounds"][0]["Reopen Nominations"], 2)
+        self.assertEqual(results["quota"], 2)
+        self.assertEqual(results["spoiledBallots"], 1)
+
+        # Total votes is len(voters) - NUM_SPOILED because
+        # 1. We consider rankings of multiple candidates for the *same* position
+        #   as a single vote (i.e., voters[0] ranking two candidates is 1 vote.
+        # 2. We don't consider spoiled ballots as votes
+        self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
+
+
     # YES/NO election with a tie
     def test_one_candidate_tie(self):
         self._create_referendum(self.election_session)
@@ -155,28 +227,16 @@ class BallotTestCase(SetupMixin, TestCase):
         self._generate_voters(count=NUM_VOTERS)
         voters = Voter.objects.all()
         ballots = [
-            {  # First vote (2 candidates ranked)
+            {  # First vote (1 candidate ranked)
                 "voter": voters[0],
                 "candidate": candidate,
                 "rank": 0,
                 "election": referendum,
             },
-            {
-                "voter": voters[0],
-                "candidate": ron,
-                "rank": 1,
-                "election": referendum,
-            },
-            {  # Second vote (2 candidates ranked)
+            {  # Second vote (1 candidate ranked)
                 "voter": voters[1],
                 "candidate": ron,
                 "rank": 0,
-                "election": referendum,
-            },
-            {
-                "voter": voters[1],
-                "candidate": candidate,
-                "rank": 1,
                 "election": referendum,
             },
             {  # Third vote (1 candidate ranked)

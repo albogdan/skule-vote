@@ -54,7 +54,7 @@ class BallotTestCase(SetupMixin, TestCase):
 
         self.election_session = self._create_election_session()
 
-    # YES/NO election (simplest case) i.e. a referendum or one person running
+    # CASE 1: YES/NO election with candidate winning
     def test_one_candidate_no_tie(self):
         self._create_referendum(self.election_session)
         referendum = Election.objects.filter(category="referenda")[0]
@@ -132,6 +132,7 @@ class BallotTestCase(SetupMixin, TestCase):
         # 2. We don't consider spoiled ballots as votes
         self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
 
+    # CASE 1: YES/NO election with ron winning
     def test_one_candidate_no_tie_ron_wins(self):
         self._create_referendum(self.election_session)
         referendum = Election.objects.filter(category="referenda")[0]
@@ -209,7 +210,7 @@ class BallotTestCase(SetupMixin, TestCase):
         # 2. We don't consider spoiled ballots as votes
         self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
 
-    # YES/NO election with a tie
+    # CASE 1: YES/NO election with a tie
     def test_one_candidate_tie(self):
         self._create_referendum(self.election_session)
         referendum = Election.objects.filter(category="referenda")[0]
@@ -293,7 +294,7 @@ class BallotTestCase(SetupMixin, TestCase):
         # 2. We don't consider spoiled ballots as votes
         self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
 
-    # YES/NO election with some ballots being errors
+    # CASE 1: YES/NO election with some ballots being errors
     def test_one_candidate_ballot_errored(self):
         self._create_referendum(self.election_session)
         referendum = Election.objects.filter(category="referenda")[0]
@@ -374,3 +375,10 @@ class BallotTestCase(SetupMixin, TestCase):
         #   as a single vote (i.e., voters[0] ranking two candidates is 1 vote.
         # 2. We don't consider spoiled ballots as votes
         self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
+
+    # CASE 3: Multi-seat election with more than two candidates
+    def test_multi_seat_multi_candidate_tie(self):
+        self._create_officer(self.election_session)
+        officer = Election.objects.filter(category="officer")[0]
+
+        pass

@@ -97,13 +97,11 @@ def results(ballots, choices, numSeats):
                 else:
                     currentRanking = 0
 
-                    # need to keep going down the list if someone's first choice has been eliminated (perform some checks each time)
-                    while currentRanking < len(
-                        ranking
-                    ):  # Check for someone not completing a ballot fully (i.e. spoiling part of it)
-                        if ranking[currentRanking] < len(
-                            choices
-                        ):  # check for valid ranking
+                    # Keep going down the list if someone's first choice has been eliminated (perform some checks each time)
+                    while currentRanking < len(ranking):
+                        # Check for someone not completing a ballot fully (i.e. spoiling part of it)
+                        if ranking[currentRanking] < len(choices):
+                            # Check for valid ranking
                             if (
                                 remainingChoices[ranking[currentRanking]]
                                 != "Eliminated"
@@ -121,16 +119,13 @@ def results(ballots, choices, numSeats):
                     totalVotes += 1
 
             # check the results for this round
-            maxVotes = -1
-            maxName = ""
-            minVotes = 999999
+            maxVotes, minVotes = -1, 999999
             for choice in remainingChoices:
                 if choice != "Eliminated":
                     votes = _rounds[currentRound][choice]
 
                     if votes > maxVotes:
                         maxVotes = votes
-                        maxName = choice
                     if votes < minVotes and choice != RON:
                         minVotes = votes
 
@@ -157,56 +152,46 @@ def results(ballots, choices, numSeats):
                 currentRound += 1
 
                 # check to make sure there are still valid candidates left
-                validCandidates = False
-                for choice in remainingChoices:
-                    if choice != "Eliminated" and choice != RON:
-                        validCandidates = True
-                        break
-
-                if not validCandidates:
+                validCandidates = filter(
+                    lambda x: (x != "Eliminated" and x != RON), remainingChoices
+                )
+                if len(list(validCandidates)) > 0:
                     stillCounting = False
 
     # CASE 3: Multi-seat election with more than two candidates
     #     Note: Case when RON wins something, stop (any other seats are unfilled) */
     else:
         stillCounting = True  # need to know when to stop looping over ballots
-        remainingChoices = (
-            []
-        )  # similar as above case, except will also use "Winner" to indicate a winner of one of the seats
+        remainingChoices = [
+            c["name"] for c in choices
+        ]  # similar as above case, except will also use "Winner" to indicate a winner of one of the seats
         currentRound, totalVotes, spoiledBallots, totalWinners = 0, 0, 0, 0
         winnerObject = {}  # keeps track of candidates votes when they win the election
-
-        # "remainingChoices" has all choices to start
-        for i in range(len(choices)):
-            remainingChoices.append(choices[i]["name"])
 
         while stillCounting:
 
             # a little redundant, but avoids linkage of "roundObjects"
-            roundObject = {}
-            for i in range(len(choices)):
-                roundObject[choices[i]["name"]] = 0
-
-            _rounds.append(roundObject)
+            _rounds.append({c["name"]: 0 for c in choices})  # Adding choices per round
 
             for i in range(len(ballots)):
                 ranking = ballots[i]["ranking"]
 
-                if len(ranking) != 0:  # check for spoiled ballot
+                # If ranking is an empty array, they spoiled the ballot
+                if not ranking:
+                    spoiledBallots += 1
+                else:
                     currentRanking = 0
                     keepChecking = True
                     voteValue = (
                         1  # updates as you pass over winners and adjusts accordingly
                     )
 
-                    # need to keep going down the list if someone's first choice has been eliminated (perform some checks each time)
+                    # Keep going down the list if someone's first choice has been eliminated (perform some checks each time)
                     while keepChecking:
-                        if currentRanking < len(
-                            ranking
-                        ):  # check for someone not completing a ballot fully (i.e. spoiling part of it)
-                            if ranking[currentRanking] < len(
-                                choices
-                            ):  # check for valid ranking
+                        # Check for someone not completing a ballot fully (i.e. spoiling part of it)
+                        if currentRanking < len(ranking):
+                            # check for valid ranking
+                            if ranking[currentRanking] < len(choices):
                                 name = remainingChoices[ranking[currentRanking]]
 
                                 # this should only be hit after "quota" is set and you're at least on the second round
@@ -231,10 +216,8 @@ def results(ballots, choices, numSeats):
                             keepChecking = False  # this ballot is no longer useful
 
                     totalVotes += 1
-                else:
-                    spoiledBallots += 1
 
-            # /check the results for this round
+            # Check the results for this round
             maxVotes = -1
             minVotes = 999999
             for i in range(len(remainingChoices)):

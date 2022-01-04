@@ -59,12 +59,12 @@ class BallotTestCase(SetupMixin, TestCase):
             name="Alex Bogdan", statement="Insert statement here.", election=election
         )
         candidate1.save()
-        if num_candidates == 2:
+        if num_candidates > 1:
             candidate2 = Candidate(
                 name="Lisa Li", statement="Insert statement here.", election=election
             )
             candidate2.save()
-        elif num_candidates == 3:
+        if num_candidates > 2:
             candidate3 = Candidate(
                 name="Armin Ale", statement="Insert statement here.", election=election
             )
@@ -445,290 +445,8 @@ class BallotTestCase(SetupMixin, TestCase):
         # 2. We don't consider spoiled ballots as votes
         self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
 
-    # CASE 3: Multi-seat election with 3 candidates and 2 seats, 2 candidates win
-    def test_multi_seat_multi_candidate_two_winners(self):
-        self._create_officer(self.election_session, 2)
-        officer = Election.objects.filter(category="officer")[0]
-
-        choices = self.create_candidates(officer, 2)
-        ron, candidate1, candidate2 = (
-            choices[0],
-            choices[1],
-            choices[2],
-        )
-
-        NUM_VOTERS = 5
-        NUM_SPOILED = 1
-        self._generate_voters(count=NUM_VOTERS)
-        voters = Voter.objects.all()
-
-        ballots = [
-            {  # First vote (3 candidates ranked)
-                "voter": voters[0],
-                "candidate": candidate1,
-                "rank": 0,
-                "election": officer,
-            },
-            {  # First vote (3 candidates ranked)
-                "voter": voters[0],
-                "candidate": candidate2,
-                "rank": 1,
-                "election": officer,
-            },
-            {  # First vote (3 candidates ranked)
-                "voter": voters[0],
-                "candidate": ron,
-                "rank": 2,
-                "election": officer,
-            },
-            {  # Second vote (2 candidates ranked)
-                "voter": voters[1],
-                "candidate": candidate1,
-                "rank": 0,
-                "election": officer,
-            },
-            {  # Second vote (2 candidates ranked)
-                "voter": voters[1],
-                "candidate": candidate2,
-                "rank": 1,
-                "election": officer,
-            },
-            {  # Third vote (2 candidates ranked)
-                "voter": voters[2],
-                "candidate": candidate1,
-                "rank": 0,
-                "election": officer,
-            },
-            {  # Third vote (2 candidates ranked)
-                "voter": voters[2],
-                "candidate": candidate2,
-                "rank": 1,
-                "election": officer,
-            },
-            {  # Fourth vote (2 candidates ranked)
-                "voter": voters[3],
-                "candidate": candidate1,
-                "rank": 0,
-                "election": officer,
-            },
-            {  # Fourth vote (2 candidates ranked)
-                "voter": voters[3],
-                "candidate": candidate2,
-                "rank": 1,
-                "election": officer,
-            },
-            {  # Spoiled ballot
-                "voter": voters[4],
-                "candidate": None,
-                "rank": None,
-                "election": officer,
-            },
-        ]
-
-        results = self.create_results(ballots, choices, officer)
-        self.assertEqual(results["winners"], ["Alex Bogdan", "Lisa Li"])
-        self.assertEqual(results["rounds"][0]["Alex Bogdan"], 4)
-        self.assertEqual(results["rounds"][0]["Lisa Li"], 0)
-        self.assertEqual(results["rounds"][0]["Reopen Nominations"], 0)
-        self.assertEqual(results["rounds"][1]["Alex Bogdan"], 0)
-        self.assertEqual(results["rounds"][1]["Lisa Li"], 2)
-        self.assertEqual(results["rounds"][1]["Reopen Nominations"], 0)
-        self.assertEqual(len(results["rounds"]), 2)
-        self.assertEqual(results["quota"], 2)
-        self.assertEqual(results["spoiledBallots"], 1)
-        self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
-
-    # CASE 3: Multi-seat election with 3 candidates and 2 seats, 1 candidate and ron win
-    def test_multi_seat_multi_candidate_two_winners_ron(self):
-        self._create_officer(self.election_session, 2)
-        officer = Election.objects.filter(category="officer")[0]
-
-        choices = self.create_candidates(officer, 2)
-        ron, candidate1, candidate2 = (
-            choices[0],
-            choices[1],
-            choices[2],
-        )
-
-        NUM_VOTERS = 5
-        NUM_SPOILED = 1
-        ballots, voters = self.create_ballots(
-            [
-                [candidate1, ron, candidate2],
-                [candidate1, ron],
-                [candidate1, ron],
-                [candidate1, ron],
-            ],
-            officer,
-            NUM_VOTERS,
-            NUM_SPOILED,
-        )
-
-        results = self.create_results(ballots, choices, officer)
-        self.assertEqual(results["winners"], ["Alex Bogdan", "Reopen Nominations"])
-        self.assertEqual(results["rounds"][0]["Alex Bogdan"], 4)
-        self.assertEqual(results["rounds"][0]["Lisa Li"], 0)
-        self.assertEqual(results["rounds"][0]["Reopen Nominations"], 0)
-        self.assertEqual(results["rounds"][1]["Alex Bogdan"], 0)
-        self.assertEqual(results["rounds"][1]["Lisa Li"], 0)
-        self.assertEqual(results["rounds"][1]["Reopen Nominations"], 2)
-        self.assertEqual(len(results["rounds"]), 2)
-        self.assertEqual(results["quota"], 2)
-        self.assertEqual(results["spoiledBallots"], 1)
-        self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
-
-    # CASE 3: Multi-seat election with 3 candidates and 2 seats, 2 candidates win by a tie
-    def test_multi_seat_multi_candidate_two_winners_tie(self):
-        self._create_officer(self.election_session, 2)
-        officer = Election.objects.filter(category="officer")[0]
-
-        choices = self.create_candidates(officer, 2)
-        ron, candidate1, candidate2 = (
-            choices[0],
-            choices[1],
-            choices[2],
-        )
-
-        NUM_VOTERS = 5
-        NUM_SPOILED = 1
-        ballots, voters = self.create_ballots(
-            [
-                [candidate1, candidate2, ron],
-                [candidate1, candidate2],
-                [candidate2, candidate1],
-                [candidate2, candidate1],
-            ],
-            officer,
-            NUM_VOTERS,
-            NUM_SPOILED,
-        )
-
-        results = self.create_results(ballots, choices, officer)
-        self.assertEqual(results["winners"], ["Alex Bogdan", "Lisa Li"])
-        self.assertEqual(results["rounds"][0]["Alex Bogdan"], 2)
-        self.assertEqual(results["rounds"][0]["Lisa Li"], 2)
-        self.assertEqual(results["rounds"][0]["Reopen Nominations"], 0)
-        self.assertEqual(len(results["rounds"]), 1)
-        self.assertEqual(results["quota"], 2)
-        self.assertEqual(results["spoiledBallots"], 1)
-        self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
-
-    # CASE 3: Multi-seat election with 3 candidates and 2 seats,1 candidate and ron win by a tie
-    def test_multi_seat_multi_candidate_two_winners_tie_ron(self):
-        self._create_officer(self.election_session, 2)
-        officer = Election.objects.filter(category="officer")[0]
-
-        choices = self.create_candidates(officer, 2)
-        ron, candidate1, candidate2 = (
-            choices[0],
-            choices[1],
-            choices[2],
-        )
-
-        NUM_VOTERS = 5
-        NUM_SPOILED = 1
-        ballots, voters = self.create_ballots(
-            [
-                [candidate1, ron, candidate2],
-                [candidate1, ron],
-                [ron, candidate1],
-                [ron, candidate1],
-            ],
-            officer,
-            NUM_VOTERS,
-            NUM_SPOILED,
-        )
-
-        results = self.create_results(ballots, choices, officer)
-        self.assertEqual(results["winners"], ["Reopen Nominations", "Alex Bogdan"])
-        self.assertEqual(results["rounds"][0]["Alex Bogdan"], 2)
-        self.assertEqual(results["rounds"][0]["Lisa Li"], 0)
-        self.assertEqual(results["rounds"][0]["Reopen Nominations"], 2)
-        self.assertEqual(len(results["rounds"]), 1)
-        self.assertEqual(results["quota"], 2)
-        self.assertEqual(results["spoiledBallots"], 1)
-        self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
-
-    # CASE 3: Multi-seat election with 3 candidates and 2 seats, 1 candidate wins
-    def test_multi_seat_multi_candidate_one_winner(self):
-        """The second place person does not meet the quota to win, thus there is only one winner"""
-        self._create_officer(self.election_session, 2)
-        officer = Election.objects.filter(category="officer")[0]
-
-        choices = self.create_candidates(officer, 2)
-        ron, candidate1, candidate2 = (
-            choices[0],
-            choices[1],
-            choices[2],
-        )
-
-        NUM_VOTERS = 5
-        NUM_SPOILED = 1
-        ballots, voters = self.create_ballots(
-            [
-                [candidate1, candidate2, ron],
-                [ron],
-                [candidate1],
-                [candidate1, ron],
-            ],
-            officer,
-            NUM_VOTERS,
-            NUM_SPOILED,
-        )
-
-        results = self.create_results(ballots, choices, officer)
-        self.assertEqual(results["winners"], ["Alex Bogdan"])
-        self.assertEqual(results["rounds"][0]["Alex Bogdan"], 3)
-        self.assertEqual(results["rounds"][0]["Lisa Li"], 0)
-        self.assertEqual(results["rounds"][0]["Reopen Nominations"], 1)
-        self.assertEqual(results["rounds"][1]["Alex Bogdan"], 0)
-        self.assertEqual(results["rounds"][1]["Lisa Li"], 1 / 3)
-        self.assertEqual(results["rounds"][1]["Reopen Nominations"], 4 / 3)
-        self.assertEqual(len(results["rounds"]), 2)
-        self.assertEqual(results["quota"], 2)
-        self.assertEqual(results["spoiledBallots"], 1)
-
-        self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
-
-    # CASE 3: Multi-seat election with 3 candidates and 2 seats, ron wins first
-    def test_multi_seat_multi_candidate_one_winners_ron(self):
-        """RON wins first round, thus no further rounds are calculated"""
-        self._create_officer(self.election_session, 2)
-        officer = Election.objects.filter(category="officer")[0]
-
-        choices = self.create_candidates(officer, 2)
-        ron, candidate1, candidate2 = (
-            choices[0],
-            choices[1],
-            choices[2],
-        )
-
-        NUM_VOTERS = 5
-        NUM_SPOILED = 1
-        ballots, voters = self.create_ballots(
-            [
-                [ron, candidate1, candidate2],
-                [ron, candidate1],
-                [ron, candidate1],
-                [ron, candidate1],
-            ],
-            officer,
-            NUM_VOTERS,
-            NUM_SPOILED,
-        )
-
-        results = self.create_results(ballots, choices, officer)
-        self.assertEqual(results["winners"], ["Reopen Nominations"])
-        self.assertEqual(results["rounds"][0]["Alex Bogdan"], 0)
-        self.assertEqual(results["rounds"][0]["Lisa Li"], 0)
-        self.assertEqual(results["rounds"][0]["Reopen Nominations"], 4)
-        self.assertEqual(len(results["rounds"]), 1)
-        self.assertEqual(results["quota"], 2)
-        self.assertEqual(results["spoiledBallots"], 1)
-        self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
-
     # CASE 3: Multi-seat election with 3 candidates and 2 seats, no one wins
-    def test_multi_seat_multi_candidate_0_winners(self):
+    def test_two_seats_three_candidates_0_winners(self):
         """No one meets the quota to win, thus there are no winners"""
         self._create_officer(self.election_session, 2)
         officer = Election.objects.filter(category="officer")[0]
@@ -755,9 +473,237 @@ class BallotTestCase(SetupMixin, TestCase):
 
         results = self.create_results(ballots, choices, officer)
         self.assertEqual(results["winners"], [])
-        self.assertEqual(results["rounds"][0]["Alex Bogdan"], 1)
-        self.assertEqual(results["rounds"][0]["Lisa Li"], 1)
-        self.assertEqual(results["rounds"][0]["Reopen Nominations"], 1)
+        self.assertEqual(results["rounds"][0][candidate1.name], 1)
+        self.assertEqual(results["rounds"][0][candidate2.name], 1)
+        self.assertEqual(results["rounds"][0][ron.name], 1)
+        self.assertEqual(len(results["rounds"]), 1)
+        self.assertEqual(results["quota"], 2)
+        self.assertEqual(results["spoiledBallots"], 1)
+        self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
+
+    # CASE 3: Multi-seat election with 3 candidates and 2 seats, 1 candidate wins
+    def test_two_seats_three_candidates_one_winner(self):
+        """The second place person does not meet the quota to win, thus there is only one winner"""
+        self._create_officer(self.election_session, 2)
+        officer = Election.objects.filter(category="officer")[0]
+
+        choices = self.create_candidates(officer, 2)
+        ron, candidate1, candidate2 = (
+            choices[0],
+            choices[1],
+            choices[2],
+        )
+
+        NUM_VOTERS = 5
+        NUM_SPOILED = 1
+        ballots, voters = self.create_ballots(
+            [
+                [candidate1, candidate2, ron],
+                [ron],
+                [candidate1],
+                [candidate1, ron],
+            ],
+            officer,
+            NUM_VOTERS,
+            NUM_SPOILED,
+        )
+
+        results = self.create_results(ballots, choices, officer)
+        self.assertEqual(results["winners"], [candidate1.name])
+        self.assertEqual(results["rounds"][0][candidate1.name], 3)
+        self.assertEqual(results["rounds"][0][candidate2.name], 0)
+        self.assertEqual(results["rounds"][0][ron.name], 1)
+        self.assertEqual(results["rounds"][1][candidate1.name], 0)
+        self.assertEqual(results["rounds"][1][candidate2.name], 1 / 3)
+        self.assertEqual(results["rounds"][1][ron.name], 4 / 3)
+        self.assertEqual(len(results["rounds"]), 2)
+        self.assertEqual(results["quota"], 2)
+        self.assertEqual(results["spoiledBallots"], 1)
+
+        self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
+
+    # CASE 3: Multi-seat election with 3 candidates and 2 seats, ron wins first
+    def test_two_seats_three_candidates_one_winner_ron(self):
+        """RON wins first round, thus no further rounds are calculated"""
+        self._create_officer(self.election_session, 2)
+        officer = Election.objects.filter(category="officer")[0]
+
+        choices = self.create_candidates(officer, 2)
+        ron, candidate1, candidate2 = (
+            choices[0],
+            choices[1],
+            choices[2],
+        )
+
+        NUM_VOTERS = 5
+        NUM_SPOILED = 1
+        ballots, voters = self.create_ballots(
+            [
+                [ron, candidate1, candidate2],
+                [ron, candidate1],
+                [ron, candidate1],
+                [ron, candidate1],
+            ],
+            officer,
+            NUM_VOTERS,
+            NUM_SPOILED,
+        )
+
+        results = self.create_results(ballots, choices, officer)
+        self.assertEqual(results["winners"], [ron.name])
+        self.assertEqual(results["rounds"][0][candidate1.name], 0)
+        self.assertEqual(results["rounds"][0][candidate2.name], 0)
+        self.assertEqual(results["rounds"][0][ron.name], 4)
+        self.assertEqual(len(results["rounds"]), 1)
+        self.assertEqual(results["quota"], 2)
+        self.assertEqual(results["spoiledBallots"], 1)
+        self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
+
+    # CASE 3: Multi-seat election with 3 candidates and 2 seats, 2 candidates win
+    def test_two_seats_three_candidates_two_winners(self):
+        self._create_officer(self.election_session, 2)
+        officer = Election.objects.filter(category="officer")[0]
+
+        choices = self.create_candidates(officer, 2)
+        ron, candidate1, candidate2 = (
+            choices[0],
+            choices[1],
+            choices[2],
+        )
+
+        NUM_VOTERS = 5
+        NUM_SPOILED = 1
+        ballots, voters = self.create_ballots(
+            [
+                [candidate1, candidate2, ron],
+                [candidate1, candidate2],
+                [candidate1, candidate2],
+                [candidate1, candidate2],
+            ],
+            officer,
+            NUM_VOTERS,
+            NUM_SPOILED,
+        )
+
+        results = self.create_results(ballots, choices, officer)
+        self.assertEqual(results["winners"], [candidate1.name, candidate2.name])
+        self.assertEqual(results["rounds"][0][candidate1.name], 4)
+        self.assertEqual(results["rounds"][0][candidate2.name], 0)
+        self.assertEqual(results["rounds"][0][ron.name], 0)
+        self.assertEqual(results["rounds"][1][candidate1.name], 0)
+        self.assertEqual(results["rounds"][1][candidate2.name], 2)
+        self.assertEqual(results["rounds"][1][ron.name], 0)
+        self.assertEqual(len(results["rounds"]), 2)
+        self.assertEqual(results["quota"], 2)
+        self.assertEqual(results["spoiledBallots"], 1)
+        self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
+
+    # CASE 3: Multi-seat election with 3 candidates and 2 seats, 1 candidate and ron win
+    def test_two_seats_three_candidates_two_winners_ron(self):
+        self._create_officer(self.election_session, 2)
+        officer = Election.objects.filter(category="officer")[0]
+
+        choices = self.create_candidates(officer, 2)
+        ron, candidate1, candidate2 = (
+            choices[0],
+            choices[1],
+            choices[2],
+        )
+
+        NUM_VOTERS = 5
+        NUM_SPOILED = 1
+        ballots, voters = self.create_ballots(
+            [
+                [candidate1, ron, candidate2],
+                [candidate1, ron],
+                [candidate1, ron],
+                [candidate1, ron],
+            ],
+            officer,
+            NUM_VOTERS,
+            NUM_SPOILED,
+        )
+
+        results = self.create_results(ballots, choices, officer)
+        self.assertEqual(results["winners"], [candidate1.name, ron.name])
+        self.assertEqual(results["rounds"][0][candidate1.name], 4)
+        self.assertEqual(results["rounds"][0][candidate2.name], 0)
+        self.assertEqual(results["rounds"][0][ron.name], 0)
+        self.assertEqual(results["rounds"][1][candidate1.name], 0)
+        self.assertEqual(results["rounds"][1][candidate2.name], 0)
+        self.assertEqual(results["rounds"][1][ron.name], 2)
+        self.assertEqual(len(results["rounds"]), 2)
+        self.assertEqual(results["quota"], 2)
+        self.assertEqual(results["spoiledBallots"], 1)
+        self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
+
+    # CASE 3: Multi-seat election with 3 candidates and 2 seats, 2 candidates win by a tie
+    def test_two_seats_three_candidates_two_winners_tie(self):
+        self._create_officer(self.election_session, 2)
+        officer = Election.objects.filter(category="officer")[0]
+
+        choices = self.create_candidates(officer, 2)
+        ron, candidate1, candidate2 = (
+            choices[0],
+            choices[1],
+            choices[2],
+        )
+
+        NUM_VOTERS = 5
+        NUM_SPOILED = 1
+        ballots, voters = self.create_ballots(
+            [
+                [candidate1, candidate2, ron],
+                [candidate1, candidate2],
+                [candidate2, candidate1],
+                [candidate2, candidate1],
+            ],
+            officer,
+            NUM_VOTERS,
+            NUM_SPOILED,
+        )
+
+        results = self.create_results(ballots, choices, officer)
+        self.assertEqual(results["winners"], [candidate1.name, candidate2.name])
+        self.assertEqual(results["rounds"][0][candidate1.name], 2)
+        self.assertEqual(results["rounds"][0][candidate2.name], 2)
+        self.assertEqual(results["rounds"][0][ron.name], 0)
+        self.assertEqual(len(results["rounds"]), 1)
+        self.assertEqual(results["quota"], 2)
+        self.assertEqual(results["spoiledBallots"], 1)
+        self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
+
+    # CASE 3: Multi-seat election with 3 candidates and 2 seats, 1 candidate and ron win by a tie
+    def test_two_seats_three_candidates_two_winners_tie_ron(self):
+        self._create_officer(self.election_session, 2)
+        officer = Election.objects.filter(category="officer")[0]
+
+        choices = self.create_candidates(officer, 2)
+        ron, candidate1, candidate2 = (
+            choices[0],
+            choices[1],
+            choices[2],
+        )
+
+        NUM_VOTERS = 5
+        NUM_SPOILED = 1
+        ballots, voters = self.create_ballots(
+            [
+                [candidate1, ron, candidate2],
+                [candidate1, ron],
+                [ron, candidate1],
+                [ron, candidate1],
+            ],
+            officer,
+            NUM_VOTERS,
+            NUM_SPOILED,
+        )
+
+        results = self.create_results(ballots, choices, officer)
+        self.assertEqual(results["winners"], [ron.name, candidate1.name])
+        self.assertEqual(results["rounds"][0][candidate1.name], 2)
+        self.assertEqual(results["rounds"][0][candidate2.name], 0)
+        self.assertEqual(results["rounds"][0][ron.name], 2)
         self.assertEqual(len(results["rounds"]), 1)
         self.assertEqual(results["quota"], 2)
         self.assertEqual(results["spoiledBallots"], 1)

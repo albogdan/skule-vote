@@ -158,11 +158,10 @@ def results(ballots, choices, numSeats):
     #     Note: Case when RON wins something, stop (any other seats are unfilled) */
     else:
         stillCounting = True  # need to know when to stop looping over ballots
-        remainingChoices = [
-            c["name"] for c in choices
-        ]  # similar as above case, except will also use "Winner" to indicate a winner of one of the seats
+        # Name will be replaced with "Winner" to indicate a winner of one of the seats
+        remainingChoices = [c["name"] for c in choices]
         currentRound, totalVotes, spoiledBallots, totalWinners = 0, 0, 0, 0
-        winnerObject = {}  # keeps track of candidates votes when they win the election
+        winnerObject = {}  # Keeps track of candidates votes when they win the election
 
         while stillCounting:
             _rounds.append({c["name"]: 0 for c in choices})  # Adding choices per round
@@ -176,7 +175,7 @@ def results(ballots, choices, numSeats):
                 else:
                     currentRanking = 0
                     keepChecking = True
-                    # voteValue updates as you pass over winners and adjusts accordingly
+                    # VoteValue updates as you pass over winners and adjusts accordingly
                     voteValue = 1
 
                     # Keep going down the list if someone's first choice has been eliminated (perform some checks each time)
@@ -186,12 +185,11 @@ def results(ballots, choices, numSeats):
                             # Check for valid ranking
                             if ranking[currentRanking] < len(choices):
                                 name = remainingChoices[ranking[currentRanking]]
-
-                                # This should only be hit after "quota" is set and you're at least on the second round
                                 if name != "Eliminated" and name != "Winner":
                                     _rounds[currentRound][name] += voteValue
                                     keepChecking = False
                                 else:
+                                    # This should only be hit after "quota" is set and you're at least on the second round
                                     if name == "Winner":
                                         name = choices[ranking[currentRanking]]["name"]
                                         voteValue = (

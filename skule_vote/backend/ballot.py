@@ -6,6 +6,9 @@ RON = "Reopen Nominations"
 
 
 def calculate_results(ballots, choices, numSeats):
+    print(">ballots", ballots)
+    for b in ballots:
+        print(">", b)
     result = {
         "winners": [],
         "rounds": [],
@@ -305,6 +308,8 @@ def calculate_results(ballots, choices, numSeats):
                     stillCounting = False
 
             currentRound += 1
+
+    print(">>", result)
     return result
 
 

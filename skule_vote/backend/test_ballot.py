@@ -54,6 +54,75 @@ class BallotTestCase(SetupMixin, TestCase):
 
         self.election_session = self._create_election_session()
 
+    def create_candidates(self, election, num_candidates=1):
+        candidate1 = Candidate(
+            name="Alex Bogdan", statement="Insert statement here.", election=election
+        )
+        candidate1.save()
+        if num_candidates == 2:
+            candidate2 = Candidate(
+                name="Lisa Li", statement="Insert statement here.", election=election
+            )
+            candidate2.save()
+        elif num_candidates == 3:
+            candidate3 = Candidate(
+                name="Armin Ale", statement="Insert statement here.", election=election
+            )
+            candidate3.save()
+
+        return Candidate.objects.filter(election=election)
+
+    def create_results(self, ballots, choices, election):
+        # Create and serialize the ballots
+        for ballot in ballots:
+            Ballot.objects.create(**ballot)
+        ballot_dict = BallotSerializer(Ballot.objects.all())
+
+        # Ballot dict gives us Candidate objects, we need indicies from the choices list.
+        ballots_formatted = ballot_dict.map_candidates_in_ballots_to_choices(
+            ballots=ballot_dict.data, choices=choices
+        )
+
+        # The choice array is a queryset, we need a dictionary
+        choices_dict = CandidateSerializer(choices, many=True).data
+        for i in range(len(choices_dict)):
+            choices_dict[i] = dict(choices_dict[i])
+
+        # Return calculated results
+        return calculate_results(
+            ballots=ballots_formatted,
+            choices=choices_dict,
+            numSeats=election.seats_available,
+        )
+
+    def create_ballots(self, raw_ballots, election, num_voters, num_spoiled=0):
+        self._generate_voters(count=num_voters)
+        voters = Voter.objects.all()
+        ballots = []
+
+        for i, ballot in enumerate(raw_ballots):
+            for rank, choice in enumerate(ballot):
+                ballots.append(
+                    {
+                        "voter": voters[i],
+                        "candidate": choice,
+                        "rank": rank,
+                        "election": election,
+                    }
+                )
+
+        for j in range(num_spoiled):
+            ballots.append(
+                {
+                    "voter": voters[i + 1 + j],
+                    "candidate": None,
+                    "rank": None,
+                    "election": election,
+                }
+            )
+
+        return ballots, voters
+
     # CASE 1: YES/NO election with candidate winning
     def test_one_candidate_no_tie(self):
         self._create_referendum(self.election_session)
@@ -381,17 +450,7 @@ class BallotTestCase(SetupMixin, TestCase):
         self._create_officer(self.election_session, 2)
         officer = Election.objects.filter(category="officer")[0]
 
-        # Add 3 Candidates
-        candidate1 = Candidate(
-            name="Alex Bogdan", statement="Insert statement here.", election=officer
-        )
-        candidate2 = Candidate(
-            name="Lisa Li", statement="Insert statement here.", election=officer
-        )
-        candidate1.save()
-        candidate2.save()
-
-        choices = Candidate.objects.filter(election=officer)
+        choices = self.create_candidates(officer, 2)
         ron, candidate1, candidate2 = (
             choices[0],
             choices[1],
@@ -404,19 +463,19 @@ class BallotTestCase(SetupMixin, TestCase):
         voters = Voter.objects.all()
 
         ballots = [
-            {  # First vote (3 candidate ranked)
+            {  # First vote (3 candidates ranked)
                 "voter": voters[0],
                 "candidate": candidate1,
                 "rank": 0,
                 "election": officer,
             },
-            {  # First vote (3 candidate ranked)
+            {  # First vote (3 candidates ranked)
                 "voter": voters[0],
                 "candidate": candidate2,
                 "rank": 1,
                 "election": officer,
             },
-            {  # First vote (3 candidate ranked)
+            {  # First vote (3 candidates ranked)
                 "voter": voters[0],
                 "candidate": ron,
                 "rank": 2,
@@ -466,27 +525,7 @@ class BallotTestCase(SetupMixin, TestCase):
             },
         ]
 
-        # Create and serialize the ballots
-        for ballot in ballots:
-            Ballot.objects.create(**ballot)
-        ballot_dict = BallotSerializer(Ballot.objects.all())
-
-        # Ballot dict gives us Candidate objects, we need indicies from the choices list.
-        ballots_formatted = ballot_dict.map_candidates_in_ballots_to_choices(
-            ballots=ballot_dict.data, choices=choices
-        )
-
-        # The choice array is a queryset, we need a dictionary
-        choices_dict = CandidateSerializer(choices, many=True).data
-        for i in range(len(choices_dict)):
-            choices_dict[i] = dict(choices_dict[i])
-
-        # Calculate the results and assert
-        results = calculate_results(
-            ballots=ballots_formatted,
-            choices=choices_dict,
-            numSeats=officer.seats_available,
-        )
+        results = self.create_results(ballots, choices, officer)
         self.assertEqual(results["winners"], ["Alex Bogdan", "Lisa Li"])
         self.assertEqual(results["rounds"][0]["Alex Bogdan"], 4)
         self.assertEqual(results["rounds"][0]["Lisa Li"], 0)
@@ -504,17 +543,7 @@ class BallotTestCase(SetupMixin, TestCase):
         self._create_officer(self.election_session, 2)
         officer = Election.objects.filter(category="officer")[0]
 
-        # Add 3 Candidates
-        candidate1 = Candidate(
-            name="Alex Bogdan", statement="Insert statement here.", election=officer
-        )
-        candidate2 = Candidate(
-            name="Lisa Li", statement="Insert statement here.", election=officer
-        )
-        candidate1.save()
-        candidate2.save()
-
-        choices = Candidate.objects.filter(election=officer)
+        choices = self.create_candidates(officer, 2)
         ron, candidate1, candidate2 = (
             choices[0],
             choices[1],
@@ -523,93 +552,19 @@ class BallotTestCase(SetupMixin, TestCase):
 
         NUM_VOTERS = 5
         NUM_SPOILED = 1
-        self._generate_voters(count=NUM_VOTERS)
-        voters = Voter.objects.all()
-
-        ballots = [
-            {  # First vote (3 candidate ranked)
-                "voter": voters[0],
-                "candidate": candidate1,
-                "rank": 0,
-                "election": officer,
-            },
-            {  # First vote (3 candidate ranked)
-                "voter": voters[0],
-                "candidate": ron,
-                "rank": 1,
-                "election": officer,
-            },
-            {  # First vote (3 candidate ranked)
-                "voter": voters[0],
-                "candidate": candidate2,
-                "rank": 2,
-                "election": officer,
-            },
-            {  # Second vote (2 candidates ranked)
-                "voter": voters[1],
-                "candidate": candidate1,
-                "rank": 0,
-                "election": officer,
-            },
-            {  # Second vote (2 candidates ranked)
-                "voter": voters[1],
-                "candidate": ron,
-                "rank": 1,
-                "election": officer,
-            },
-            {  # Third vote (2 candidates ranked)
-                "voter": voters[2],
-                "candidate": candidate1,
-                "rank": 0,
-                "election": officer,
-            },
-            {  # Third vote (2 candidates ranked)
-                "voter": voters[2],
-                "candidate": ron,
-                "rank": 1,
-                "election": officer,
-            },
-            {  # Fourth vote (2 candidates ranked)
-                "voter": voters[3],
-                "candidate": candidate1,
-                "rank": 0,
-                "election": officer,
-            },
-            {  # Fourth vote (2 candidates ranked)
-                "voter": voters[3],
-                "candidate": ron,
-                "rank": 1,
-                "election": officer,
-            },
-            {  # Spoiled ballot
-                "voter": voters[4],
-                "candidate": None,
-                "rank": None,
-                "election": officer,
-            },
-        ]
-
-        # Create and serialize the ballots
-        for ballot in ballots:
-            Ballot.objects.create(**ballot)
-        ballot_dict = BallotSerializer(Ballot.objects.all())
-
-        # Ballot dict gives us Candidate objects, we need indicies from the choices list.
-        ballots_formatted = ballot_dict.map_candidates_in_ballots_to_choices(
-            ballots=ballot_dict.data, choices=choices
+        ballots, voters = self.create_ballots(
+            [
+                [candidate1, ron, candidate2],
+                [candidate1, ron],
+                [candidate1, ron],
+                [candidate1, ron],
+            ],
+            officer,
+            NUM_VOTERS,
+            NUM_SPOILED,
         )
 
-        # The choice array is a queryset, we need a dictionary
-        choices_dict = CandidateSerializer(choices, many=True).data
-        for i in range(len(choices_dict)):
-            choices_dict[i] = dict(choices_dict[i])
-
-        # Calculate the results and assert
-        results = calculate_results(
-            ballots=ballots_formatted,
-            choices=choices_dict,
-            numSeats=officer.seats_available,
-        )
+        results = self.create_results(ballots, choices, officer)
         self.assertEqual(results["winners"], ["Alex Bogdan", "Reopen Nominations"])
         self.assertEqual(results["rounds"][0]["Alex Bogdan"], 4)
         self.assertEqual(results["rounds"][0]["Lisa Li"], 0)
@@ -627,17 +582,7 @@ class BallotTestCase(SetupMixin, TestCase):
         self._create_officer(self.election_session, 2)
         officer = Election.objects.filter(category="officer")[0]
 
-        # Add 3 Candidates
-        candidate1 = Candidate(
-            name="Alex Bogdan", statement="Insert statement here.", election=officer
-        )
-        candidate2 = Candidate(
-            name="Lisa Li", statement="Insert statement here.", election=officer
-        )
-        candidate1.save()
-        candidate2.save()
-
-        choices = Candidate.objects.filter(election=officer)
+        choices = self.create_candidates(officer, 2)
         ron, candidate1, candidate2 = (
             choices[0],
             choices[1],
@@ -646,93 +591,19 @@ class BallotTestCase(SetupMixin, TestCase):
 
         NUM_VOTERS = 5
         NUM_SPOILED = 1
-        self._generate_voters(count=NUM_VOTERS)
-        voters = Voter.objects.all()
-
-        ballots = [
-            {  # First vote (3 candidate ranked)
-                "voter": voters[0],
-                "candidate": candidate1,
-                "rank": 0,
-                "election": officer,
-            },
-            {  # First vote (3 candidate ranked)
-                "voter": voters[0],
-                "candidate": candidate2,
-                "rank": 1,
-                "election": officer,
-            },
-            {  # First vote (3 candidate ranked)
-                "voter": voters[0],
-                "candidate": ron,
-                "rank": 2,
-                "election": officer,
-            },
-            {  # Second vote (2 candidates ranked)
-                "voter": voters[1],
-                "candidate": candidate1,
-                "rank": 0,
-                "election": officer,
-            },
-            {  # Second vote (2 candidates ranked)
-                "voter": voters[1],
-                "candidate": candidate2,
-                "rank": 1,
-                "election": officer,
-            },
-            {  # Third vote (2 candidates ranked)
-                "voter": voters[2],
-                "candidate": candidate2,
-                "rank": 0,
-                "election": officer,
-            },
-            {  # Third vote (2 candidates ranked)
-                "voter": voters[2],
-                "candidate": candidate1,
-                "rank": 1,
-                "election": officer,
-            },
-            {  # Fourth vote (2 candidates ranked)
-                "voter": voters[3],
-                "candidate": candidate2,
-                "rank": 0,
-                "election": officer,
-            },
-            {  # Fourth vote (2 candidates ranked)
-                "voter": voters[3],
-                "candidate": candidate1,
-                "rank": 1,
-                "election": officer,
-            },
-            {  # Spoiled ballot
-                "voter": voters[4],
-                "candidate": None,
-                "rank": None,
-                "election": officer,
-            },
-        ]
-
-        # Create and serialize the ballots
-        for ballot in ballots:
-            Ballot.objects.create(**ballot)
-        ballot_dict = BallotSerializer(Ballot.objects.all())
-
-        # Ballot dict gives us Candidate objects, we need indicies from the choices list.
-        ballots_formatted = ballot_dict.map_candidates_in_ballots_to_choices(
-            ballots=ballot_dict.data, choices=choices
+        ballots, voters = self.create_ballots(
+            [
+                [candidate1, candidate2, ron],
+                [candidate1, candidate2],
+                [candidate2, candidate1],
+                [candidate2, candidate1],
+            ],
+            officer,
+            NUM_VOTERS,
+            NUM_SPOILED,
         )
 
-        # The choice array is a queryset, we need a dictionary
-        choices_dict = CandidateSerializer(choices, many=True).data
-        for i in range(len(choices_dict)):
-            choices_dict[i] = dict(choices_dict[i])
-
-        # Calculate the results and assert
-        results = calculate_results(
-            ballots=ballots_formatted,
-            choices=choices_dict,
-            numSeats=officer.seats_available,
-        )
+        results = self.create_results(ballots, choices, officer)
         self.assertEqual(results["winners"], ["Alex Bogdan", "Lisa Li"])
         self.assertEqual(results["rounds"][0]["Alex Bogdan"], 2)
         self.assertEqual(results["rounds"][0]["Lisa Li"], 2)
@@ -747,17 +618,7 @@ class BallotTestCase(SetupMixin, TestCase):
         self._create_officer(self.election_session, 2)
         officer = Election.objects.filter(category="officer")[0]
 
-        # Add 3 Candidates
-        candidate1 = Candidate(
-            name="Alex Bogdan", statement="Insert statement here.", election=officer
-        )
-        candidate2 = Candidate(
-            name="Lisa Li", statement="Insert statement here.", election=officer
-        )
-        candidate1.save()
-        candidate2.save()
-
-        choices = Candidate.objects.filter(election=officer)
+        choices = self.create_candidates(officer, 2)
         ron, candidate1, candidate2 = (
             choices[0],
             choices[1],
@@ -766,93 +627,19 @@ class BallotTestCase(SetupMixin, TestCase):
 
         NUM_VOTERS = 5
         NUM_SPOILED = 1
-        self._generate_voters(count=NUM_VOTERS)
-        voters = Voter.objects.all()
-
-        ballots = [
-            {  # First vote (3 candidate ranked)
-                "voter": voters[0],
-                "candidate": candidate1,
-                "rank": 0,
-                "election": officer,
-            },
-            {  # First vote (3 candidate ranked)
-                "voter": voters[0],
-                "candidate": ron,
-                "rank": 1,
-                "election": officer,
-            },
-            {  # First vote (3 candidate ranked)
-                "voter": voters[0],
-                "candidate": candidate2,
-                "rank": 2,
-                "election": officer,
-            },
-            {  # Second vote (2 candidates ranked)
-                "voter": voters[1],
-                "candidate": candidate1,
-                "rank": 0,
-                "election": officer,
-            },
-            {  # Second vote (2 candidates ranked)
-                "voter": voters[1],
-                "candidate": ron,
-                "rank": 1,
-                "election": officer,
-            },
-            {  # Third vote (2 candidates ranked)
-                "voter": voters[2],
-                "candidate": ron,
-                "rank": 0,
-                "election": officer,
-            },
-            {  # Third vote (2 candidates ranked)
-                "voter": voters[2],
-                "candidate": candidate1,
-                "rank": 1,
-                "election": officer,
-            },
-            {  # Fourth vote (2 candidates ranked)
-                "voter": voters[3],
-                "candidate": ron,
-                "rank": 0,
-                "election": officer,
-            },
-            {  # Fourth vote (2 candidates ranked)
-                "voter": voters[3],
-                "candidate": candidate1,
-                "rank": 1,
-                "election": officer,
-            },
-            {  # Spoiled ballot
-                "voter": voters[4],
-                "candidate": None,
-                "rank": None,
-                "election": officer,
-            },
-        ]
-
-        # Create and serialize the ballots
-        for ballot in ballots:
-            Ballot.objects.create(**ballot)
-        ballot_dict = BallotSerializer(Ballot.objects.all())
-
-        # Ballot dict gives us Candidate objects, we need indicies from the choices list.
-        ballots_formatted = ballot_dict.map_candidates_in_ballots_to_choices(
-            ballots=ballot_dict.data, choices=choices
+        ballots, voters = self.create_ballots(
+            [
+                [candidate1, ron, candidate2],
+                [candidate1, ron],
+                [ron, candidate1],
+                [ron, candidate1],
+            ],
+            officer,
+            NUM_VOTERS,
+            NUM_SPOILED,
         )
 
-        # The choice array is a queryset, we need a dictionary
-        choices_dict = CandidateSerializer(choices, many=True).data
-        for i in range(len(choices_dict)):
-            choices_dict[i] = dict(choices_dict[i])
-
-        # Calculate the results and assert
-        results = calculate_results(
-            ballots=ballots_formatted,
-            choices=choices_dict,
-            numSeats=officer.seats_available,
-        )
+        results = self.create_results(ballots, choices, officer)
         self.assertEqual(results["winners"], ["Reopen Nominations", "Alex Bogdan"])
         self.assertEqual(results["rounds"][0]["Alex Bogdan"], 2)
         self.assertEqual(results["rounds"][0]["Lisa Li"], 0)
@@ -868,17 +655,7 @@ class BallotTestCase(SetupMixin, TestCase):
         self._create_officer(self.election_session, 2)
         officer = Election.objects.filter(category="officer")[0]
 
-        # Add 3 Candidates
-        candidate1 = Candidate(
-            name="Alex Bogdan", statement="Insert statement here.", election=officer
-        )
-        candidate2 = Candidate(
-            name="Lisa Li", statement="Insert statement here.", election=officer
-        )
-        candidate1.save()
-        candidate2.save()
-
-        choices = Candidate.objects.filter(election=officer)
+        choices = self.create_candidates(officer, 2)
         ron, candidate1, candidate2 = (
             choices[0],
             choices[1],
@@ -887,81 +664,19 @@ class BallotTestCase(SetupMixin, TestCase):
 
         NUM_VOTERS = 5
         NUM_SPOILED = 1
-        self._generate_voters(count=NUM_VOTERS)
-        voters = Voter.objects.all()
-
-        ballots = [
-            {  # First vote (3 candidates ranked)
-                "voter": voters[0],
-                "candidate": candidate1,
-                "rank": 0,
-                "election": officer,
-            },
-            {  # First vote (3 candidates ranked)
-                "voter": voters[0],
-                "candidate": candidate2,
-                "rank": 1,
-                "election": officer,
-            },
-            {  # First vote (3 candidates ranked)
-                "voter": voters[0],
-                "candidate": ron,
-                "rank": 2,
-                "election": officer,
-            },
-            {  # Second vote (1 candidate ranked)
-                "voter": voters[1],
-                "candidate": ron,
-                "rank": 0,
-                "election": officer,
-            },
-            {  # Third vote (1 candidate ranked)
-                "voter": voters[2],
-                "candidate": candidate1,
-                "rank": 0,
-                "election": officer,
-            },
-            {  # Fourth vote (2 candidates ranked)
-                "voter": voters[3],
-                "candidate": candidate1,
-                "rank": 0,
-                "election": officer,
-            },
-            {  # Fourth vote (2 candidates ranked)
-                "voter": voters[3],
-                "candidate": ron,
-                "rank": 1,
-                "election": officer,
-            },
-            {  # Spoiled ballot
-                "voter": voters[4],
-                "candidate": None,
-                "rank": None,
-                "election": officer,
-            },
-        ]
-
-        # Create and serialize the ballots
-        for ballot in ballots:
-            Ballot.objects.create(**ballot)
-        ballot_dict = BallotSerializer(Ballot.objects.all())
-
-        # Ballot dict gives us Candidate objects, we need indicies from the choices list.
-        ballots_formatted = ballot_dict.map_candidates_in_ballots_to_choices(
-            ballots=ballot_dict.data, choices=choices
+        ballots, voters = self.create_ballots(
+            [
+                [candidate1, candidate2, ron],
+                [ron],
+                [candidate1],
+                [candidate1, ron],
+            ],
+            officer,
+            NUM_VOTERS,
+            NUM_SPOILED,
         )
 
-        # The choice array is a queryset, we need a dictionary
-        choices_dict = CandidateSerializer(choices, many=True).data
-        for i in range(len(choices_dict)):
-            choices_dict[i] = dict(choices_dict[i])
-
-        # Calculate the results and assert
-        results = calculate_results(
-            ballots=ballots_formatted,
-            choices=choices_dict,
-            numSeats=officer.seats_available,
-        )
+        results = self.create_results(ballots, choices, officer)
         self.assertEqual(results["winners"], ["Alex Bogdan"])
         self.assertEqual(results["rounds"][0]["Alex Bogdan"], 3)
         self.assertEqual(results["rounds"][0]["Lisa Li"], 0)
@@ -981,17 +696,7 @@ class BallotTestCase(SetupMixin, TestCase):
         self._create_officer(self.election_session, 2)
         officer = Election.objects.filter(category="officer")[0]
 
-        # Add 3 Candidates
-        candidate1 = Candidate(
-            name="Alex Bogdan", statement="Insert statement here.", election=officer
-        )
-        candidate2 = Candidate(
-            name="Lisa Li", statement="Insert statement here.", election=officer
-        )
-        candidate1.save()
-        candidate2.save()
-
-        choices = Candidate.objects.filter(election=officer)
+        choices = self.create_candidates(officer, 2)
         ron, candidate1, candidate2 = (
             choices[0],
             choices[1],
@@ -1000,93 +705,19 @@ class BallotTestCase(SetupMixin, TestCase):
 
         NUM_VOTERS = 5
         NUM_SPOILED = 1
-        self._generate_voters(count=NUM_VOTERS)
-        voters = Voter.objects.all()
-
-        ballots = [
-            {  # First vote (3 candidate ranked)
-                "voter": voters[0],
-                "candidate": ron,
-                "rank": 0,
-                "election": officer,
-            },
-            {  # First vote (3 candidate ranked)
-                "voter": voters[0],
-                "candidate": candidate1,
-                "rank": 1,
-                "election": officer,
-            },
-            {  # First vote (3 candidate ranked)
-                "voter": voters[0],
-                "candidate": candidate2,
-                "rank": 2,
-                "election": officer,
-            },
-            {  # Second vote (2 candidates ranked)
-                "voter": voters[1],
-                "candidate": ron,
-                "rank": 0,
-                "election": officer,
-            },
-            {  # Second vote (2 candidates ranked)
-                "voter": voters[1],
-                "candidate": candidate1,
-                "rank": 1,
-                "election": officer,
-            },
-            {  # Third vote (2 candidates ranked)
-                "voter": voters[2],
-                "candidate": ron,
-                "rank": 0,
-                "election": officer,
-            },
-            {  # Third vote (2 candidates ranked)
-                "voter": voters[2],
-                "candidate": candidate1,
-                "rank": 1,
-                "election": officer,
-            },
-            {  # Fourth vote (2 candidates ranked)
-                "voter": voters[3],
-                "candidate": ron,
-                "rank": 0,
-                "election": officer,
-            },
-            {  # Fourth vote (2 candidates ranked)
-                "voter": voters[3],
-                "candidate": candidate1,
-                "rank": 1,
-                "election": officer,
-            },
-            {  # Spoiled ballot
-                "voter": voters[4],
-                "candidate": None,
-                "rank": None,
-                "election": officer,
-            },
-        ]
-
-        # Create and serialize the ballots
-        for ballot in ballots:
-            Ballot.objects.create(**ballot)
-        ballot_dict = BallotSerializer(Ballot.objects.all())
-
-        # Ballot dict gives us Candidate objects, we need indicies from the choices list.
-        ballots_formatted = ballot_dict.map_candidates_in_ballots_to_choices(
-            ballots=ballot_dict.data, choices=choices
+        ballots, voters = self.create_ballots(
+            [
+                [ron, candidate1, candidate2],
+                [ron, candidate1],
+                [ron, candidate1],
+                [ron, candidate1],
+            ],
+            officer,
+            NUM_VOTERS,
+            NUM_SPOILED,
         )
 
-        # The choice array is a queryset, we need a dictionary
-        choices_dict = CandidateSerializer(choices, many=True).data
-        for i in range(len(choices_dict)):
-            choices_dict[i] = dict(choices_dict[i])
-
-        # Calculate the results and assert
-        results = calculate_results(
-            ballots=ballots_formatted,
-            choices=choices_dict,
-            numSeats=officer.seats_available,
-        )
+        results = self.create_results(ballots, choices, officer)
         self.assertEqual(results["winners"], ["Reopen Nominations"])
         self.assertEqual(results["rounds"][0]["Alex Bogdan"], 0)
         self.assertEqual(results["rounds"][0]["Lisa Li"], 0)
@@ -1102,17 +733,7 @@ class BallotTestCase(SetupMixin, TestCase):
         self._create_officer(self.election_session, 2)
         officer = Election.objects.filter(category="officer")[0]
 
-        # Add 3 Candidates
-        candidate1 = Candidate(
-            name="Alex Bogdan", statement="Insert statement here.", election=officer
-        )
-        candidate2 = Candidate(
-            name="Lisa Li", statement="Insert statement here.", election=officer
-        )
-        candidate1.save()
-        candidate2.save()
-
-        choices = Candidate.objects.filter(election=officer)
+        choices = self.create_candidates(officer, 2)
         ron, candidate1, candidate2 = (
             choices[0],
             choices[1],
@@ -1121,57 +742,18 @@ class BallotTestCase(SetupMixin, TestCase):
 
         NUM_VOTERS = 4
         NUM_SPOILED = 1
-        self._generate_voters(count=NUM_VOTERS)
-        voters = Voter.objects.all()
-
-        ballots = [
-            {  # First vote (1 candidate ranked)
-                "voter": voters[0],
-                "candidate": candidate1,
-                "rank": 0,
-                "election": officer,
-            },
-            {  # Second vote (1 candidates ranked)
-                "voter": voters[1],
-                "candidate": candidate2,
-                "rank": 0,
-                "election": officer,
-            },
-            {  # Third vote (2 candidates ranked)
-                "voter": voters[2],
-                "candidate": ron,
-                "rank": 0,
-                "election": officer,
-            },
-            {  # Spoiled ballot
-                "voter": voters[3],
-                "candidate": None,
-                "rank": None,
-                "election": officer,
-            },
-        ]
-
-        # Create and serialize the ballots
-        for ballot in ballots:
-            Ballot.objects.create(**ballot)
-        ballot_dict = BallotSerializer(Ballot.objects.all())
-
-        # Ballot dict gives us Candidate objects, we need indicies from the choices list.
-        ballots_formatted = ballot_dict.map_candidates_in_ballots_to_choices(
-            ballots=ballot_dict.data, choices=choices
+        ballots, voters = self.create_ballots(
+            [
+                [candidate1],
+                [candidate2],
+                [ron],
+            ],
+            officer,
+            NUM_VOTERS,
+            NUM_SPOILED,
         )
 
-        # The choice array is a queryset, we need a dictionary
-        choices_dict = CandidateSerializer(choices, many=True).data
-        for i in range(len(choices_dict)):
-            choices_dict[i] = dict(choices_dict[i])
-
-        # Calculate the results and assert
-        results = calculate_results(
-            ballots=ballots_formatted,
-            choices=choices_dict,
-            numSeats=officer.seats_available,
-        )
+        results = self.create_results(ballots, choices, officer)
         self.assertEqual(results["winners"], [])
         self.assertEqual(results["rounds"][0]["Alex Bogdan"], 1)
         self.assertEqual(results["rounds"][0]["Lisa Li"], 1)

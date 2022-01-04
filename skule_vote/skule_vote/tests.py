@@ -291,11 +291,11 @@ class SetupMixin:
 
         return election
 
-    def _create_officer(self, election_session):
+    def _create_officer(self, election_session, seats_available=1):
         election = Election(
             election_name="President",
             election_session=election_session,
-            seats_available=1,
+            seats_available=seats_available,
             category="officer",
         )
         election.save()

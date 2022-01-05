@@ -34,7 +34,7 @@ RON = "Reopen Nominations"
 # */
 
 
-def results(ballots, choices, numSeats):
+def calculate_results(ballots, choices, numSeats):
     _winners = []  # array of names
     _rounds = []  # [{choice1: voteCount, ...}] (index in array = round number)
     _quota = 0  # Number
@@ -381,12 +381,12 @@ def backwardsEliminationProcess(
                 for i in range(len(votes)):
                     # need to maintain integrity of indices and looping when removing elements
                     if eliminationPath and votes[i] == minVotes:
-                        eliminationList.splice(i, 1)
-                        votes.splice(i, 1)
+                        eliminationList.pop(i)
+                        votes.pop(i)
                         i -= 1
                     elif not eliminationPath and votes[i] == maxVotes:
-                        winnerList.splice(i, 1)
-                        votes.splice(i, 1)
+                        winnerList.pop(i)
+                        votes.pop(i)
                         i -= 1
 
             currentRanking += 1

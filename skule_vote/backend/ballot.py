@@ -6,9 +6,6 @@ RON = "Reopen Nominations"
 
 
 def calculate_results(ballots, choices, numSeats):
-    print(">ballots", ballots)
-    for b in ballots:
-        print(">", b)
     result = {
         "winners": [],
         "rounds": [],
@@ -236,6 +233,8 @@ def calculate_results(ballots, choices, numSeats):
                                 print(
                                     f"ERROR - Ballot contained invalid ranking: {ranking[currentRanking]}"
                                 )
+                                # Figure out what we're doing in this edge case, below is temp for now
+                                keepChecking = False
                         else:
                             keepChecking = False  # this ballot is no longer useful
 
@@ -309,7 +308,6 @@ def calculate_results(ballots, choices, numSeats):
 
             currentRound += 1
 
-    print(">>", result)
     return result
 
 
@@ -432,12 +430,12 @@ def backwardsEliminationProcess(
                 for i in range(len(votes)):
                     # need to maintain integrity of indices and looping when removing elements
                     if eliminationPath and votes[i] == minVotes:
-                        eliminationList.splice(i, 1)
-                        votes.splice(i, 1)
+                        eliminationList.pop(i)
+                        votes.pop(i)
                         i -= 1
                     elif not eliminationPath and votes[i] == maxVotes:
-                        winnerList.splice(i, 1)
-                        votes.splice(i, 1)
+                        winnerList.pop(i)
+                        votes.pop(i)
                         i -= 1
 
             currentRanking += 1

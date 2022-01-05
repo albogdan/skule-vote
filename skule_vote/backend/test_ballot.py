@@ -54,7 +54,7 @@ class BallotTestCase(SetupMixin, TestCase):
 
         self.election_session = self._create_election_session()
 
-    def create_candidates(self, election, num_candidates=1):
+    def _create_candidates(self, election, num_candidates=1):
         candidate1 = Candidate(
             name="Alex Bogdan", statement="Insert statement here.", election=election
         )
@@ -79,7 +79,7 @@ class BallotTestCase(SetupMixin, TestCase):
 
         return Candidate.objects.filter(election=election)
 
-    def create_results(self, ballots, choices, election):
+    def _create_results(self, ballots, choices, election):
         # Create and serialize the ballots
         for ballot in ballots:
             Ballot.objects.create(**ballot)
@@ -102,7 +102,7 @@ class BallotTestCase(SetupMixin, TestCase):
             numSeats=election.seats_available,
         )
 
-    def create_ballots(self, raw_ballots, election, num_voters, num_spoiled=0):
+    def _create_ballots(self, raw_ballots, election, num_voters, num_spoiled=0):
         self._generate_voters(count=num_voters)
         voters = Voter.objects.all()
         ballots = []
@@ -457,7 +457,7 @@ class BallotTestCase(SetupMixin, TestCase):
         self._create_officer(self.election_session)
         officer = Election.objects.filter(category="officer")[0]
 
-        choices = self.create_candidates(officer, 2)
+        choices = self._create_candidates(officer, 2)
         ron, candidate1, candidate2 = (
             choices[0],
             choices[1],
@@ -549,7 +549,7 @@ class BallotTestCase(SetupMixin, TestCase):
             )
 
         ballots = all_candidate_ballots + one_candidate_ballots + ron_only_ballots
-        results = self.create_results(ballots, choices, officer)
+        results = self._create_results(ballots, choices, officer)
         self.assertEqual(results["winners"], [candidate1.name])
         self.assertEqual(results["rounds"][0][candidate1.name], 7)
         self.assertEqual(results["rounds"][0][candidate2.name], 1)
@@ -564,7 +564,7 @@ class BallotTestCase(SetupMixin, TestCase):
         self._create_officer(self.election_session)
         officer = Election.objects.filter(category="officer")[0]
 
-        choices = self.create_candidates(officer, 3)
+        choices = self._create_candidates(officer, 3)
         ron, candidate1, candidate2, candidate3 = (
             choices[0],
             choices[1],
@@ -683,7 +683,7 @@ class BallotTestCase(SetupMixin, TestCase):
             )
 
         ballots = all_candidate_ballots + one_candidate_ballots + ron_only_ballots
-        results = self.create_results(ballots, choices, officer)
+        results = self._create_results(ballots, choices, officer)
         self.assertEqual(results["winners"], [candidate2.name])
         self.assertEqual(results["rounds"][0][candidate1.name], 2)
         self.assertEqual(results["rounds"][0][candidate2.name], 6)
@@ -706,7 +706,7 @@ class BallotTestCase(SetupMixin, TestCase):
         self._create_officer(self.election_session)
         officer = Election.objects.filter(category="officer")[0]
 
-        choices = self.create_candidates(officer, 3)
+        choices = self._create_candidates(officer, 3)
         ron, candidate1, candidate2, candidate3 = (
             choices[0],
             choices[1],
@@ -841,7 +841,7 @@ class BallotTestCase(SetupMixin, TestCase):
             + ron_only_ballots
             + spoiled_ballots
         )
-        results = self.create_results(ballots, choices, officer)
+        results = self._create_results(ballots, choices, officer)
         self.assertEqual(results["winners"], [candidate2.name])
         self.assertEqual(results["rounds"][0][candidate1.name], 2)
         self.assertEqual(results["rounds"][0][candidate2.name], 6)
@@ -861,7 +861,7 @@ class BallotTestCase(SetupMixin, TestCase):
         self._create_officer(self.election_session)
         officer = Election.objects.filter(category="officer")[0]
 
-        choices = self.create_candidates(officer, 3)
+        choices = self._create_candidates(officer, 3)
         ron, candidate1, candidate2, candidate3 = (
             choices[0],
             choices[1],
@@ -963,7 +963,7 @@ class BallotTestCase(SetupMixin, TestCase):
             )
 
         ballots = all_candidate_ballots + one_candidate_ballots + ron_only_ballots
-        results = self.create_results(ballots, choices, officer)
+        results = self._create_results(ballots, choices, officer)
         self.assertEqual(results["winners"], [])
         self.assertEqual(results["rounds"][0][candidate1.name], 2)
         self.assertEqual(results["rounds"][0][candidate2.name], 4)
@@ -988,7 +988,7 @@ class BallotTestCase(SetupMixin, TestCase):
         self._create_officer(self.election_session, 2)
         officer = Election.objects.filter(category="officer")[0]
 
-        choices = self.create_candidates(officer, 2)
+        choices = self._create_candidates(officer, 2)
         ron, candidate1, candidate2 = (
             choices[0],
             choices[1],
@@ -997,7 +997,7 @@ class BallotTestCase(SetupMixin, TestCase):
 
         NUM_VOTERS = 4
         NUM_SPOILED = 1
-        ballots, voters = self.create_ballots(
+        ballots, voters = self._create_ballots(
             [
                 [candidate1],
                 [candidate2],
@@ -1008,7 +1008,7 @@ class BallotTestCase(SetupMixin, TestCase):
             NUM_SPOILED,
         )
 
-        results = self.create_results(ballots, choices, officer)
+        results = self._create_results(ballots, choices, officer)
         self.assertEqual(results["winners"], [])
         self.assertEqual(results["rounds"][0][candidate1.name], 1)
         self.assertEqual(results["rounds"][0][candidate2.name], 1)
@@ -1018,14 +1018,12 @@ class BallotTestCase(SetupMixin, TestCase):
         self.assertEqual(results["spoiledBallots"], 1)
         self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
 
-    # CASE 3: Multi-seat election with 3 candidates and 2 seats, no one wins
-    def test_two_seats_three_candidates_0_winners_reeee(self):
-        """No one meets the quota to win in the first round. People are eliminated
-        until there is 1 winner."""
+    # CASE 3: Multi-seat election with 3 candidates and 2 seats, WEIRD BEHAVIOUR
+    def test_two_seats_three_candidates_0_winners_BROKEN1(self):
         self._create_officer(self.election_session, 2)
         officer = Election.objects.filter(category="officer")[0]
 
-        choices = self.create_candidates(officer, 4)
+        choices = self._create_candidates(officer, 4)
         ron, candidate1, candidate2, candidate3, candidate4 = (
             choices[0],
             choices[1],
@@ -1036,7 +1034,7 @@ class BallotTestCase(SetupMixin, TestCase):
 
         NUM_VOTERS = 9
         NUM_SPOILED = 1
-        ballots, voters = self.create_ballots(
+        ballots, voters = self._create_ballots(
             [
                 [candidate1, candidate2],
                 [candidate1, candidate2],
@@ -1052,8 +1050,8 @@ class BallotTestCase(SetupMixin, TestCase):
             NUM_SPOILED,
         )
 
-        results = self.create_results(ballots, choices, officer)
-        print("results", results)
+        results = self._create_results(ballots, choices, officer)
+        print("\nresults 1", results, "\n")
         self.assertEqual(results["winners"], [candidate1.name])
         self.assertEqual(results["rounds"][0][candidate1.name], 2)
         self.assertEqual(results["rounds"][0][candidate2.name], 2)
@@ -1076,13 +1074,69 @@ class BallotTestCase(SetupMixin, TestCase):
         self.assertEqual(results["spoiledBallots"], 1)
         self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
 
+    # CASE 3: Multi-seat election with 3 candidates and 2 seats, WEIRD BEHAVIOUR
+    def test_two_seats_three_candidates_0_winners_BROKEN2(self):
+        self._create_officer(self.election_session, 2)
+        officer = Election.objects.filter(category="officer")[0]
+
+        choices = self._create_candidates(officer, 4)
+        ron, candidate1, candidate2, candidate3, candidate4 = (
+            choices[0],
+            choices[1],
+            choices[2],
+            choices[3],
+            choices[4],
+        )
+
+        NUM_VOTERS = 9
+        NUM_SPOILED = 1
+        ballots, voters = self._create_ballots(
+            [
+                [candidate1, candidate3],
+                [candidate1, candidate3],
+                [candidate2, candidate3],
+                [candidate2, candidate3],
+                [candidate3, candidate1],
+                [candidate3, candidate1],
+                [candidate4, candidate1],
+                [ron],
+            ],
+            officer,
+            NUM_VOTERS,
+            NUM_SPOILED,
+        )
+
+        results = self._create_results(ballots, choices, officer)
+        print("\nresults 2", results, "\n")
+        self.assertEqual(results["winners"], [candidate1.name])
+        self.assertEqual(results["rounds"][0][candidate1.name], 2)
+        self.assertEqual(results["rounds"][0][candidate2.name], 2)
+        self.assertEqual(results["rounds"][0][candidate3.name], 2)
+        self.assertEqual(results["rounds"][0][candidate4.name], 1)
+        self.assertEqual(results["rounds"][0][ron.name], 1)
+        self.assertEqual(results["rounds"][1][candidate1.name], 3)
+        self.assertEqual(results["rounds"][1][candidate2.name], 2)
+        self.assertEqual(results["rounds"][1][candidate3.name], 2)
+        self.assertEqual(results["rounds"][1][candidate4.name], 0)
+        self.assertEqual(results["rounds"][1][ron.name], 1)
+        self.assertEqual(results["rounds"][2][candidate1.name], 0)
+        self.assertEqual(results["rounds"][2][candidate2.name], 2)
+        self.assertEqual(results["rounds"][2][candidate3.name], 2)
+        self.assertEqual(results["rounds"][2][candidate4.name], 0)
+        self.assertEqual(results["rounds"][2][ron.name], 1)
+        # TODO: why tf in round 4, Lisa is eliminated even tho she has the exact same votes every round as Armin
+        self.assertEqual(len(results["rounds"]), 3)
+        self.assertEqual(results["quota"], 3)
+        self.assertEqual(results["spoiledBallots"], 1)
+        self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
+
     # CASE 3: Multi-seat election with 3 candidates and 2 seats, 1 candidate wins
     def test_two_seats_three_candidates_one_winner(self):
         """The second place person does not meet the quota to win, thus there is only one winner"""
         self._create_officer(self.election_session, 2)
         officer = Election.objects.filter(category="officer")[0]
 
-        choices = self.create_candidates(officer, 2)
+        choices = self._create_candidates(officer, 2)
         ron, candidate1, candidate2 = (
             choices[0],
             choices[1],
@@ -1091,7 +1145,7 @@ class BallotTestCase(SetupMixin, TestCase):
 
         NUM_VOTERS = 5
         NUM_SPOILED = 1
-        ballots, voters = self.create_ballots(
+        ballots, voters = self._create_ballots(
             [
                 [candidate1, candidate2, ron],
                 [ron],
@@ -1103,7 +1157,7 @@ class BallotTestCase(SetupMixin, TestCase):
             NUM_SPOILED,
         )
 
-        results = self.create_results(ballots, choices, officer)
+        results = self._create_results(ballots, choices, officer)
         self.assertEqual(results["winners"], [candidate1.name])
         self.assertEqual(results["rounds"][0][candidate1.name], 3)
         self.assertEqual(results["rounds"][0][candidate2.name], 0)
@@ -1122,7 +1176,7 @@ class BallotTestCase(SetupMixin, TestCase):
         self._create_officer(self.election_session, 2)
         officer = Election.objects.filter(category="officer")[0]
 
-        choices = self.create_candidates(officer, 2)
+        choices = self._create_candidates(officer, 2)
         ron, candidate1, candidate2 = (
             choices[0],
             choices[1],
@@ -1131,7 +1185,7 @@ class BallotTestCase(SetupMixin, TestCase):
 
         NUM_VOTERS = 5
         NUM_SPOILED = 1
-        ballots, voters = self.create_ballots(
+        ballots, voters = self._create_ballots(
             [
                 [ron, candidate1, candidate2],
                 [ron, candidate1],
@@ -1143,7 +1197,7 @@ class BallotTestCase(SetupMixin, TestCase):
             NUM_SPOILED,
         )
 
-        results = self.create_results(ballots, choices, officer)
+        results = self._create_results(ballots, choices, officer)
         self.assertEqual(results["winners"], [ron.name])
         self.assertEqual(results["rounds"][0][candidate1.name], 0)
         self.assertEqual(results["rounds"][0][candidate2.name], 0)
@@ -1158,7 +1212,7 @@ class BallotTestCase(SetupMixin, TestCase):
         self._create_officer(self.election_session, 2)
         officer = Election.objects.filter(category="officer")[0]
 
-        choices = self.create_candidates(officer, 2)
+        choices = self._create_candidates(officer, 2)
         ron, candidate1, candidate2 = (
             choices[0],
             choices[1],
@@ -1168,7 +1222,7 @@ class BallotTestCase(SetupMixin, TestCase):
         NUM_ERRORED = 1
         NUM_VOTERS = 5
         NUM_SPOILED = 1
-        ballots, voters = self.create_ballots(
+        ballots, voters = self._create_ballots(
             [
                 [candidate1, candidate2, ron],
                 [candidate1, ron],
@@ -1221,7 +1275,7 @@ class BallotTestCase(SetupMixin, TestCase):
         self._create_officer(self.election_session, 2)
         officer = Election.objects.filter(category="officer")[0]
 
-        choices = self.create_candidates(officer, 2)
+        choices = self._create_candidates(officer, 2)
         ron, candidate1, candidate2 = (
             choices[0],
             choices[1],
@@ -1230,7 +1284,7 @@ class BallotTestCase(SetupMixin, TestCase):
 
         NUM_VOTERS = 5
         NUM_SPOILED = 1
-        ballots, voters = self.create_ballots(
+        ballots, voters = self._create_ballots(
             [
                 [candidate1, candidate2, ron],
                 [candidate1, candidate2],
@@ -1242,7 +1296,7 @@ class BallotTestCase(SetupMixin, TestCase):
             NUM_SPOILED,
         )
 
-        results = self.create_results(ballots, choices, officer)
+        results = self._create_results(ballots, choices, officer)
         self.assertEqual(results["winners"], [candidate1.name, candidate2.name])
         self.assertEqual(results["rounds"][0][candidate1.name], 4)
         self.assertEqual(results["rounds"][0][candidate2.name], 0)
@@ -1260,7 +1314,7 @@ class BallotTestCase(SetupMixin, TestCase):
         self._create_officer(self.election_session, 2)
         officer = Election.objects.filter(category="officer")[0]
 
-        choices = self.create_candidates(officer, 2)
+        choices = self._create_candidates(officer, 2)
         ron, candidate1, candidate2 = (
             choices[0],
             choices[1],
@@ -1269,7 +1323,7 @@ class BallotTestCase(SetupMixin, TestCase):
 
         NUM_VOTERS = 5
         NUM_SPOILED = 1
-        ballots, voters = self.create_ballots(
+        ballots, voters = self._create_ballots(
             [
                 [candidate1, ron, candidate2],
                 [candidate1, ron],
@@ -1281,7 +1335,7 @@ class BallotTestCase(SetupMixin, TestCase):
             NUM_SPOILED,
         )
 
-        results = self.create_results(ballots, choices, officer)
+        results = self._create_results(ballots, choices, officer)
         self.assertEqual(results["winners"], [candidate1.name, ron.name])
         self.assertEqual(results["rounds"][0][candidate1.name], 4)
         self.assertEqual(results["rounds"][0][candidate2.name], 0)
@@ -1299,7 +1353,7 @@ class BallotTestCase(SetupMixin, TestCase):
         self._create_officer(self.election_session, 2)
         officer = Election.objects.filter(category="officer")[0]
 
-        choices = self.create_candidates(officer, 2)
+        choices = self._create_candidates(officer, 2)
         ron, candidate1, candidate2 = (
             choices[0],
             choices[1],
@@ -1308,7 +1362,7 @@ class BallotTestCase(SetupMixin, TestCase):
 
         NUM_VOTERS = 5
         NUM_SPOILED = 1
-        ballots, voters = self.create_ballots(
+        ballots, voters = self._create_ballots(
             [
                 [candidate1, candidate2, ron],
                 [candidate1, candidate2],
@@ -1320,7 +1374,7 @@ class BallotTestCase(SetupMixin, TestCase):
             NUM_SPOILED,
         )
 
-        results = self.create_results(ballots, choices, officer)
+        results = self._create_results(ballots, choices, officer)
         self.assertEqual(results["winners"], [candidate1.name, candidate2.name])
         self.assertEqual(results["rounds"][0][candidate1.name], 2)
         self.assertEqual(results["rounds"][0][candidate2.name], 2)
@@ -1335,7 +1389,7 @@ class BallotTestCase(SetupMixin, TestCase):
         self._create_officer(self.election_session, 2)
         officer = Election.objects.filter(category="officer")[0]
 
-        choices = self.create_candidates(officer, 2)
+        choices = self._create_candidates(officer, 2)
         ron, candidate1, candidate2 = (
             choices[0],
             choices[1],
@@ -1344,7 +1398,7 @@ class BallotTestCase(SetupMixin, TestCase):
 
         NUM_VOTERS = 5
         NUM_SPOILED = 1
-        ballots, voters = self.create_ballots(
+        ballots, voters = self._create_ballots(
             [
                 [candidate1, ron, candidate2],
                 [candidate1, ron],
@@ -1356,7 +1410,7 @@ class BallotTestCase(SetupMixin, TestCase):
             NUM_SPOILED,
         )
 
-        results = self.create_results(ballots, choices, officer)
+        results = self._create_results(ballots, choices, officer)
         self.assertEqual(results["winners"], [ron.name, candidate1.name])
         self.assertEqual(results["rounds"][0][candidate1.name], 2)
         self.assertEqual(results["rounds"][0][candidate2.name], 0)
@@ -1372,7 +1426,7 @@ class BallotTestCase(SetupMixin, TestCase):
         self._create_officer(self.election_session, 3)
         officer = Election.objects.filter(category="officer")[0]
 
-        choices = self.create_candidates(officer, 3)
+        choices = self._create_candidates(officer, 3)
         ron, candidate1, candidate2, candidate3 = (
             choices[0],
             choices[1],
@@ -1382,7 +1436,7 @@ class BallotTestCase(SetupMixin, TestCase):
 
         NUM_VOTERS = 6
         NUM_SPOILED = 1
-        ballots, voters = self.create_ballots(
+        ballots, voters = self._create_ballots(
             [
                 [candidate1, candidate3],
                 [candidate1, candidate2, candidate3],
@@ -1395,7 +1449,7 @@ class BallotTestCase(SetupMixin, TestCase):
             NUM_SPOILED,
         )
 
-        results = self.create_results(ballots, choices, officer)
+        results = self._create_results(ballots, choices, officer)
         self.assertEqual(results["winners"], [candidate1.name, candidate2.name])
         self.assertEqual(results["rounds"][0][candidate1.name], 4)
         self.assertEqual(results["rounds"][0][candidate2.name], 1)
@@ -1420,7 +1474,7 @@ class BallotTestCase(SetupMixin, TestCase):
         self._create_officer(self.election_session, 3)
         officer = Election.objects.filter(category="officer")[0]
 
-        choices = self.create_candidates(officer, 3)
+        choices = self._create_candidates(officer, 3)
         ron, candidate1, candidate2, candidate3 = (
             choices[0],
             choices[1],
@@ -1430,7 +1484,7 @@ class BallotTestCase(SetupMixin, TestCase):
 
         NUM_VOTERS = 6
         NUM_SPOILED = 1
-        ballots, voters = self.create_ballots(
+        ballots, voters = self._create_ballots(
             [
                 [candidate1, candidate2, candidate3],
                 [candidate1, ron, candidate3],
@@ -1443,7 +1497,7 @@ class BallotTestCase(SetupMixin, TestCase):
             NUM_SPOILED,
         )
 
-        results = self.create_results(ballots, choices, officer)
+        results = self._create_results(ballots, choices, officer)
         self.assertEqual(results["winners"], [candidate1.name, ron.name])
         self.assertEqual(results["rounds"][0][candidate1.name], 4)
         self.assertEqual(results["rounds"][0][candidate2.name], 0)

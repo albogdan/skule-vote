@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from backend.ballot import calculate_results
 
-# from backend.ballot_new import calculate_results # Uncomment to test with the new file
+# from backend.ballot_new import calculate_results  # Uncomment to test with the new file
 
 from backend.models import (
     Ballot,
@@ -1018,18 +1018,18 @@ class BallotTestCase(SetupMixin, TestCase):
         self.assertEqual(results["spoiledBallots"], 1)
         self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
 
-    # CASE 3: Multi-seat election with 3 candidates and 2 seats, has 3 rounds
-    def test_two_seats_three_candidates_0_winners_3_rounds(self):
+    # CASE 3: Multi-seat election with 5 candidates and 2 seats, has 3 rounds
+    def test_two_seats_five_candidates_0_winners_3_rounds(self):
         """
         The distribution of votes in each round is IDENTICAL to the test below
-        (test_two_seats_three_candidates_0_winners_4_rounds). However, this one
+        (test_two_seats_five_candidates_0_winners_4_rounds). However, this one
         has 3 rounds while the other has 4 rounds. The reason is due to backwardsEliminationProcess.
         In this test, some ballots have length 1 while all other ballots have length 2.
         In the other test, all ballots have length 2. To determine which candidate to
         eliminate, backwardsEliminationProcess "reads" each ballot backwards and counts
-        each ballot's votes at the same index. E.g. it's counting at index 1 so ballots 
-        of len(1) are skipped in that loop. Thus causing a discrepancy between the number 
-        of rounds as different people are eliminated. However, the final results of ballot 
+        each ballot's votes at the same index. E.g. it's counting at index 1 so ballots
+        of len(1) are skipped in that loop. Thus causing a discrepancy between the number
+        of rounds as different people are eliminated. However, the final results of ballot
         calculations are the same!
         """
         self._create_officer(self.election_session, 2)
@@ -1084,8 +1084,8 @@ class BallotTestCase(SetupMixin, TestCase):
         self.assertEqual(results["spoiledBallots"], 1)
         self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
 
-    # CASE 3: Multi-seat election with 3 candidates and 2 seats, has 4 rounds
-    def test_two_seats_three_candidates_0_winners_4_rounds(self):
+    # CASE 3: Multi-seat election with 5 candidates and 2 seats, has 4 rounds
+    def test_two_seats_five_candidates_0_winners_4_rounds(self):
         """
         Please read the docstring of test_two_seats_three_candidates_0_winners_3_rounds
         to understand why this test exists and how it relates to
@@ -1138,6 +1138,66 @@ class BallotTestCase(SetupMixin, TestCase):
         self.assertEqual(results["rounds"][2][candidate3.name], 2)
         self.assertEqual(results["rounds"][2][candidate4.name], 0)
         self.assertEqual(results["rounds"][2][ron.name], 1)
+        self.assertEqual(len(results["rounds"]), 3)
+        self.assertEqual(results["quota"], 3)
+        self.assertEqual(results["spoiledBallots"], 1)
+        self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
+
+    # CASE 3: Multi-seat election with 5 candidates and 2 seats, has ties in elimination and winners
+    # for backwardsEliminationProcess to solve
+    def test_two_seats_five_candidates_backwardsEliminationProcess(self):
+        """
+        This test was written to increase testing coverage of backwardsEliminationProcess
+        as it has both a tie in candidates to eliminate as well as a tie in who to choose
+        a winner from.
+        """
+        self._create_officer(self.election_session, 2)
+        officer = Election.objects.filter(category="officer")[0]
+
+        choices = self._create_candidates(officer, 4)
+        ron, candidate1, candidate2, candidate3, candidate4 = (
+            choices[0],
+            choices[1],
+            choices[2],
+            choices[3],
+            choices[4],
+        )
+
+        NUM_VOTERS = 9
+        NUM_SPOILED = 1
+        ballots, voters = self._create_ballots(
+            [
+                [candidate1, candidate2, candidate3, candidate4],
+                [candidate1, candidate3, candidate3, candidate4],
+                [candidate2, candidate1, candidate3, candidate4],
+                [candidate2, candidate1, candidate3, candidate4],
+                [candidate3, candidate1, candidate2, candidate4],
+                [candidate3, candidate2, candidate1, candidate4],
+                [candidate4, candidate3, ron, candidate1],
+                [candidate4, ron, candidate1, candidate2],
+            ],
+            officer,
+            NUM_VOTERS,
+            NUM_SPOILED,
+        )
+
+        results = self._create_results(ballots, choices, officer)
+        self.assertEqual(results["winners"], [candidate2.name, candidate3.name]),
+        self.assertEqual(results["rounds"][0][candidate1.name], 2)
+        self.assertEqual(results["rounds"][0][candidate2.name], 2)
+        self.assertEqual(results["rounds"][0][candidate3.name], 2)
+        self.assertEqual(results["rounds"][0][candidate4.name], 2)
+        self.assertEqual(results["rounds"][0][ron.name], 0)
+        self.assertEqual(results["rounds"][1][candidate1.name], 0)
+        self.assertEqual(results["rounds"][1][candidate2.name], 3)
+        self.assertEqual(results["rounds"][1][candidate3.name], 3)
+        self.assertEqual(results["rounds"][1][candidate4.name], 2)
+        self.assertEqual(results["rounds"][1][ron.name], 0)
+        self.assertEqual(results["rounds"][2][candidate1.name], 0)
+        self.assertEqual(results["rounds"][2][candidate2.name], 0)
+        self.assertEqual(results["rounds"][2][candidate3.name], 3)
+        self.assertEqual(results["rounds"][2][candidate4.name], 2)
+        self.assertEqual(results["rounds"][2][ron.name], 0)
         self.assertEqual(len(results["rounds"]), 3)
         self.assertEqual(results["quota"], 3)
         self.assertEqual(results["spoiledBallots"], 1)

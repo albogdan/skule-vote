@@ -109,6 +109,7 @@ def calculate_results(ballots, choices, numSeats):
                             print(
                                 f"ERROR - Ballot contained invalid ranking: {ranking[currentRanking]}"
                             )
+                            # ??????
                             break
                         currentRanking += 1
 
@@ -135,7 +136,7 @@ def calculate_results(ballots, choices, numSeats):
             # check for a winner, otherwise keep going and eliminate everyone with the lowest amount of votes total
             if maxVotes >= _quota:
                 # should only be one, but possibility remains for a complete tie
-                # backwardsEliminationProcess(minVotes, maxVotes, candidateList, roundHistory, currentRound, ballots)
+                # backwardsEliminationProcess(minVotes, maxVotes, candidateList, _rounds, currentRound, ballots)
                 _winners = backwardsEliminationProcess(
                     -1, maxVotes, remainingChoices, _rounds, currentRound, ballots
                 )
@@ -147,11 +148,11 @@ def calculate_results(ballots, choices, numSeats):
                 )
                 currentRound += 1
 
-                # check to make sure there are still valid candidates left
+                # Make sure there are still valid candidates left
                 validCandidates = filter(
                     lambda x: (x != "Eliminated" and x != RON), remainingChoices
                 )
-                if len(list(validCandidates)) > 0:
+                if not list(validCandidates):
                     stillCounting = False
 
     # CASE 3: Multi-seat election with more than two candidates
@@ -203,6 +204,8 @@ def calculate_results(ballots, choices, numSeats):
                                 print(
                                     f"ERROR - Ballot contained invalid ranking: {ranking[currentRanking]}"
                                 )
+                                # ??????
+                                break
                         else:
                             keepChecking = False  # this ballot is no longer useful
 
@@ -247,14 +250,12 @@ def calculate_results(ballots, choices, numSeats):
                     minVotes, -1, remainingChoices, _rounds, currentRound, ballots
                 )
 
-                # check to make sure there are still valid candidates left
-                validCandidates = False
-                for choice in remainingChoices:
-                    if choice != "Eliminated" and choice != "Winner" and choice != RON:
-                        validCandidates = True
-                        break
-
-                if not validCandidates:
+                # Make sure there are still valid candidates left
+                validCandidates = filter(
+                    lambda x: (x != "Eliminated" and x != "Winner" and x != RON),
+                    remainingChoices,
+                )
+                if not list(validCandidates):
                     stillCounting = False
 
             currentRound += 1
@@ -273,16 +274,16 @@ def calculate_results(ballots, choices, numSeats):
 #     should review the ballots carefully in cases of "extreme ties" to make the final call if need be.
 #     Note: either "minVotes" or "maxVotes" will equal -1, so the function decides on the fly which comparison to make.   */
 def backwardsEliminationProcess(
-    minVotes, maxVotes, candidateList, roundHistory, currentRound, ballots
+    minVotes, maxVotes, candidateList, _rounds, currentRound, ballots
 ):
     # stores the indices of the names in candidateList
     eliminationList, winnerList = [], []
-    eliminationPath = minVotes != -1  # easy boolean comparison to be used later
+    isElimination = minVotes != -1  # easy boolean comparison to be used later
     returnList = []
 
     for i, candidate in enumerate(candidateList):
         if candidate != "Eliminated" and candidate != "Winner":
-            numVotes = roundHistory[currentRound][candidate]
+            numVotes = _rounds[currentRound][candidate]
             if minVotes == numVotes and candidate != RON:
                 eliminationList.append(i)
             elif maxVotes == numVotes:
@@ -298,22 +299,21 @@ def backwardsEliminationProcess(
         # first look through the rounds backwards until you reach the first round
         while currentRound > 0:
             currentRound -= 1
-            currRoundHistory = roundHistory[currentRound]
+            currRoundVotes = _rounds[currentRound]
 
-            if eliminationPath:
+            if isElimination:
                 minVotes = min(
-                    [currRoundHistory[candidateList[elim]] for elim in eliminationList]
+                    [currRoundVotes[candidateList[elim]] for elim in eliminationList]
                 )
                 eliminationList = checkCandidates(
-                    minVotes, candidateList, currRoundHistory, eliminationList
+                    minVotes, candidateList, currRoundVotes, eliminationList
                 )
             else:
                 maxVotes = max(
-                    [currRoundHistory[candidateList[winner]] for winner in winnerList]
+                    [currRoundVotes[candidateList[winner]] for winner in winnerList]
                 )
-
                 winnerList = checkCandidates(
-                    maxVotes, candidateList, currRoundHistory, winnerList
+                    maxVotes, candidateList, currRoundVotes, winnerList
                 )
 
             if len(eliminationList) == 1 or len(winnerList) == 1:
@@ -322,16 +322,16 @@ def backwardsEliminationProcess(
         # if you still don't have a single candidate remaining, start looking through 2nd choice onwards (currentRound should equal 0)
         currentRanking = 1
 
-        # len(roundHistory[0]) is the max number of choices (i.e. number of candidates)
+        # len(_rounds[0]) is the max number of choices (i.e. number of candidates)
         while (
-            currentRanking < len(roundHistory[0])
+            currentRanking < len(_rounds[0])
             and len(eliminationList) != 1
             and len(winnerList) != 1
         ):
             # One of the lists has length 0
             listLength = max(len(eliminationList), len(winnerList))
             # Initialize votes array to line up with votes for candidates being considered for elimination
-            votes = [0 for _ in listLength]
+            votes = [0 for _ in range(listLength)]
 
             for ballot in ballots:
                 ranking = ballot["ranking"]
@@ -340,43 +340,50 @@ def backwardsEliminationProcess(
                 if len(ranking) != 0 and currentRanking < len(ranking):
                     for j in range(listLength):
                         if (
-                            eliminationPath
+                            isElimination
                             and eliminationList[j] == ranking[currentRanking]
                         ) or (
-                            not eliminationPath
+                            not isElimination
                             and winnerList[j] == ranking[currentRanking]
                         ):  # check for valid ranking
                             votes[j] += 1
                             break
 
             # Arbitrary choice of zero index for comparison purposes
-            minVotes = votes[0]
-            maxVotes = votes[0]
+            minVotes, maxVotes = votes[0], votes[0]
             changed = False
             for i in range(1, len(votes)):
-                if eliminationPath and votes[i] < minVotes:
+                if isElimination and votes[i] < minVotes:
                     minVotes = votes[i]
                     changed = True
-                elif not eliminationPath and votes[i] > maxVotes:
+                elif not isElimination and votes[i] > maxVotes:
                     maxVotes = votes[i]
                     changed = True
 
             if changed:
-                for i in range(len(votes)):
-                    # need to maintain integrity of indices and looping when removing elements
-                    if eliminationPath and votes[i] == minVotes:
-                        eliminationList.pop(i)
-                        votes.pop(i)
-                        i -= 1
-                    elif not eliminationPath and votes[i] == maxVotes:
-                        winnerList.pop(i)
-                        votes.pop(i)
-                        i -= 1
+                if isElimination:
+                    eliminationList = [
+                        e for i, e in enumerate(eliminationList) if votes[i] != minVotes
+                    ]
+                else:
+                    winnerList = [
+                        w for i, w in enumerate(winnerList) if votes[i] != maxVotes
+                    ]
+                # i = 0
+                # while i < len(votes):
+                #     if isElimination and votes[i] == minVotes:
+                #         eliminationList.pop(i)
+                #         votes.pop(i)
+                #     elif not eliminationPath and votes[i] == maxVotes:
+                #         winnerList.pop(i)
+                #         votes.pop(i)
+                #     else:
+                #         i += 1
 
             currentRanking += 1
 
         # always end with going through the list in case you still end up with a tie by the end of the process
-        if eliminationPath:
+        if isElimination:
             for i in range(len(eliminationList)):
                 candidateList[eliminationList[i]] = "Eliminated"
         else:
@@ -387,10 +394,10 @@ def backwardsEliminationProcess(
     return returnList
 
 
-def checkCandidates(votesToCheck, candidateList, currRoundHistory, currentList):
+def checkCandidates(votesToCheck, candidateList, currRoundVotes, currentList):
     newList = [
         curr
         for curr in currentList
-        if votesToCheck == currRoundHistory[candidateList[curr]]
+        if votesToCheck == currRoundVotes[candidateList[curr]]
     ]
     return newList

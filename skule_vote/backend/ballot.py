@@ -338,6 +338,7 @@ def backwardsEliminationProcess(
 
     if len(eliminationList) == 1:
         candidateList[eliminationList[0]] = "Eliminated"
+        return
     elif len(winnerList) == 1:
         returnList.append(candidateList[winnerList[0]])
         candidateList[winnerList[0]] = "Winner"
@@ -401,9 +402,8 @@ def backwardsEliminationProcess(
             for i in range(len(ballots)):
                 ranking = ballots[i]["ranking"]
 
-                if len(ranking) != 0 and currentRanking < len(
-                    ranking
-                ):  # check for spoiled ballot or partially spoiled ballot
+                # check for spoiled ballot or partially spoiled ballot
+                if len(ranking) != 0 and currentRanking < len(ranking):
                     for j in range(listLength):
                         if (
                             eliminationPath
@@ -427,16 +427,16 @@ def backwardsEliminationProcess(
                     changed = True
 
             if changed:
-                for i in range(len(votes)):
-                    # need to maintain integrity of indices and looping when removing elements
+                i = 0
+                while i < len(votes):
                     if eliminationPath and votes[i] == minVotes:
                         eliminationList.pop(i)
                         votes.pop(i)
-                        i -= 1
                     elif not eliminationPath and votes[i] == maxVotes:
                         winnerList.pop(i)
                         votes.pop(i)
-                        i -= 1
+                    else:
+                        i += 1
 
             currentRanking += 1
 

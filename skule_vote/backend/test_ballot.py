@@ -1018,8 +1018,20 @@ class BallotTestCase(SetupMixin, TestCase):
         self.assertEqual(results["spoiledBallots"], 1)
         self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
 
-    # CASE 3: Multi-seat election with 3 candidates and 2 seats, WEIRD BEHAVIOUR
-    def test_two_seats_three_candidates_0_winners_BROKEN1(self):
+    # CASE 3: Multi-seat election with 3 candidates and 2 seats, has 3 rounds
+    def test_two_seats_three_candidates_0_winners_3_rounds(self):
+        """
+        The distribution of votes in each round is IDENTICAL to the test below
+        (test_two_seats_three_candidates_0_winners_4_rounds). However, this one
+        has 3 rounds while the other has 4 rounds. The reason is due to backwardsEliminationProcess.
+        In this test, some ballots have length 1 while all other ballots have length 2.
+        In the other test, all ballots have length 2. To determine which candidate to
+        eliminate, backwardsEliminationProcess "reads" each ballot backwards and counts
+        each ballot's votes at the same index. E.g. it's counting at index 1 so ballots 
+        of len(1) are skipped in that loop. Thus causing a discrepancy between the number 
+        of rounds as different people are eliminated. However, the final results of ballot 
+        calculations are the same!
+        """
         self._create_officer(self.election_session, 2)
         officer = Election.objects.filter(category="officer")[0]
 
@@ -1051,7 +1063,6 @@ class BallotTestCase(SetupMixin, TestCase):
         )
 
         results = self._create_results(ballots, choices, officer)
-        print("\nresults 1", results, "\n")
         self.assertEqual(results["winners"], [candidate1.name])
         self.assertEqual(results["rounds"][0][candidate1.name], 2)
         self.assertEqual(results["rounds"][0][candidate2.name], 2)
@@ -1068,14 +1079,18 @@ class BallotTestCase(SetupMixin, TestCase):
         self.assertEqual(results["rounds"][2][candidate3.name], 2)
         self.assertEqual(results["rounds"][2][candidate4.name], 0)
         self.assertEqual(results["rounds"][2][ron.name], 1)
-        # TODO: why tf in round 4, Lisa is eliminated even tho she has the exact same votes every round as Armin
         self.assertEqual(len(results["rounds"]), 4)
         self.assertEqual(results["quota"], 3)
         self.assertEqual(results["spoiledBallots"], 1)
         self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
 
-    # CASE 3: Multi-seat election with 3 candidates and 2 seats, WEIRD BEHAVIOUR
-    def test_two_seats_three_candidates_0_winners_BROKEN2(self):
+    # CASE 3: Multi-seat election with 3 candidates and 2 seats, has 4 rounds
+    def test_two_seats_three_candidates_0_winners_4_rounds(self):
+        """
+        Please read the docstring of test_two_seats_three_candidates_0_winners_3_rounds
+        to understand why this test exists and how it relates to
+        test_two_seats_three_candidates_0_winners_3_rounds
+        """
         self._create_officer(self.election_session, 2)
         officer = Election.objects.filter(category="officer")[0]
 
@@ -1107,7 +1122,6 @@ class BallotTestCase(SetupMixin, TestCase):
         )
 
         results = self._create_results(ballots, choices, officer)
-        print("\nresults 2", results, "\n")
         self.assertEqual(results["winners"], [candidate1.name])
         self.assertEqual(results["rounds"][0][candidate1.name], 2)
         self.assertEqual(results["rounds"][0][candidate2.name], 2)
@@ -1124,7 +1138,6 @@ class BallotTestCase(SetupMixin, TestCase):
         self.assertEqual(results["rounds"][2][candidate3.name], 2)
         self.assertEqual(results["rounds"][2][candidate4.name], 0)
         self.assertEqual(results["rounds"][2][ron.name], 1)
-        # TODO: why tf in round 4, Lisa is eliminated even tho she has the exact same votes every round as Armin
         self.assertEqual(len(results["rounds"]), 3)
         self.assertEqual(results["quota"], 3)
         self.assertEqual(results["spoiledBallots"], 1)

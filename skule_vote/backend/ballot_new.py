@@ -282,13 +282,15 @@ def backwardsEliminationProcess(
 
     for i, candidate in enumerate(candidateList):
         if candidate != "Eliminated" and candidate != "Winner":
-            if minVotes == roundHistory[currentRound][candidate] and candidate != RON:
+            numVotes = roundHistory[currentRound][candidate]
+            if minVotes == numVotes and candidate != RON:
                 eliminationList.append(i)
-            elif maxVotes == roundHistory[currentRound][candidate]:
+            elif maxVotes == numVotes:
                 winnerList.append(i)
 
     if len(eliminationList) == 1:
         candidateList[eliminationList[0]] = "Eliminated"
+        return
     elif len(winnerList) == 1:
         returnList.append(candidateList[winnerList[0]])
         candidateList[winnerList[0]] = "Winner"
@@ -296,37 +298,22 @@ def backwardsEliminationProcess(
         # first look through the rounds backwards until you reach the first round
         while currentRound > 0:
             currentRound -= 1
+            currRoundHistory = roundHistory[currentRound]
 
-            # arbitrary choice of zero index for comparison purposes
             if eliminationPath:
-                minVotes = roundHistory[currentRound][candidateList[eliminationList[0]]]
-
-                for i in range(1, len(eliminationList)):
-                    if (
-                        roundHistory[currentRound][candidateList[eliminationList[i]]]
-                        < minVotes
-                    ):
-                        minVotes = roundHistory[currentRound][
-                            candidateList[eliminationList[i]]
-                        ]
-
+                minVotes = min(
+                    [currRoundHistory[candidateList[elim]] for elim in eliminationList]
+                )
                 eliminationList = checkCandidates(
-                    minVotes, candidateList, roundHistory, currentRound, eliminationList
+                    minVotes, candidateList, currRoundHistory, eliminationList
                 )
             else:
-                maxVotes = roundHistory[currentRound][candidateList[winnerList[0]]]
-
-                for i in range(1, len(winnerList)):
-                    if (
-                        roundHistory[currentRound][candidateList[winnerList[i]]]
-                        > maxVotes
-                    ):
-                        maxVotes = roundHistory[currentRound][
-                            candidateList[winnerList[i]]
-                        ]
+                maxVotes = max(
+                    [currRoundHistory[candidateList[winner]] for winner in winnerList]
+                )
 
                 winnerList = checkCandidates(
-                    maxVotes, candidateList, roundHistory, currentRound, winnerList
+                    maxVotes, candidateList, currRoundHistory, winnerList
                 )
 
             if len(eliminationList) == 1 or len(winnerList) == 1:
@@ -335,26 +322,22 @@ def backwardsEliminationProcess(
         # if you still don't have a single candidate remaining, start looking through 2nd choice onwards (currentRound should equal 0)
         currentRanking = 1
 
-        # len(roundHistory[0].keys()) is the max number of choices (i.e. number of candidates)
+        # len(roundHistory[0]) is the max number of choices (i.e. number of candidates)
         while (
-            currentRanking < len(roundHistory[0].keys())
+            currentRanking < len(roundHistory[0])
             and len(eliminationList) != 1
             and len(winnerList) != 1
         ):
-            # initialize votes array to line up with votes for candidates being considered for elimination
-            votes = []
-            listLength = (
-                len(eliminationList) if len(eliminationList) > 0 else len(winnerList)
-            )
-            for i in range(listLength):
-                votes.append(0)
+            # One of the lists has length 0
+            listLength = max(len(eliminationList), len(winnerList))
+            # Initialize votes array to line up with votes for candidates being considered for elimination
+            votes = [0 for _ in listLength]
 
-            for i in range(len(ballots)):
-                ranking = ballots[i]["ranking"]
+            for ballot in ballots:
+                ranking = ballot["ranking"]
 
-                if len(ranking) != 0 and currentRanking < len(
-                    ranking
-                ):  # check for spoiled ballot or partially spoiled ballot
+                # Check for spoiled ballot or partially spoiled ballot
+                if len(ranking) != 0 and currentRanking < len(ranking):
                     for j in range(listLength):
                         if (
                             eliminationPath
@@ -366,9 +349,10 @@ def backwardsEliminationProcess(
                             votes[j] += 1
                             break
 
+            # Arbitrary choice of zero index for comparison purposes
             minVotes = votes[0]
             maxVotes = votes[0]
-            changed = False  # arbitrary choice of zero index for comparison purposes
+            changed = False
             for i in range(1, len(votes)):
                 if eliminationPath and votes[i] < minVotes:
                     minVotes = votes[i]
@@ -403,13 +387,10 @@ def backwardsEliminationProcess(
     return returnList
 
 
-def checkCandidates(
-    votesToCheck, candidateList, roundHistory, currentRound, currentList
-):
-    newList = []
-
-    for i in range(len(currentList)):
-        if votesToCheck == roundHistory[currentRound][candidateList[currentList[i]]]:
-            newList.append(currentList[i])
-
+def checkCandidates(votesToCheck, candidateList, currRoundHistory, currentList):
+    newList = [
+        curr
+        for curr in currentList
+        if votesToCheck == currRoundHistory[candidateList[curr]]
+    ]
     return newList

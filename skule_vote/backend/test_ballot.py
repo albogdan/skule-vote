@@ -559,6 +559,137 @@ class BallotTestCase(SetupMixin, TestCase):
         self.assertEqual(results["spoiledBallots"], NUM_SPOILED)
         self.assertEqual(results["totalVotes"], NUM_VOTERS - NUM_SPOILED)
 
+    # CASE 2: 1 seat election with winner determined in first round + one ballot that has an error
+    def test_one_seat_winner_one_round_errored(self):
+        self._create_officer(self.election_session)
+        officer = Election.objects.filter(category="officer")[0]
+
+        choices = self._create_candidates(officer, 2)
+        ron, candidate1, candidate2 = (
+            choices[0],
+            choices[1],
+            choices[2],
+        )
+
+        NUM_VOTERS = 12
+        NUM_SPOILED = 0
+        NUM_ERRORED = 1
+        self._generate_voters(count=NUM_VOTERS)
+        voters = Voter.objects.all()
+
+        ron_only_ballots = []
+        for v in voters[:4]:
+            ron_only_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": ron,
+                    "rank": 0,
+                    "election": officer,
+                }
+            )
+
+        all_candidate_ballots = []
+        for v in voters[4:8]:
+            all_candidate_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": candidate1,
+                    "rank": 0,
+                    "election": officer,
+                }
+            )
+
+            all_candidate_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": candidate2,
+                    "rank": 1,
+                    "election": officer,
+                }
+            )
+
+            all_candidate_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": ron,
+                    "rank": 2,
+                    "election": officer,
+                }
+            )
+
+        one_candidate_ballots = []
+        for v in voters[8:11]:
+            one_candidate_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": candidate1,
+                    "rank": 0,
+                    "election": officer,
+                }
+            )
+
+            all_candidate_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": ron,
+                    "rank": 1,
+                    "election": officer,
+                }
+            )
+
+        for v in voters[11:12]:
+            one_candidate_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": candidate2,
+                    "rank": 0,
+                    "election": officer,
+                }
+            )
+
+            all_candidate_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": ron,
+                    "rank": 1,
+                    "election": officer,
+                }
+            )
+
+        ballots = all_candidate_ballots + one_candidate_ballots + ron_only_ballots
+
+        for ballot in ballots:
+            Ballot.objects.create(**ballot)
+        ballot_dict = BallotSerializer(Ballot.objects.all())
+
+        # Ballot dict gives us Candidate objects, we need indicies from the choices list.
+        ballots_formatted = ballot_dict.map_candidates_in_ballots_to_choices(
+            ballots=ballot_dict.data, choices=choices
+        )
+
+        # Change the ranking to be invalid
+        ballots_formatted[11]["ranking"][0] = 5
+
+        # The choice array is a queryset, we need a dictionary
+        choices_dict = CandidateSerializer(choices, many=True).data
+        for i in range(len(choices_dict)):
+            choices_dict[i] = dict(choices_dict[i])
+
+        results = calculate_results(
+            ballots=ballots_formatted,
+            choices=choices_dict,
+            numSeats=officer.seats_available,
+        )
+
+        self.assertEqual(results["winners"], [candidate1.name])
+        self.assertEqual(results["rounds"][0][candidate1.name], 7)
+        self.assertEqual(results["rounds"][0][candidate2.name], 1)
+        self.assertEqual(results["rounds"][0][ron.name], 3)
+        self.assertEqual(len(results["rounds"]), 1)
+        self.assertEqual(results["quota"], 7)
+        self.assertEqual(results["spoiledBallots"], NUM_SPOILED)
+        self.assertEqual(results["totalVotes"], NUM_VOTERS - NUM_SPOILED)
+
     # CASE 2: 1 seat election with winner determined after two rounds
     def test_one_seat_winner_two_rounds(self):
         self._create_officer(self.election_session)

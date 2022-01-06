@@ -107,6 +107,9 @@ def calculate_results(ballots, choices, numSeats):
                                 print(
                                     f"ERROR - Ballot contained invalid ranking: {ranking[currentRanking]}"
                                 )
+                                # TODO: Figure out what we're doing in this edge case, below is temp for now
+                                keepChecking = False
+
                         else:
                             keepChecking = False  # this ballot is no longer useful
 
@@ -233,7 +236,7 @@ def calculate_results(ballots, choices, numSeats):
                                 print(
                                     f"ERROR - Ballot contained invalid ranking: {ranking[currentRanking]}"
                                 )
-                                # Figure out what we're doing in this edge case, below is temp for now
+                                # TODO: Figure out what we're doing in this edge case, below is temp for now
                                 keepChecking = False
                         else:
                             keepChecking = False  # this ballot is no longer useful

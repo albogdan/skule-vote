@@ -1154,14 +1154,14 @@ class BallotTestCase(SetupMixin, TestCase):
         """
         The distribution of votes in each round is IDENTICAL to the test below
         (test_two_seats_five_candidates_0_winners_4_rounds). However, this one
-        has 3 rounds while the other has 4 rounds. The reason is due to backwardsEliminationProcess.
+        has 3 rounds while the other has 4 rounds. The reason is due to
+        backwardsEliminationProcess. To determine which candidate to
+        eliminate, backwardsEliminationProcess looks at ALL the rankings per ballot.
+
         In this test, some ballots have length 1 while all other ballots have length 2.
-        In the other test, all ballots have length 2. To determine which candidate to
-        eliminate, backwardsEliminationProcess "reads" each ballot backwards and counts
-        each ballot's votes at the same index. E.g. it's counting at index 1 so ballots
-        of len(1) are skipped in that loop. Thus causing a discrepancy between the number
-        of rounds as different people are eliminated. However, the final results of ballot
-        calculations are the same!
+        In the other test, all ballots have length 2. Thus, the ballots of len(1) produce
+        different results in backwardsEliminationProcess than a ballot of len(>1) even
+        though the votes each candidate gets per round is the same.
         """
         self._create_officer(self.election_session, 2)
         officer = Election.objects.filter(category="officer")[0]
@@ -1276,7 +1276,7 @@ class BallotTestCase(SetupMixin, TestCase):
 
     # CASE 3: Multi-seat election with 5 candidates and 2 seats, has ties in elimination and winners
     # for backwardsEliminationProcess to solve
-    def test_two_seats_five_candidates_backwardsEliminationProcess(self):
+    def test_two_seats_five_candidates_backwards_elim_process_1(self):
         """
         This test was written to increase testing coverage of backwardsEliminationProcess
         as it has both a tie in candidates to eliminate as well as a tie in who to choose
@@ -1331,6 +1331,141 @@ class BallotTestCase(SetupMixin, TestCase):
         self.assertEqual(results["rounds"][2][ron.name], 0)
         self.assertEqual(len(results["rounds"]), 3)
         self.assertEqual(results["quota"], 3)
+        self.assertEqual(results["spoiledBallots"], 1)
+        self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
+
+    # CASE 3: Multi-seat election with 5 candidates and 2 seats, has ties in elimination
+    # for backwardsEliminationProcess to solve in the second round
+    def test_two_seats_four_candidates_backwards_elim_process_2(self):
+        """
+        This test was written to increase testing coverage of backwardsEliminationProcess
+        as it has a tie for elimination in the second round.
+        """
+        self._create_officer(self.election_session, 2)
+        officer = Election.objects.filter(category="officer")[0]
+
+        choices = self._create_candidates(officer, 3)
+        ron, candidate1, candidate2, candidate3 = (
+            choices[0],
+            choices[1],
+            choices[2],
+            choices[3],
+        )
+
+        NUM_VOTERS = 15
+        NUM_SPOILED = 1
+        ballots, voters = self._create_ballots(
+            [
+                [candidate1, candidate3, ron],
+                [candidate1, candidate3, ron],
+                [candidate1, candidate3, ron],
+                [candidate1, candidate3, ron],
+                [candidate1, candidate3, ron],
+                [candidate1, candidate3, ron],
+                [candidate2, ron],
+                [candidate2, ron],
+                [candidate2, ron],
+                [candidate2, ron],
+                [candidate3, ron],
+                [candidate3, ron],
+                [candidate3, ron],
+                [ron],
+            ],
+            officer,
+            NUM_VOTERS,
+            NUM_SPOILED,
+        )
+
+        results = self._create_results(ballots, choices, officer)
+        self.assertEqual(results["winners"], [candidate1.name, ron.name]),
+        self.assertEqual(results["rounds"][0][candidate1.name], 6)
+        self.assertEqual(results["rounds"][0][candidate2.name], 4)
+        self.assertEqual(results["rounds"][0][candidate3.name], 3)
+        self.assertEqual(results["rounds"][0][ron.name], 1)
+        self.assertEqual(results["rounds"][1][candidate1.name], 0)
+        self.assertEqual(results["rounds"][1][candidate2.name], 4)
+        self.assertEqual(results["rounds"][1][candidate3.name], 4)
+        self.assertEqual(results["rounds"][1][ron.name], 1)
+        self.assertEqual(results["rounds"][2][candidate1.name], 0)
+        self.assertEqual(results["rounds"][2][candidate2.name], 4)
+        self.assertEqual(results["rounds"][2][candidate3.name], 0)
+        self.assertEqual(results["rounds"][2][ron.name], 5)
+        self.assertEqual(len(results["rounds"]), 3)
+        self.assertEqual(results["quota"], 5)
+        self.assertEqual(results["spoiledBallots"], 1)
+        self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
+
+    # CASE 3: Multi-seat election with 5 candidates and 2 seats, has ties in a winner
+    # for backwardsEliminationProcess to solve in the third round
+    def test_two_seats_four_candidates_backwards_elim_process_3(self):
+        """
+        This test was written to increase testing coverage of backwardsEliminationProcess
+        as it has a tie between winners in the third round.
+        """
+        self._create_officer(self.election_session, 2)
+        officer = Election.objects.filter(category="officer")[0]
+
+        choices = self._create_candidates(officer, 4)
+        ron, candidate1, candidate2, candidate3, candidate4 = (
+            choices[0],
+            choices[1],
+            choices[2],
+            choices[3],
+            choices[4],
+        )
+
+        NUM_VOTERS = 19
+        NUM_SPOILED = 1
+        ballots, voters = self._create_ballots(
+            [
+                [candidate3, ron],
+                [candidate3, ron],
+                [candidate3, ron],
+                [candidate3, ron],
+                [candidate3, ron],
+                [candidate3, ron],
+                [candidate1, candidate3],
+                [candidate1, candidate3],
+                [candidate1, candidate2],
+                [candidate1, candidate2],
+                [candidate2],
+                [candidate2],
+                [candidate2, ron],
+                [candidate2, ron],
+                [candidate2, ron],
+                [candidate4, candidate1],
+                [candidate4, candidate1],
+                [candidate4, candidate2],
+            ],
+            officer,
+            NUM_VOTERS,
+            NUM_SPOILED,
+        )
+
+        results = self._create_results(ballots, choices, officer)
+        self.assertEqual(results["winners"], [candidate3.name, candidate2.name]),
+        self.assertEqual(results["rounds"][0][candidate1.name], 4)
+        self.assertEqual(results["rounds"][0][candidate2.name], 5)
+        self.assertEqual(results["rounds"][0][candidate3.name], 6)
+        self.assertEqual(results["rounds"][0][candidate4.name], 3)
+        self.assertEqual(results["rounds"][0][ron.name], 0)
+        self.assertEqual(results["rounds"][1][candidate1.name], 6)
+        self.assertEqual(results["rounds"][1][candidate2.name], 6)
+        self.assertEqual(results["rounds"][1][candidate3.name], 6)
+        self.assertEqual(results["rounds"][1][candidate4.name], 0)
+        self.assertEqual(results["rounds"][1][ron.name], 0)
+        self.assertEqual(results["rounds"][2][candidate1.name], 0)
+        self.assertEqual(results["rounds"][2][candidate2.name], 8)
+        self.assertEqual(results["rounds"][2][candidate3.name], 8)
+        self.assertEqual(results["rounds"][2][candidate4.name], 0)
+        self.assertEqual(results["rounds"][2][ron.name], 0)
+        self.assertEqual(results["rounds"][3][candidate1.name], 0)
+        self.assertEqual(results["rounds"][3][candidate2.name], 8)
+        self.assertEqual(results["rounds"][3][candidate3.name], 0)
+        self.assertEqual(results["rounds"][3][candidate4.name], 0)
+        self.assertEqual(results["rounds"][3][ron.name], 0.75)
+        self.assertEqual(len(results["rounds"]), 4)
+        self.assertEqual(results["quota"], 7)
         self.assertEqual(results["spoiledBallots"], 1)
         self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
 

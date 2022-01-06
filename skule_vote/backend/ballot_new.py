@@ -394,10 +394,10 @@ def backwardsEliminationProcess(
     return returnList
 
 
-def checkCandidates(votesToCheck, candidateList, currRoundVotes, currentList):
+def checkCandidates(voteThreshold, candidateList, currRoundVotes, currentList):
     newList = [
         curr
         for curr in currentList
-        if votesToCheck == currRoundVotes[candidateList[curr]]
+        if voteThreshold == currRoundVotes[candidateList[curr]]
     ]
     return newList

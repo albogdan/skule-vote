@@ -77,7 +77,9 @@ class BallotTestCase(SetupMixin, TestCase):
             )
             candidate4.save()
 
-        candidates = Candidate.objects.filter(election=election).exclude(name="Reopen Nominations")
+        candidates = Candidate.objects.filter(election=election).exclude(
+            name="Reopen Nominations"
+        )
         ron = Candidate.objects.get(election=election, name="Reopen Nominations")
         return [ron] + list(candidates)
 

@@ -26,14 +26,14 @@ class BallotTestCase(SetupMixin, TestCase):
     # "ballots" is every single ballot cast in that election (i.e. array of "ballot")
     # "ranking" is an array as well, in order (index corresponds to "choice" array)
     # ballot: {
-    # sid: string (voterID, useless here)
-    # ranking: number[] (index of choice in choices array)
+    #   sid: string (voterID, useless here)
+    #   ranking: number[] (index of choice in choices array)
     # }
 
     # "choices" is an array of "choice" (i.e. list of all candidates/options)
     # choice: {
-    # name: string
-    # statement: string (useless here)
+    #   name: string
+    #   statement: string (useless here)
     # }
 
     # numSeats: Number of seats available in election
@@ -41,13 +41,14 @@ class BallotTestCase(SetupMixin, TestCase):
     # "totalVotes" is the total votes cast (manually verify with quota after)
     # each object in "rounds" is 1 round and displays the voteCount for remaining candidates
     # Returns: {
-    # winners: [] (array of names)
-    # rounds: [{choice1: voteCount, ...}] (index in array = round number)
-    # quota: Number
-    # totalVotes: Number (total number of ballots cast)
-    # spoiledBallots: Number (total number of spoiled ballots)
+    #   winners: [] (array of names)
+    #   rounds: [{choice1: voteCount, ...}] (index in array = round number)
+    #   quota: Number
+    #   totalVotes: Number (total number of ballots cast)
+    #   spoiledBallots: Number (total number of spoiled ballots)
     # }
     # */
+
     def setUp(self):
         super().setUp()
         self._set_election_session_data()
@@ -231,7 +232,7 @@ class BallotTestCase(SetupMixin, TestCase):
         self.assertEqual(results["spoiledBallots"], 1)
         self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
 
-    # CASE 1: YES/NO election with some ballots being errors
+    # CASE 1: YES/NO election with one ballot having an error
     def test_one_candidate_ballot_errored(self):
         self._create_referendum(self.election_session)
         referendum = Election.objects.filter(category="referenda")[0]
@@ -640,9 +641,11 @@ class BallotTestCase(SetupMixin, TestCase):
 
     # CASE 2: 1 seat election with winner determined after two rounds with some spoiled ballots
     def test_one_seat_winner_two_rounds_spoiled_ballots(self):
-        # This case tests a boundary condition. The winning candidate gets the exactly the same number of votes as
-        # the correct quota, which should be calculated based on the number of non-spoiled ballots. If spoiled ballots
-        # are included, the quota will be wrong and the election will incorrectly not have a winner.
+        """
+        This case tests a boundary condition. The winning candidate gets the exactly the same number of votes as
+        the correct quota, which should be calculated based on the number of non-spoiled ballots. If spoiled ballots
+        are included, the quota will be wrong and the election will incorrectly not have a winner.
+        """
         self._create_officer(self.election_session)
         officer = Election.objects.filter(category="officer")[0]
 
@@ -923,7 +926,7 @@ class BallotTestCase(SetupMixin, TestCase):
         self.assertEqual(results["totalVotes"], NUM_VOTERS - NUM_SPOILED)
 
     # CASE 3: Multi-seat election with 3 candidates and 2 seats, no one wins
-    def test_two_seats_three_candidates_0_winners(self):
+    def test_two_seats_three_candidates_no_winner(self):
         """No one meets the quota to win, thus there are no winners"""
         self._create_officer(self.election_session, 2)
         officer = Election.objects.filter(category="officer")[0]
@@ -965,7 +968,8 @@ class BallotTestCase(SetupMixin, TestCase):
         (test_two_seats_five_candidates_0_winners_4_rounds). However, this one
         has 3 rounds while the other has 4 rounds. The reason is due to
         backwardsEliminationProcess. To determine which candidate to
-        eliminate, backwardsEliminationProcess looks at ALL the rankings per ballot.
+        eliminate, backwardsEliminationProcess looks at the rankings per ballot
+        prior to the current round.
 
         In this test, some ballots have length 1 while all other ballots have length 2.
         In the other test, all ballots have length 2. Thus, the ballots of len(1) produce
@@ -1143,7 +1147,7 @@ class BallotTestCase(SetupMixin, TestCase):
         self.assertEqual(results["spoiledBallots"], 1)
         self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
 
-    # CASE 3: Multi-seat election with 5 candidates and 2 seats, has ties in elimination
+    # CASE 3: Multi-seat election with 4 candidates and 2 seats, has ties in elimination
     # for backwardsEliminationProcess to solve in the second round
     def test_two_seats_four_candidates_backwards_elim_process_2(self):
         """
@@ -1206,7 +1210,7 @@ class BallotTestCase(SetupMixin, TestCase):
 
     # CASE 3: Multi-seat election with 5 candidates and 2 seats, has ties in a winner
     # for backwardsEliminationProcess to solve in the third round
-    def test_two_seats_four_candidates_backwards_elim_process_3(self):
+    def test_two_seats_five_candidates_backwards_elim_process_3(self):
         """
         This test was written to increase testing coverage of backwardsEliminationProcess
         as it has a tie between winners in the third round.

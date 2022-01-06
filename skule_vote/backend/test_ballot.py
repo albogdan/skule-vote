@@ -77,7 +77,9 @@ class BallotTestCase(SetupMixin, TestCase):
             )
             candidate4.save()
 
-        return Candidate.objects.filter(election=election)
+        candidates = Candidate.objects.filter(election=election).exclude(name="Reopen Nominations")
+        ron = Candidate.objects.get(election=election, name="Reopen Nominations")
+        return [ron] + list(candidates)
 
     def _create_results(self, ballots, choices, election, error=False):
         # Create and serialize the ballots

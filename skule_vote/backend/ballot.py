@@ -88,12 +88,10 @@ def calculate_results(ballots, choices, numSeats):
 
                     # need to keep going down the list if someone's first choice has been eliminated (perform some checks each time)
                     while keepChecking:
-                        if currentRanking < len(
-                            ranking
-                        ):  # check for someone not completing a ballot fully (i.e. spoiling part of it)
-                            if ranking[currentRanking] < len(
-                                choices
-                            ):  # check for valid ranking
+                        # check for someone not completing a ballot fully (i.e. spoiling part of it)
+                        if currentRanking < len(ranking):
+                            # check for valid ranking
+                            if ranking[currentRanking] < len(choices):
                                 if (
                                     remainingChoices[ranking[currentRanking]]
                                     != "Eliminated"
@@ -210,12 +208,10 @@ def calculate_results(ballots, choices, numSeats):
 
                     # need to keep going down the list if someone's first choice has been eliminated (perform some checks each time)
                     while keepChecking:
-                        if currentRanking < len(
-                            ranking
-                        ):  # check for someone not completing a ballot fully (i.e. spoiling part of it)
-                            if ranking[currentRanking] < len(
-                                choices
-                            ):  # check for valid ranking
+                        # check for someone not completing a ballot fully (i.e. spoiling part of it)
+                        if currentRanking < len(ranking):
+                            # check for valid ranking
+                            if ranking[currentRanking] < len(choices):
                                 name = remainingChoices[ranking[currentRanking]]
 
                                 # this should only be hit after "quota" is set and you're at least on the second round
@@ -322,10 +318,8 @@ def calculate_results(ballots, choices, numSeats):
 def backwardsEliminationProcess(
     minVotes, maxVotes, candidateList, roundHistory, currentRound, ballots
 ):
-    eliminationList, winnerList = (
-        [],
-        [],
-    )  # stores the indices of the names in candidateList
+    # stores the indices of the names in candidateList
+    eliminationList, winnerList = [], []
     eliminationPath = minVotes != -1  # easy boolean comparison to be used later
     returnList = []
 
@@ -418,9 +412,10 @@ def backwardsEliminationProcess(
                             votes[j] += 1
                             break
 
-            minVotes = votes[0]
-            maxVotes = votes[0]
-            changed = False  # arbitrary choice of zero index for comparison purposes
+            # arbitrary choice of zero index for comparison purposes
+            minVotes, maxVotes = votes[0], votes[0]
+            changed = False
+
             for i in range(1, len(votes)):
                 if eliminationPath and votes[i] < minVotes:
                     minVotes = votes[i]

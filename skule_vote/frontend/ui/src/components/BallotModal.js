@@ -146,25 +146,34 @@ const shuffleArray = (arr) => {
 // Orange alert that appears below candidate's name if they have a disqualification or rule violation message
 // ruling: string, link: string
 export const BallotRulingAlert = ({ ruling, link }) => {
-  const message = (
-    <span data-testid="ballotRulingAlert">
-      {ruling.trim()}
-      {link && (
-        <span>
-          {ruling.trim().slice(-1) !== "." && "."} Please read the ruling{" "}
-          <a
-            href={link}
-            style={{ color: "inherit" }}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            here
-          </a>
-          .
-        </span>
-      )}
-    </span>
-  );
+  ruling = ruling.trim();
+  let message;
+  if (ruling === "" && link === "") {
+    message =
+      "This person has been disqualified. Contact EngSoc for more information.";
+  } else {
+    message = (
+      <span data-testid="ballotRulingAlert">
+        {ruling}
+        {link && (
+          <span>
+            {ruling !== "" && (ruling.slice(-1) !== "." ? ". " : " ")}Please
+            read the ruling{" "}
+            <a
+              href={link}
+              style={{ color: "inherit" }}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              here
+            </a>
+            .
+          </span>
+        )}
+      </span>
+    );
+  }
+
   return <CustomMessage variant="warning" message={message} />;
 };
 
@@ -182,7 +191,7 @@ const Statements = ({ isReferendum, candidates }) => (
             {!isReferendum && (
               <Typography variant="h3">{candidate.name}</Typography>
             )}
-            {candidate.disqualified_message && (
+            {candidate.disqualified_status && (
               <>
                 <BallotRulingAlert
                   ruling={candidate.disqualified_message}
@@ -191,7 +200,8 @@ const Statements = ({ isReferendum, candidates }) => (
                 <Spacer y={4} />
               </>
             )}
-            {candidate.rule_violation_message && (
+            {(candidate.rule_violation_message ||
+              candidate.rule_violation_link) && (
               <>
                 <BallotRulingAlert
                   ruling={candidate.rule_violation_message}

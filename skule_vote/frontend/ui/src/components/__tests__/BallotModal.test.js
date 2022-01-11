@@ -546,7 +546,7 @@ describe("<BallotRulingAlert />", () => {
 
   it("doesnt render period because link is not included", () => {
     const { getByTestId } = render(
-      <BallotRulingAlert ruling="  This guy is bad" />
+      <BallotRulingAlert ruling="  This guy is bad" link="" />
     );
 
     expect(getByTestId("ballotRulingAlert").textContent).toEqual(
@@ -566,11 +566,31 @@ describe("<BallotRulingAlert />", () => {
 
   it("doesnt render extra period because ruling ends with one when link isnt included", () => {
     const { getByTestId } = render(
-      <BallotRulingAlert ruling="This guy is bad. " />
+      <BallotRulingAlert ruling="This guy is bad. " link="" />
     );
 
     expect(getByTestId("ballotRulingAlert").textContent).toEqual(
       "This guy is bad."
     );
+  });
+
+  it("doesnt render extra period because there's no ruling message", () => {
+    const { getByTestId } = render(
+      <BallotRulingAlert ruling="" link="www.link.com" />
+    );
+
+    expect(getByTestId("ballotRulingAlert").textContent).toEqual(
+      "Please read the ruling here."
+    );
+  });
+
+  it("renders default message if props are empty strings", () => {
+    const { getByText } = render(<BallotRulingAlert ruling="" link="" />);
+
+    expect(
+      getByText(
+        "This person has been disqualified. Contact EngSoc for more information."
+      )
+    ).toBeInTheDocument();
   });
 });

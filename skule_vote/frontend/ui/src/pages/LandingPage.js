@@ -79,14 +79,18 @@ const LandingPage = () => {
           <Typography variant="body1">
             For more information about the Engineering Society and its
             elections, please visit the{" "}
-            <UrlLink href="https://skule.ca/" target="_blank" rel="noreferrer">
+            <UrlLink
+              href="https://skule.ca/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Skule
             </UrlLink>{" "}
             or{" "}
             <UrlLink
               href="https://skule.ca/page.php?q=elections"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
             >
               Elections
             </UrlLink>{" "}

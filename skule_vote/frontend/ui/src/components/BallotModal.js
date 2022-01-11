@@ -148,15 +148,15 @@ const shuffleArray = (arr) => {
 const BallotRulingAlert = ({ ruling, link }) => {
   const message = (
     <>
-      {ruling}
+      {ruling.trim()}
       {link && (
         <span>
-          &nbsp;Please read the ruling&nbsp;
+          {ruling.trim().slice(-1) !== "." && "."} Please read the ruling{" "}
           <a
             href={link}
             style={{ color: "inherit" }}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
           >
             here
           </a>

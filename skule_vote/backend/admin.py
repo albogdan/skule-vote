@@ -62,7 +62,7 @@ class ElectionSessionAdmin(admin.ModelAdmin):
 
     change_list_template = "election-session/change_list.html"
 
-    actions = ['generate_results']
+    actions = ["generate_results"]
 
     @admin.action(description="Generate results for selected ElectionSessions")
     def generate_results(self, request, queryset):
@@ -92,7 +92,9 @@ class ElectionSessionAdmin(admin.ModelAdmin):
                     choices=choices_dict,
                     numSeats=election.seats_available,
                 )
-            election_session_results[f"{election_session.election_session_name} ElectionSession"] = election_results
+            election_session_results[
+                f"{election_session.election_session_name} ElectionSession"
+            ] = election_results
 
         return JsonResponse(election_session_results)
 

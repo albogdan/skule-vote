@@ -330,7 +330,7 @@ class BallotTestCase(SetupMixin, TestCase):
                 }
             )
 
-            all_candidate_ballots.append(
+            one_candidate_ballots.append(
                 {
                     "voter": v,
                     "candidate": ron,
@@ -349,7 +349,7 @@ class BallotTestCase(SetupMixin, TestCase):
                 }
             )
 
-            all_candidate_ballots.append(
+            one_candidate_ballots.append(
                 {
                     "voter": v,
                     "candidate": ron,
@@ -358,7 +358,7 @@ class BallotTestCase(SetupMixin, TestCase):
                 }
             )
 
-        ballots = all_candidate_ballots + one_candidate_ballots + ron_only_ballots
+        ballots = ron_only_ballots + all_candidate_ballots + one_candidate_ballots
         results = self._create_results(ballots, choices, officer)
         self.assertEqual(results["winners"], [candidate1.name])
         self.assertEqual(results["rounds"][0][candidate1.name], 7)
@@ -438,7 +438,7 @@ class BallotTestCase(SetupMixin, TestCase):
                 }
             )
 
-            all_candidate_ballots.append(
+            one_candidate_ballots.append(
                 {
                     "voter": v,
                     "candidate": ron,
@@ -457,7 +457,7 @@ class BallotTestCase(SetupMixin, TestCase):
                 }
             )
 
-            all_candidate_ballots.append(
+            one_candidate_ballots.append(
                 {
                     "voter": v,
                     "candidate": ron,
@@ -466,7 +466,7 @@ class BallotTestCase(SetupMixin, TestCase):
                 }
             )
 
-        ballots = all_candidate_ballots + one_candidate_ballots + ron_only_ballots
+        ballots = ron_only_ballots + all_candidate_ballots + one_candidate_ballots
 
         for ballot in ballots:
             Ballot.objects.create(**ballot)
@@ -493,8 +493,8 @@ class BallotTestCase(SetupMixin, TestCase):
 
         self.assertEqual(results["winners"], [candidate1.name])
         self.assertEqual(results["rounds"][0][candidate1.name], 7)
-        self.assertEqual(results["rounds"][0][candidate2.name], 1)
-        self.assertEqual(results["rounds"][0][ron.name], 4 - NUM_ERRORED)
+        self.assertEqual(results["rounds"][0][candidate2.name], 1 - NUM_ERRORED)
+        self.assertEqual(results["rounds"][0][ron.name], 4)
         self.assertEqual(len(results["rounds"]), 1)
         self.assertEqual(results["quota"], 7)
         self.assertEqual(results["spoiledBallots"], NUM_SPOILED)

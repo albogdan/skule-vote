@@ -144,14 +144,14 @@ const shuffleArray = (arr) => {
 };
 
 // Orange alert that appears below candidate's name if they have a disqualification or rule violation message
-// ruling: string, link: string
+// ruling: string, link?: string ||
 export const BallotRulingAlert = ({ ruling, link }) => {
-  ruling = ruling.trim();
   let message;
-  if (ruling === "" && link === "") {
+  if (!ruling && !link) {
     message =
       "This person has been disqualified. Contact EngSoc for more information.";
   } else {
+    ruling = ruling == null ? "" : ruling.trim();
     message = (
       <span data-testid="ballotRulingAlert">
         {ruling}

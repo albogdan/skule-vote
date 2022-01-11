@@ -145,9 +145,9 @@ const shuffleArray = (arr) => {
 
 // Orange alert that appears below candidate's name if they have a disqualification or rule violation message
 // ruling: string, link: string
-const BallotRulingAlert = ({ ruling, link }) => {
+export const BallotRulingAlert = ({ ruling, link }) => {
   const message = (
-    <>
+    <span data-testid="ballotRulingAlert">
       {ruling.trim()}
       {link && (
         <span>
@@ -163,7 +163,7 @@ const BallotRulingAlert = ({ ruling, link }) => {
           .
         </span>
       )}
-    </>
+    </span>
   );
   return <CustomMessage variant="warning" message={message} />;
 };

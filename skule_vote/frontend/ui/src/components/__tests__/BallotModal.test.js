@@ -3,6 +3,7 @@ import { render, waitFor, fireEvent } from "@testing-library/react";
 import EnhancedBallotModal, {
   BallotModal,
   ConfirmSpoilModal,
+  BallotRulingAlert,
 } from "components/BallotModal";
 import { useHandleSubmit } from "hooks/ElectionHooks";
 import { referendum, president, vp, engsciPres } from "assets/mocks";
@@ -529,5 +530,47 @@ describe("<EnhancedBallotModal />", () => {
 
     const { container } = render(<EnhancedBallotModal {...modifiedProps} />);
     expect(container.innerHTML).toBe("");
+  });
+});
+
+describe("<BallotRulingAlert />", () => {
+  it("renders period because ruling does not end with one and link is included", () => {
+    const { getByTestId } = render(
+      <BallotRulingAlert ruling="This guy is bad   " link="www.link.com" />
+    );
+
+    expect(getByTestId("ballotRulingAlert").textContent).toEqual(
+      "This guy is bad. Please read the ruling here."
+    );
+  });
+
+  it("doesnt render period because link is not included", () => {
+    const { getByTestId } = render(
+      <BallotRulingAlert ruling="  This guy is bad" />
+    );
+
+    expect(getByTestId("ballotRulingAlert").textContent).toEqual(
+      "This guy is bad"
+    );
+  });
+
+  it("doesnt render extra period because ruling ends with one when link is included", () => {
+    const { getByTestId } = render(
+      <BallotRulingAlert ruling="This guy is bad. " link="www.link.com" />
+    );
+
+    expect(getByTestId("ballotRulingAlert").textContent).toEqual(
+      "This guy is bad. Please read the ruling here."
+    );
+  });
+
+  it("doesnt render extra period because ruling ends with one when link isnt included", () => {
+    const { getByTestId } = render(
+      <BallotRulingAlert ruling="This guy is bad. " />
+    );
+
+    expect(getByTestId("ballotRulingAlert").textContent).toEqual(
+      "This guy is bad."
+    );
   });
 });

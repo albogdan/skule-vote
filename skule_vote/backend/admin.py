@@ -96,7 +96,12 @@ class ElectionSessionAdmin(admin.ModelAdmin):
                 f"{election_session.election_session_name} ElectionSession"
             ] = election_results
 
-        return JsonResponse(election_session_results)
+        response = JsonResponse(election_session_results)
+        response.headers[
+            "Content-Disposition"
+        ] = "attachment; filename=ElectionResults.txt"
+
+        return response
 
 
 @admin.register(Election)

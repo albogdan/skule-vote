@@ -157,6 +157,18 @@ const App = () => {
             default: isDark ? "#212121 !important" : "#EFEFEF !important",
             paper: isDark ? "#424242" : "#FFFFFF",
           },
+          // success: {
+          //   main: "#000",
+          // },
+          // warning: {
+          //   main: "#000",
+          // },
+          // error: {
+          //   main: "#000",
+          // },
+          // info: {
+          //   main: "#000",
+          // },
         },
       }),
     [isDark]

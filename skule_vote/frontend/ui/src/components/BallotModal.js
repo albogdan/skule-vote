@@ -560,7 +560,6 @@ const EnhancedBallotModal = ({
     };
     candidatesList = nonRon.concat(noSelection);
   }
-  console.log("candidatesList", candidatesList);
 
   return (
     <BallotModal

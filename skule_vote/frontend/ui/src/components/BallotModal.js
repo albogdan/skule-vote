@@ -376,12 +376,7 @@ export const ConfirmSpoilModal = ({ open, onClose, spoilBallot, isDark }) => (
       </Typography>
       <Divider />
       <TwoButtonDiv>
-        <Button
-          variant="outlined"
-          color="secondary"
-          onClick={() => onClose()}
-          disableElevation
-        >
+        <Button variant="outlined" color="secondary" onClick={() => onClose()}>
           Cancel
         </Button>
         <Button
@@ -389,7 +384,6 @@ export const ConfirmSpoilModal = ({ open, onClose, spoilBallot, isDark }) => (
           color="purple"
           onClick={() => spoilBallot()}
           data-testid="spoilModalConfirm"
-          disableElevation
         >
           Spoil ballot
         </Button>
@@ -496,11 +490,9 @@ export const BallotModal = ({
           <Divider />
           <ThreeButtonDiv>
             <Button
-              $isDark={isDark}
               variant="outlined"
-              onClick={() => setOpenConfirmSpoil(true)}
               color="purple"
-              disableElevation
+              onClick={() => setOpenConfirmSpoil(true)}
             >
               Spoil ballot
             </Button>
@@ -509,7 +501,6 @@ export const BallotModal = ({
                 variant="outlined"
                 color="secondary"
                 onClick={() => closeForm()}
-                disableElevation
               >
                 Cancel
               </Button>
@@ -523,7 +514,6 @@ export const BallotModal = ({
                     rankingLen - 1 ||
                   new Set(Object.values(ranking)).size !== rankingLen
                 }
-                disableElevation
               >
                 Cast ballot
               </Button>
@@ -570,6 +560,7 @@ const EnhancedBallotModal = ({
     };
     candidatesList = nonRon.concat(noSelection);
   }
+  console.log("candidatesList", candidatesList);
 
   return (
     <BallotModal

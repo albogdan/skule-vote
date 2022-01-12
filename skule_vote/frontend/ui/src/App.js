@@ -100,6 +100,9 @@ const App = () => {
         },
         components: {
           MuiButton: {
+            defaultProps: {
+              disableElevation: true,
+            },
             styleOverrides: {
               root: {
                 fontSize: 18,
@@ -148,6 +151,7 @@ const App = () => {
           purple: {
             main: isDark ? "#DCD1DD" : "#4D33A3",
             contrastText: isDark ? "#424242" : "#FFFFFF",
+            // dark: isDark ? "#51496b" : "#5f518d",
           },
           background: {
             default: isDark ? "#212121 !important" : "#EFEFEF !important",

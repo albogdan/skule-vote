@@ -183,7 +183,6 @@ const ElectionPage = () => {
             <Button
               variant="outlined"
               color="secondary"
-              disableElevation
               startIcon={<FilterListIcon />}
               onClick={toggleDrawer}
             >

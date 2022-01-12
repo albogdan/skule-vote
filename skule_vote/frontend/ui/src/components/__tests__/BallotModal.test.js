@@ -574,22 +574,42 @@ describe("<BallotRulingAlert />", () => {
     );
   });
 
-  it("renders default message because there's no ruling message", () => {
+  it("renders disqualified default message because there's no ruling message", () => {
+    const { getByTestId } = render(
+      <BallotRulingAlert ruling="" link="www.link.com" isDQ />
+    );
+
+    expect(getByTestId("ballotRulingAlert").textContent).toEqual(
+      "This candidate has been disqualified. Please read the ruling here."
+    );
+  });
+
+  it("renders disqualified default message if props are empty strings", () => {
+    const { getByText } = render(<BallotRulingAlert ruling="" link="" isDQ />);
+
+    expect(
+      getByText(
+        "This candidate has been disqualified. Contact EngSoc for more information."
+      )
+    ).toBeInTheDocument();
+  });
+
+  it("renders rule violation default message because there's no ruling message", () => {
     const { getByTestId } = render(
       <BallotRulingAlert ruling="" link="www.link.com" />
     );
 
     expect(getByTestId("ballotRulingAlert").textContent).toEqual(
-      "This person has been disqualified. Please read the ruling here."
+      "This candidate violated a rule. Please read the ruling here."
     );
   });
 
-  it("renders default message if props are empty strings", () => {
+  it("renders rule violation default message if props are empty strings", () => {
     const { getByText } = render(<BallotRulingAlert ruling="" link="" />);
 
     expect(
       getByText(
-        "This person has been disqualified. Contact EngSoc for more information."
+        "This candidate violated a rule. Contact EngSoc for more information."
       )
     ).toBeInTheDocument();
   });

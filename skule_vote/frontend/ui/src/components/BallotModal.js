@@ -155,16 +155,18 @@ const RulingA = ({ href, children }) => (
 );
 
 // Orange alert that appears below candidate's name if they have a disqualification or rule violation message
-// ruling: string, link?: string ||
-export const BallotRulingAlert = ({ ruling, link }) => {
+// ruling: string, link?: string, isDQ?: bool
+export const BallotRulingAlert = ({ ruling, link, isDQ }) => {
   let message;
+  const defaultMessage = isDQ
+    ? "This candidate has been disqualified."
+    : "This candidate violated a rule.";
   if (!ruling && !link) {
-    message =
-      "This person has been disqualified. Contact EngSoc for more information.";
+    message = `${defaultMessage} Contact EngSoc for more information.`;
   } else if (!ruling) {
     message = (
       <span data-testid="ballotRulingAlert">
-        This person has been disqualified. Please read the ruling{" "}
+        {defaultMessage} Please read the ruling{" "}
         <RulingA href={link}>here</RulingA>.
       </span>
     );
@@ -183,7 +185,6 @@ export const BallotRulingAlert = ({ ruling, link }) => {
       </span>
     );
   }
-
   return <CustomMessage variant="warning" message={message} />;
 };
 
@@ -212,6 +213,7 @@ const Statements = ({ isReferendum, candidates }) => (
                 <BallotRulingAlert
                   ruling={candidate.disqualified_message}
                   link={candidate.disqualified_link}
+                  isDQ
                 />
                 <Spacer y={4} />
               </>

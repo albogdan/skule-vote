@@ -24,9 +24,9 @@ const AppWrapper = styled.div`
   a {
     text-decoration: none;
     color: ${(props) =>
-      props.isDark
-        ? props.theme.palette.secondary.main
-        : props.theme.palette.primary.main};
+      props.$isDark
+        ? props.palette.secondary.main
+        : props.palette.primary.main};
   }
 `;
 
@@ -168,7 +168,7 @@ const App = () => {
       >
         <CssBaseline />
         <BrowserRouter>
-          <AppWrapper theme={theme} isDark={isDark}>
+          <AppWrapper palette={theme.palette} $isDark={isDark}>
             <div>
               <Header isDark={isDark} toggleDark={toggleDark} />
               <AppBody>

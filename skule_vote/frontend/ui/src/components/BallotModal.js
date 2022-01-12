@@ -112,8 +112,9 @@ const ErrorText = styled(Typography)`
 `;
 
 const SpoilBallotBtn = styled(Button)`
-  color: ${(props) => props.$colorCustom} !important;
-  border-color: ${(props) => props.$colorCustom} !important;
+  color: ${(props) => (props.$isDark ? "#DCD1DD" : "#4D33A3")} !important;
+  border-color: ${(props) =>
+    props.$isDark ? "#DCD1DD" : "#4D33A3"} !important;
 `;
 
 const SpoilBallotBtnFilled = styled(Button)`
@@ -503,7 +504,7 @@ export const BallotModal = ({
           <ThreeButtonDiv>
             <SpoilBallotBtn
               variant="outlined"
-              $colorCustom={theme.palette.purple.main}
+              $isDark={isDark}
               onClick={() => setOpenConfirmSpoil(true)}
             >
               Spoil ballot

@@ -1,6 +1,8 @@
+import json
+
 from django.conf import settings
 from django.contrib import admin
-from django.http import JsonResponse
+from django.http import HttpResponse
 
 from import_export import resources
 from import_export.admin import ExportMixin
@@ -96,7 +98,7 @@ class ElectionSessionAdmin(admin.ModelAdmin):
                 f"{election_session.election_session_name} ElectionSession"
             ] = election_results
 
-        response = JsonResponse(election_session_results)
+        response = HttpResponse(json.dumps(election_session_results, indent='\t'))
         response.headers[
             "Content-Disposition"
         ] = "attachment; filename=ElectionResults.txt"

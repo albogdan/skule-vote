@@ -3,7 +3,7 @@ import styled from "styled-components";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import { Link, useLocation } from "react-router-dom";
-import Brightness6OutlinedIcon from "@mui/icons-material/Brightness6Outlined";
+import Brightness6Icon from "@mui/icons-material/Brightness6";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
@@ -53,12 +53,12 @@ const Header = ({ isDark, toggleDark }) => {
       data-testid="darkLightModeIcon"
       size="large"
     >
-      <Brightness6OutlinedIcon />
+      <Brightness6Icon />
     </IconButton>
   ) : (
     <Button
       aria-label={isDark ? "Light mode" : "Dark mode"}
-      startIcon={<Brightness6OutlinedIcon data-testid="darkLightModeIcon" />}
+      startIcon={<Brightness6Icon data-testid="darkLightModeIcon" />}
       onClick={() => toggleDark()}
     >
       {isDark ? "Light mode" : "Dark mode"}

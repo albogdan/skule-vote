@@ -143,30 +143,56 @@ const shuffleArray = (arr) => {
   return arr;
 };
 
+const RulingA = ({ href, children }) => (
+  <a
+    href={href}
+    style={{ color: "inherit" }}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    {children}
+  </a>
+);
+
 // Orange alert that appears below candidate's name if they have a disqualification or rule violation message
-// ruling: string, link: string
-const BallotRulingAlert = ({ ruling, link }) => {
-  const message = (
-    <>
-      {ruling}
-      {link && (
-        <span>
-          &nbsp;Please read the ruling&nbsp;
-          <a
-            href={link}
-            style={{ color: "inherit" }}
-            target="_blank"
-            rel="noreferrer"
-          >
-            here
-          </a>
-          .
-        </span>
-      )}
-    </>
-  );
+// ruling: string, link?: string, isDQ?: bool
+export const BallotRulingAlert = ({ ruling, link, isDQ }) => {
+  let message;
+  const defaultMessage = isDQ
+    ? "This candidate has been disqualified."
+    : "This candidate violated a rule.";
+  if (!ruling && !link) {
+    message = `${defaultMessage} Contact EngSoc for more information.`;
+  } else if (!ruling) {
+    message = (
+      <span data-testid="ballotRulingAlert">
+        {defaultMessage} Please read the ruling{" "}
+        <RulingA href={link}>here</RulingA>.
+      </span>
+    );
+  } else {
+    ruling = ruling.trim();
+    const hasPeriod = ruling.slice(-1) === ".";
+    message = (
+      <span data-testid="ballotRulingAlert">
+        {ruling}
+        {link && (
+          <span>
+            {hasPeriod ? " " : ". "}Please read the ruling{" "}
+            <RulingA href={link}>here</RulingA>.
+          </span>
+        )}
+      </span>
+    );
+  }
   return <CustomMessage variant="warning" message={message} />;
 };
+
+// ruling  link
+//   F      F     check
+//   F      T     check
+//   T      F
+//   T      T
 
 // Candidate names and statements
 // isReferendum: boolean, candidates: Array<{}>,
@@ -182,16 +208,18 @@ const Statements = ({ isReferendum, candidates }) => (
             {!isReferendum && (
               <Typography variant="h3">{candidate.name}</Typography>
             )}
-            {candidate.disqualified_message && (
+            {candidate.disqualified_status && (
               <>
                 <BallotRulingAlert
                   ruling={candidate.disqualified_message}
                   link={candidate.disqualified_link}
+                  isDQ
                 />
                 <Spacer y={4} />
               </>
             )}
-            {candidate.rule_violation_message && (
+            {(candidate.rule_violation_message ||
+              candidate.rule_violation_link) && (
               <>
                 <BallotRulingAlert
                   ruling={candidate.rule_violation_message}

@@ -574,13 +574,13 @@ describe("<BallotRulingAlert />", () => {
     );
   });
 
-  it("doesnt render extra period because there's no ruling message", () => {
+  it("renders default message because there's no ruling message", () => {
     const { getByTestId } = render(
       <BallotRulingAlert ruling="" link="www.link.com" />
     );
 
     expect(getByTestId("ballotRulingAlert").textContent).toEqual(
-      "Please read the ruling here."
+      "This person has been disqualified. Please read the ruling here."
     );
   });
 

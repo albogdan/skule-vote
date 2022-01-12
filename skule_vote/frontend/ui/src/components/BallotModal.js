@@ -143,6 +143,17 @@ const shuffleArray = (arr) => {
   return arr;
 };
 
+const RulingA = ({ href, children }) => (
+  <a
+    href={href}
+    style={{ color: "inherit" }}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    {children}
+  </a>
+);
+
 // Orange alert that appears below candidate's name if they have a disqualification or rule violation message
 // ruling: string, link?: string ||
 export const BallotRulingAlert = ({ ruling, link }) => {
@@ -150,24 +161,23 @@ export const BallotRulingAlert = ({ ruling, link }) => {
   if (!ruling && !link) {
     message =
       "This person has been disqualified. Contact EngSoc for more information.";
+  } else if (!ruling) {
+    message = (
+      <span data-testid="ballotRulingAlert">
+        This person has been disqualified. Please read the ruling{" "}
+        <RulingA href={link}>here</RulingA>.
+      </span>
+    );
   } else {
-    ruling = ruling == null ? "" : ruling.trim();
+    ruling = ruling.trim();
+    const hasPeriod = ruling.slice(-1) === ".";
     message = (
       <span data-testid="ballotRulingAlert">
         {ruling}
         {link && (
           <span>
-            {ruling !== "" && (ruling.slice(-1) !== "." ? ". " : " ")}Please
-            read the ruling{" "}
-            <a
-              href={link}
-              style={{ color: "inherit" }}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              here
-            </a>
-            .
+            {hasPeriod ? " " : ". "}Please read the ruling{" "}
+            <RulingA href={link}>here</RulingA>.
           </span>
         )}
       </span>
@@ -176,6 +186,12 @@ export const BallotRulingAlert = ({ ruling, link }) => {
 
   return <CustomMessage variant="warning" message={message} />;
 };
+
+// ruling  link
+//   F      F     check
+//   F      T     check
+//   T      F
+//   T      T
 
 // Candidate names and statements
 // isReferendum: boolean, candidates: Array<{}>,

@@ -1,11 +1,11 @@
 import React from "react";
 import { useMount } from "react-use";
 import styled from "styled-components";
-import Typography from "@material-ui/core/Typography";
-import Hidden from "@material-ui/core/Hidden";
-import useMediaQuery from "@material-ui/core/useMediaQuery";
-import Button from "@material-ui/core/Button";
-import FilterListIcon from "@material-ui/icons/FilterList";
+import Typography from "@mui/material/Typography";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import Button from "@mui/material/Button";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import Box from "@mui/material/Box";
 import ElectionsFilter, {
   ElectionsFilterDrawer,
 } from "components/ElectionsFilter";
@@ -172,13 +172,13 @@ const ElectionPage = () => {
       <Spacer y={isMobile ? 20 : 48} />
       <Typography variant="h1">Elections</Typography>
       <ElectionsWrapper>
-        <Hidden implementation="css" xsDown>
+        <Box sx={{ display: { xs: "none", sm: "block" } }}>
           <ElectionsFilter
             filterCategory={filterCategory}
             setAndCloseFilter={setAndCloseFilter}
           />
-        </Hidden>
-        <Hidden implementation="css" smUp>
+        </Box>
+        <Box sx={{ display: { xs: "block", sm: "none" } }}>
           <FilterBtnDiv>
             <Button
               variant="outlined"
@@ -193,7 +193,7 @@ const ElectionPage = () => {
               Selected Filter: {filterCategory}
             </Typography>
           </FilterBtnDiv>
-        </Hidden>
+        </Box>
         <CardDiv>
           {filteredEligibleElections.length === 0 ? (
             <NoElectionsCard filterCategory={filterCategory} />

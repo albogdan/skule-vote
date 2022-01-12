@@ -1,12 +1,12 @@
 import React from "react";
 import styled from "styled-components";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
 import { Link, useLocation } from "react-router-dom";
-import Brightness6Icon from "@material-ui/icons/Brightness6";
-import useMediaQuery from "@material-ui/core/useMediaQuery";
-import Button from "@material-ui/core/Button";
-import IconButton from "@material-ui/core/IconButton";
+import Brightness6OutlinedIcon from "@mui/icons-material/Brightness6Outlined";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
 import { useGetEligibility } from "hooks/GeneralHooks";
 import { ReactComponent as SkuleVoteLogo } from "images/SkuleVoteLogo.svg";
 import { responsive } from "assets/breakpoints";
@@ -51,13 +51,14 @@ const Header = ({ isDark, toggleDark }) => {
       aria-label="Dark/Light mode"
       onClick={() => toggleDark()}
       data-testid="darkLightModeIcon"
+      size="large"
     >
-      <Brightness6Icon />
+      <Brightness6OutlinedIcon />
     </IconButton>
   ) : (
     <Button
       aria-label={isDark ? "Light mode" : "Dark mode"}
-      startIcon={<Brightness6Icon data-testid="darkLightModeIcon" />}
+      startIcon={<Brightness6OutlinedIcon data-testid="darkLightModeIcon" />}
       onClick={() => toggleDark()}
     >
       {isDark ? "Light mode" : "Dark mode"}
@@ -65,7 +66,11 @@ const Header = ({ isDark, toggleDark }) => {
   );
 
   return (
-    <AppBar color={!isDark ? "primary" : "inherit"} position="sticky">
+    <AppBar
+      color={!isDark ? "primary" : "inherit"}
+      position="sticky"
+      enableColorOnDark
+    >
       <FlexToolbar>
         <Link to={"/"}>
           <LogoWhite data-testid="skuleVoteLogo" />

@@ -1,10 +1,10 @@
 import React, { forwardRef } from "react";
 import styled from "styled-components";
 import { useSnackbar } from "notistack";
-import Alert from "@material-ui/lab/Alert";
-import IconButton from "@material-ui/core/IconButton";
-import CloseIcon from "@material-ui/icons/Close";
-import { useTheme } from "@material-ui/core/styles";
+import Alert from "@mui/material/Alert";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
+import { useTheme } from "@mui/material/styles";
 
 const fillColorMap = {
   info: "#DDECF6",
@@ -30,7 +30,7 @@ export const CustomAlert = forwardRef((props, ref) => {
   if (!["info", "warning", "success", "error"].includes(variant)) {
     return null;
   }
-  const isDark = theme.palette.type === "dark";
+  const isDark = theme.palette.mode === "dark";
   const CloseBtn = (
     <IconButton
       aria-label="closeAlert"
@@ -57,7 +57,7 @@ export const CustomMessage = ({ message, variant }) => {
   if (!["info", "warning", "success", "error"].includes(variant)) {
     return null;
   }
-  const isDark = theme.palette.type === "dark";
+  const isDark = theme.palette.mode === "dark";
 
   return (
     <AlertDiv $fill={fillColorMap[variant]} isDark={isDark}>

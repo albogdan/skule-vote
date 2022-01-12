@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import Paper from "@material-ui/core/Paper";
-import Typography from "@material-ui/core/Typography";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
 import { responsive } from "assets/breakpoints";
 
 const BaseCard = styled(Paper)`
@@ -39,7 +39,7 @@ const ElectionCard = ({ title, numCandidates, openModal }) => {
     subtitle = `${numCandidates} Candidate`;
   }
   return (
-    <Card onClick={openModal}>
+    <Card onClick={openModal} elevation={0}>
       <Typography variant="body2">{title}</Typography>
       {subtitle && <Subtitle variant="subtitle1">{subtitle}</Subtitle>}
     </Card>

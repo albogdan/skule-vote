@@ -1,10 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 import { SnackbarProvider } from "notistack";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import { createMuiTheme } from "@material-ui/core/styles";
-import { ThemeProvider } from "@material-ui/styles";
-import useMediaQuery from "@material-ui/core/useMediaQuery";
+import CssBaseline from "@mui/material/CssBaseline";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import { Route, BrowserRouter, Redirect, Switch } from "react-router-dom";
 import ElectionPage from "pages/ElectionPage";
 import LandingPage from "pages/LandingPage";
@@ -58,9 +57,11 @@ const App = () => {
 
   const theme = React.useMemo(
     () =>
-      createMuiTheme({
+      createTheme({
         typography: {
-          fontFamily: `"Gill Sans", "Gill Sans MT", "Lato", sans-serif`,
+          fontFamily: ["Gill Sans", "Gill Sans MT", "Lato", "sans-serif"].join(
+            ","
+          ),
           h1: {
             fontSize: 45,
             fontWeight: 300,
@@ -97,33 +98,60 @@ const App = () => {
             },
           },
         },
-        overrides: {
+        components: {
           MuiButton: {
-            root: {
-              fontSize: 18,
-              fontWeight: 300,
-              "@media (max-width:600px)": {
-                fontSize: 16,
+            styleOverrides: {
+              root: {
+                fontSize: 18,
+                fontWeight: 300,
+                "@media (max-width:600px)": {
+                  fontSize: 16,
+                },
+                sizeLarge: {
+                  fontSize: 20,
+                  "@media (max-width:600px)": {
+                    fontSize: 18,
+                  },
+                },
               },
             },
-            sizeLarge: {
-              fontSize: 20,
-              "@media (max-width:600px)": {
-                fontSize: 18,
+            variants: [
+              {
+                props: { variant: "filter" },
+                style: {
+                  padding: `12px 24px`,
+                  justifyContent: "flex-start",
+                  borderRadius: 0,
+                  textTransform: "capitalize",
+                },
+              },
+            ],
+          },
+          MuiDrawer: {
+            styleOverrides: {
+              root: {
+                "& .MuiDrawer-paper": {
+                  backgroundImage: "none",
+                },
               },
             },
           },
         },
         palette: {
-          type: isDark ? "dark" : "light",
+          mode: isDark ? "dark" : "light",
           primary: {
             main: "#3B739E",
           },
           secondary: {
             main: isDark ? "#C8EDFF" : "#3B6482",
           },
+          purple: {
+            main: isDark ? "#DCD1DD" : "#4D33A3",
+            contrastText: isDark ? "#424242" : "#FFFFFF",
+          },
           background: {
             default: isDark ? "#212121 !important" : "#EFEFEF !important",
+            paper: isDark ? "#424242" : "#FFFFFF",
           },
         },
       }),

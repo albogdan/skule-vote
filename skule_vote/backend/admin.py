@@ -98,7 +98,7 @@ class ElectionSessionAdmin(admin.ModelAdmin):
                 f"{election_session.election_session_name} ElectionSession"
             ] = election_results
 
-        response = HttpResponse(json.dumps(election_session_results, indent='\t'))
+        response = HttpResponse(json.dumps(election_session_results, indent="\t"))
         response.headers[
             "Content-Disposition"
         ] = "attachment; filename=ElectionResults.txt"

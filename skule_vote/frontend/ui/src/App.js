@@ -151,24 +151,11 @@ const App = () => {
           purple: {
             main: isDark ? "#DCD1DD" : "#4D33A3",
             contrastText: isDark ? "#424242" : "#FFFFFF",
-            // dark: isDark ? "#51496b" : "#5f518d",
           },
           background: {
             default: isDark ? "#212121 !important" : "#EFEFEF !important",
             paper: isDark ? "#424242" : "#FFFFFF",
           },
-          // success: {
-          //   main: "#000",
-          // },
-          // warning: {
-          //   main: "#000",
-          // },
-          // error: {
-          //   main: "#000",
-          // },
-          // info: {
-          //   main: "#000",
-          // },
         },
       }),
     [isDark]

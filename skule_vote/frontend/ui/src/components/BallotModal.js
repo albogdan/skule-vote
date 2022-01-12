@@ -111,6 +111,19 @@ const ErrorText = styled(Typography)`
   }
 `;
 
+const SpoilBallotBtn = styled(Button)`
+  color: ${(props) => (props.$isDark ? "#DCD1DD" : "#4D33A3")};
+  border-color: ${(props) => (props.$isDark ? "#DCD1DD" : "#4D33A3")};
+`;
+
+const SpoilBallotBtnFilled = styled(Button)`
+  color: #fff;
+  background-color: #5f518d;
+  :hover {
+    background-color: #51496b;
+  }
+`;
+
 const BlueCard = styled.div`
   background-color: ${(props) =>
     props.$theme.palette.mode === "dark"
@@ -379,14 +392,13 @@ export const ConfirmSpoilModal = ({ open, onClose, spoilBallot, isDark }) => (
         <Button variant="outlined" color="secondary" onClick={() => onClose()}>
           Cancel
         </Button>
-        <Button
+        <SpoilBallotBtnFilled
           variant="contained"
-          color="purple"
           onClick={() => spoilBallot()}
           data-testid="spoilModalConfirm"
         >
           Spoil ballot
-        </Button>
+        </SpoilBallotBtnFilled>
       </TwoButtonDiv>
     </SpoilModalPaper>
   </Modal>
@@ -489,13 +501,12 @@ export const BallotModal = ({
           />
           <Divider />
           <ThreeButtonDiv>
-            <Button
+            <SpoilBallotBtn
               variant="outlined"
-              color="purple"
               onClick={() => setOpenConfirmSpoil(true)}
             >
               Spoil ballot
-            </Button>
+            </SpoilBallotBtn>
             <div>
               <Button
                 variant="outlined"

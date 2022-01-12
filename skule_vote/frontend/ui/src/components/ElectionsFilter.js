@@ -41,11 +41,10 @@ const ElectionsFilterPaper = styled(Paper)`
 
 const FilterItem = styled(Button)`
   background-color: ${(props) =>
-    props.$active &&
-    (props.$isDark ? props.$palette.primary.main : "#DDECF6")} !important;
+    props.$active && (props.$isDark ? props.$main : "#DDECF6")} !important;
   &:hover {
     background-color: ${(props) =>
-      props.$isDark ? props.$palette.primary.main : "#DDECF6"} !important;
+      props.$isDark ? props.$main : "#DDECF6"} !important;
   }
 `;
 
@@ -83,7 +82,7 @@ const ElectionsFilter = ({ filterCategory, setAndCloseFilter }) => {
       <Divider />
       {Object.values(listOfCategories).map((category, i) => (
         <FilterItem
-          $palette={theme.palette}
+          $main={theme.palette.primary.main}
           $active={filterCategory === category}
           $isDark={isDark}
           key={i}

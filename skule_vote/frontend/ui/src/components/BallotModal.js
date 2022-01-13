@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useRef } from "react";
 import styled from "styled-components";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
@@ -545,9 +545,6 @@ const EnhancedBallotModal = ({
   open,
   ballotInfo,
 }) => {
-  if (ballotInfo == null) {
-    return null;
-  }
   const { category, candidates, election_name, id } = ballotInfo;
   const isReferendum = category === "referenda";
 
@@ -556,13 +553,15 @@ const EnhancedBallotModal = ({
   const ron = candidates.filter(
     (candidate) => candidate.name === REOPEN_NOMINATIONS
   )[0];
-  let nonRon = candidates.filter(
-    (candidate) => candidate.name !== REOPEN_NOMINATIONS
-  );
+  // Randomly shuffle the list of non-ron candidates
+  let nonRon = useRef(
+    shuffleArray(
+      candidates.filter((candidate) => candidate.name !== REOPEN_NOMINATIONS)
+    )
+  ).current;
 
+  // Append RON to the end
   if (!isReferendum && candidates.length > 2) {
-    // Randomly shuffle the list, then append RON to the end
-    nonRon = shuffleArray(nonRon);
     candidatesList = nonRon.concat(ron);
   } else if (candidates.length === 2) {
     // Replace ron with No

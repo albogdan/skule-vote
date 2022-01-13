@@ -151,12 +151,14 @@ const ElectionPage = () => {
   });
   return (
     <>
-      <EnhancedBallotModal
-        open={open}
-        handleSubmit={handleSubmit}
-        handleClose={handleClose}
-        ballotInfo={eligibleElections[ballotElectionId]}
-      />
+      {eligibleElections?.[ballotElectionId] && (
+        <EnhancedBallotModal
+          open={open}
+          handleSubmit={handleSubmit}
+          handleClose={handleClose}
+          ballotInfo={eligibleElections[ballotElectionId]}
+        />
+      )}
       <ElectionsFilterDrawer
         drawerOpen={drawerOpen}
         toggleDrawer={toggleDrawer}

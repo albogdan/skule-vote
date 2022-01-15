@@ -1,8 +1,13 @@
+import json
+
 from django.conf import settings
 from django.contrib import admin
+from django.http import HttpResponse
+
 from import_export import resources
 from import_export.admin import ExportMixin
 
+from backend.ballot import calculate_results
 from backend.forms import ElectionSessionAdminForm
 from backend.models import (
     ElectionSession,
@@ -12,6 +17,10 @@ from backend.models import (
     Ballot,
     Eligibility,
     Message,
+)
+from backend.serializers import (
+    BallotResultsCalculationSerializer as BallotSerializer,
+    CandidateSerializer,
 )
 
 
@@ -54,6 +63,47 @@ class ElectionSessionAdmin(admin.ModelAdmin):
     form = ElectionSessionAdminForm
 
     change_list_template = "election-session/change_list.html"
+
+    actions = ["generate_results"]
+
+    @admin.action(description="Generate results for selected ElectionSessions")
+    def generate_results(self, request, queryset):
+
+        election_session_results = {}
+        for election_session in queryset:
+            elections = Election.objects.filter(election_session=election_session)
+            election_results = {}
+            for election in elections:
+                election_ballots = Ballot.objects.filter(election=election)
+                election_candidates = Candidate.objects.filter(election=election)
+
+                # Ballot dict contains Candidate objects, we need indicies from the Candidates list.
+                ballot_serializer = BallotSerializer(election_ballots)
+                election_ballots_formatted = (
+                    ballot_serializer.map_candidates_in_ballots_to_choices(
+                        ballots=ballot_serializer.data, choices=election_candidates
+                    )
+                )
+                # The choice array is a queryset, we need a dictionary
+                choices_dict = CandidateSerializer(election_candidates, many=True).data
+                for i in range(len(choices_dict)):
+                    choices_dict[i] = dict(choices_dict[i])
+
+                election_results[f"{election.election_name}"] = calculate_results(
+                    ballots=election_ballots_formatted,
+                    choices=choices_dict,
+                    numSeats=election.seats_available,
+                )
+            election_session_results[
+                f"{election_session.election_session_name} ElectionSession"
+            ] = election_results
+
+        response = HttpResponse(json.dumps(election_session_results, indent="\t"))
+        response.headers[
+            "Content-Disposition"
+        ] = "attachment; filename=ElectionResults.txt"
+
+        return response
 
 
 @admin.register(Election)

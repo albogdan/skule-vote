@@ -1,3 +1,5 @@
+// These are identical to MUI's
+// https://mui.com/customization/breakpoints/#default-breakpoints
 export const responsive = {
   xlDown: `(max-width: 1920px)`,
   xlUp: `(min-width: 1920px)`,

@@ -1,11 +1,11 @@
 import React from "react";
 import styled from "styled-components";
-import Paper from "@material-ui/core/Paper";
+import Paper from "@mui/material/Paper";
 import { useLocation } from "react-router-dom";
 import { ReactComponent as EngSocCrestBlack } from "images/EngSocCrestBlack.svg";
 import { ReactComponent as EngSocCrestWhite } from "images/EngSocCrestWhite.svg";
 import { responsive } from "assets/breakpoints";
-import Typography from "@material-ui/core/Typography";
+import Typography from "@mui/material/Typography";
 
 const FooterPaper = styled(Paper)`
   display: flex;

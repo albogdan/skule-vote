@@ -1,21 +1,21 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useRef } from "react";
 import styled from "styled-components";
-import Paper from "@material-ui/core/Paper";
-import Typography from "@material-ui/core/Typography";
-import Button from "@material-ui/core/Button";
-import Divider from "@material-ui/core/Divider";
-import ClearIcon from "@material-ui/icons/Clear";
-import IconButton from "@material-ui/core/IconButton";
-import Modal from "@material-ui/core/Modal";
-import InputLabel from "@material-ui/core/InputLabel";
-import MenuItem from "@material-ui/core/MenuItem";
-import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
-import FormHelperText from "@material-ui/core/FormHelperText";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import Divider from "@mui/material/Divider";
+import ClearIcon from "@mui/icons-material/Clear";
+import IconButton from "@mui/material/IconButton";
+import Modal from "@mui/material/Modal";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+import FormHelperText from "@mui/material/FormHelperText";
 import { Spacer } from "assets/layout";
 import { CustomMessage } from "components/Alerts";
 import { responsive } from "assets/breakpoints";
-import { useTheme } from "@material-ui/core/styles";
+import { useTheme } from "@mui/material/styles";
 
 export const REOPEN_NOMINATIONS = "Reopen Nominations";
 
@@ -112,21 +112,22 @@ const ErrorText = styled(Typography)`
 `;
 
 const SpoilBallotBtn = styled(Button)`
-  color: ${(props) => (props.$isDark ? "#DCD1DD" : "#4D33A3")};
-  border-color: ${(props) => (props.$isDark ? "#DCD1DD" : "#4D33A3")};
+  color: ${(props) => (props.$isDark ? "#DCD1DD" : "#4D33A3")} !important;
+  border-color: ${(props) =>
+    props.$isDark ? "#DCD1DD" : "#4D33A3"} !important;
 `;
 
 const SpoilBallotBtnFilled = styled(Button)`
   color: #fff;
-  background-color: #5f518d;
-  :hover {
-    background-color: #51496b;
+  background-color: #5f518d !important;
+  &:hover {
+    background-color: #51496b !important;
   }
 `;
 
 const BlueCard = styled.div`
   background-color: ${(props) =>
-    props.$theme.palette.type === "dark"
+    props.$theme.palette.mode === "dark"
       ? props.$theme.palette.primary.main
       : "#DDECF6"};
   border-radius: 4px;
@@ -199,7 +200,9 @@ export const BallotRulingAlert = ({ ruling, link, isDQ }) => {
 const Statements = ({ isReferendum, candidates }) => (
   <>
     {!isReferendum && (
-      <Typography variant="h2">Candidates &amp; Statements</Typography>
+      <Typography variant="h2" mb={2}>
+        Candidates &amp; Statements
+      </Typography>
     )}
     {candidates.map(
       (candidate) =>
@@ -417,19 +420,13 @@ export const ConfirmSpoilModal = ({ open, onClose, spoilBallot, isDark }) => (
       </Typography>
       <Divider />
       <TwoButtonDiv>
-        <Button
-          variant="outlined"
-          color="secondary"
-          onClick={() => onClose()}
-          disableElevation
-        >
+        <Button variant="outlined" color="secondary" onClick={() => onClose()}>
           Cancel
         </Button>
         <SpoilBallotBtnFilled
           variant="contained"
           onClick={() => spoilBallot()}
           data-testid="spoilModalConfirm"
-          disableElevation
         >
           Spoil ballot
         </SpoilBallotBtnFilled>
@@ -450,7 +447,7 @@ export const BallotModal = ({
   electionId,
 }) => {
   const theme = useTheme();
-  const isDark = theme.palette.type === "dark";
+  const isDark = theme.palette.mode === "dark";
 
   const [ranking, setRanking] = React.useState({});
   const rankingLen = Object.keys(ranking).length;
@@ -508,6 +505,7 @@ export const BallotModal = ({
               data-testid="drawerClose"
               onClick={() => closeForm()}
               role="close"
+              size="large"
             >
               <ClearIcon />
             </IconButton>
@@ -535,10 +533,9 @@ export const BallotModal = ({
           <Divider />
           <ThreeButtonDiv>
             <SpoilBallotBtn
-              $isDark={isDark}
               variant="outlined"
+              $isDark={isDark}
               onClick={() => setOpenConfirmSpoil(true)}
-              disableElevation
             >
               Spoil ballot
             </SpoilBallotBtn>
@@ -547,7 +544,6 @@ export const BallotModal = ({
                 variant="outlined"
                 color="secondary"
                 onClick={() => closeForm()}
-                disableElevation
               >
                 Cancel
               </Button>
@@ -561,7 +557,6 @@ export const BallotModal = ({
                     rankingLen - 1 ||
                   new Set(Object.values(ranking)).size !== rankingLen
                 }
-                disableElevation
               >
                 Cast ballot
               </Button>
@@ -580,9 +575,6 @@ const EnhancedBallotModal = ({
   open,
   ballotInfo,
 }) => {
-  if (ballotInfo == null) {
-    return null;
-  }
   const { category, candidates, election_name, id } = ballotInfo;
   const isReferendum = category === "referenda";
 
@@ -591,13 +583,15 @@ const EnhancedBallotModal = ({
   const ron = candidates.filter(
     (candidate) => candidate.name === REOPEN_NOMINATIONS
   )[0];
-  let nonRon = candidates.filter(
-    (candidate) => candidate.name !== REOPEN_NOMINATIONS
-  );
+  // Randomly shuffle the list of non-ron candidates
+  let nonRon = useRef(
+    shuffleArray(
+      candidates.filter((candidate) => candidate.name !== REOPEN_NOMINATIONS)
+    )
+  ).current;
 
+  // Append RON to the end
   if (!isReferendum && candidates.length > 2) {
-    // Randomly shuffle the list, then append RON to the end
-    nonRon = shuffleArray(nonRon);
     candidatesList = nonRon.concat(ron);
   } else if (candidates.length === 2) {
     // Replace ron with No

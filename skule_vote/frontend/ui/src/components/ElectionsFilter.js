@@ -1,13 +1,14 @@
 import React from "react";
 import styled from "styled-components";
-import Paper from "@material-ui/core/Paper";
-import Button from "@material-ui/core/Button";
-import Typography from "@material-ui/core/Typography";
-import ClearIcon from "@material-ui/icons/Clear";
-import IconButton from "@material-ui/core/IconButton";
-import Drawer from "@material-ui/core/Drawer";
-import { useTheme } from "@material-ui/core/styles";
-import Divider from "@material-ui/core/Divider";
+import Paper from "@mui/material/Paper";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import ClearIcon from "@mui/icons-material/Clear";
+import IconButton from "@mui/material/IconButton";
+import Drawer from "@mui/material/Drawer";
+import { useTheme } from "@mui/material/styles";
+import Divider from "@mui/material/Divider";
+import Box from "@mui/material/Box";
 import { listOfCategories } from "pages/ElectionPage";
 import { responsive } from "assets/breakpoints";
 
@@ -32,34 +33,19 @@ const ElectionsFilterPaper = styled(Paper)`
   @media ${responsive.smDown} {
     padding-top: 0;
     margin-right: 0;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    background-image: none !important;
   }
 `;
 
 const FilterItem = styled(Button)`
-  padding: 12px 24px;
-  justify-content: flex-start;
-  border-radius: 0;
-  text-transform: capitalize;
   background-color: ${(props) =>
-    props.$active && (props.$isDark ? props.$palette.primary.main : "#DDECF6")};
-`;
-
-const FilterItemWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  > button {
-    &:hover {
-      background-color: ${(props) =>
-        props.isDark ? props.palette.primary.main : "#DDECF6"};
-    }
+    props.$active && (props.$isDark ? props.$main : "#DDECF6")} !important;
+  &:hover {
+    background-color: ${(props) =>
+      props.$isDark ? props.$main : "#DDECF6"} !important;
   }
-`;
-
-const IconButtonDiv = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  width: 100;
-  margin: 4px;
 `;
 
 export const ElectionsFilterDrawer = ({
@@ -69,11 +55,16 @@ export const ElectionsFilterDrawer = ({
   setAndCloseFilter,
 }) => (
   <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer}>
-    <IconButtonDiv>
-      <IconButton data-testid="drawerClose" onClick={toggleDrawer} role="close">
+    <Box sx={{ display: "flex", justifyContent: "flex-end", m: "4px" }}>
+      <IconButton
+        data-testid="drawerClose"
+        onClick={toggleDrawer}
+        role="close"
+        size="large"
+      >
         <ClearIcon />
       </IconButton>
-    </IconButtonDiv>
+    </Box>
     <ElectionsFilter
       filterCategory={filterCategory}
       setAndCloseFilter={setAndCloseFilter}
@@ -83,25 +74,25 @@ export const ElectionsFilterDrawer = ({
 
 const ElectionsFilter = ({ filterCategory, setAndCloseFilter }) => {
   const theme = useTheme();
-  const isDark = theme.palette.type === "dark";
+  const isDark = theme.palette.mode === "dark";
 
   return (
-    <ElectionsFilterPaper>
+    <ElectionsFilterPaper elevation={0}>
       <Typography variant="h2">Filter</Typography>
       <Divider />
-      <FilterItemWrapper palette={theme.palette} isDark={isDark}>
-        {Object.values(listOfCategories).map((category, i) => (
-          <FilterItem
-            $palette={theme.palette}
-            $active={filterCategory === category}
-            $isDark={isDark}
-            key={i}
-            onClick={() => setAndCloseFilter(category)}
-          >
-            <Typography variant="body1">{category}</Typography>
-          </FilterItem>
-        ))}
-      </FilterItemWrapper>
+      {Object.values(listOfCategories).map((category, i) => (
+        <FilterItem
+          $main={theme.palette.primary.main}
+          $active={filterCategory === category}
+          $isDark={isDark}
+          key={i}
+          onClick={() => setAndCloseFilter(category)}
+          variant="filter"
+          fullWidth
+        >
+          <Typography variant="body1">{category}</Typography>
+        </FilterItem>
+      ))}
     </ElectionsFilterPaper>
   );
 };

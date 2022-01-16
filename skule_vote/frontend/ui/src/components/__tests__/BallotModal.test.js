@@ -523,16 +523,6 @@ describe("<EnhancedBallotModal />", () => {
     expect(getByText(/Spoil ballot/)).toBeInTheDocument();
     expect(getByText(/Cast ballot/).closest("button")).toBeDisabled();
   });
-
-  it("renders null if ballotInfo is null", () => {
-    const modifiedProps = {
-      ...props,
-      ballotInfo: null,
-    };
-
-    const { container } = render(<EnhancedBallotModal {...modifiedProps} />);
-    expect(container.innerHTML).toBe("");
-  });
 });
 
 describe("<BallotRulingAlert />", () => {

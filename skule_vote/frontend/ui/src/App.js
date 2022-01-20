@@ -4,7 +4,7 @@ import { SnackbarProvider } from "notistack";
 import CssBaseline from "@mui/material/CssBaseline";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { Route, BrowserRouter, Redirect, Switch } from "react-router-dom";
+import { Route, BrowserRouter, Routes, Navigate } from "react-router-dom";
 import ElectionPage from "pages/ElectionPage";
 import LandingPage from "pages/LandingPage";
 import { CustomAlert } from "components/Alerts";
@@ -172,11 +172,11 @@ const App = () => {
             <div>
               <Header isDark={isDark} toggleDark={toggleDark} />
               <AppBody>
-                <Switch>
-                  <Route exact path="/" component={LandingPage} />
-                  <Route exact path="/elections" component={ElectionPage} />
-                  <Redirect to="/" />
-                </Switch>
+                <Routes>
+                  <Route exact path="/" element={<LandingPage />} />
+                  <Route exact path="/elections" element={<ElectionPage />} />
+                  <Route path="*" element={<Navigate to="/" />} />
+                </Routes>
               </AppBody>
             </div>
             <Footer isDark={isDark} />

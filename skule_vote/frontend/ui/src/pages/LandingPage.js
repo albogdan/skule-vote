@@ -96,7 +96,7 @@ const LandingPage = () => {
             </UrlLink>{" "}
             websites.
           </Typography>
-          <Link to={"/elections"}>
+          <Link to="/elections">
             <Button color="primary" size="large" variant="contained">
               Vote
             </Button>

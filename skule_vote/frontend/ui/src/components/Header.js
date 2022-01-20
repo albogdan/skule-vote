@@ -26,10 +26,10 @@ const Nav = styled.div`
   }
 `;
 
-const FlexToolbar = styled(Toolbar)`
-  display: flex;
-  justify-content: space-between;
-`;
+// const FlexToolbar = styled(Toolbar)`
+//   display: flex;
+//   justify-content: space-between;
+// `;
 
 const LogoWhite = styled(SkuleVoteLogo)`
   height: 25px;
@@ -71,8 +71,8 @@ const Header = ({ isDark, toggleDark }) => {
       position="sticky"
       enableColorOnDark
     >
-      <FlexToolbar>
-        <Link to={"/"}>
+      <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Link to="/">
           <LogoWhite data-testid="skuleVoteLogo" />
         </Link>
         <Nav>
@@ -86,14 +86,14 @@ const Header = ({ isDark, toggleDark }) => {
             </Button>
           ) : (
             <nav>
-              <Link to={"/elections"}>
+              <Link to="/elections">
                 <Button aria-label="Vote">Vote</Button>
               </Link>
             </nav>
           )}
           <Button aria-label="Logout">Logout</Button>
         </Nav>
-      </FlexToolbar>
+      </Toolbar>
     </AppBar>
   );
 };

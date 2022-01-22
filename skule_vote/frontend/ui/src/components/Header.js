@@ -72,7 +72,7 @@ const Header = ({ isDark, toggleDark }) => {
       enableColorOnDark
     >
       <FlexToolbar>
-        <Link to={"/"}>
+        <Link to="/">
           <LogoWhite data-testid="skuleVoteLogo" />
         </Link>
         <Nav>
@@ -86,7 +86,7 @@ const Header = ({ isDark, toggleDark }) => {
             </Button>
           ) : (
             <nav>
-              <Link to={"/elections"}>
+              <Link to="/elections">
                 <Button aria-label="Vote">Vote</Button>
               </Link>
             </nav>

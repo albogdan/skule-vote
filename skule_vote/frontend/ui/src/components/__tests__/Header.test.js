@@ -1,6 +1,6 @@
 import React from "react";
 import { render, fireEvent } from "@testing-library/react";
-import { withHistoryRouter } from "assets/testing";
+import { withRouter } from "assets/testing";
 import Header from "components/Header";
 import { useGetEligibility } from "hooks/GeneralHooks";
 
@@ -15,7 +15,7 @@ jest.mock("hooks/GeneralHooks", () => ({
 describe("<Header />", () => {
   it("renders Header on landing page", () => {
     const { getByText, queryByText, getByTestId } = render(
-      withHistoryRouter(<Header />, "/")
+      withRouter(<Header />, "/")
     );
     expect(getByTestId("skuleVoteLogo")).toBeInTheDocument();
     expect(getByTestId("darkLightModeIcon")).toBeInTheDocument();
@@ -34,7 +34,7 @@ describe("<Header />", () => {
 
   it("renders Header on elections page", () => {
     const { getByText, queryByText, getByTestId } = render(
-      withHistoryRouter(<Header />, "/elections")
+      withRouter(<Header />, "/elections")
     );
     expect(getByTestId("skuleVoteLogo")).toBeInTheDocument();
     expect(getByTestId("darkLightModeIcon")).toBeInTheDocument();
@@ -51,10 +51,7 @@ describe("<Header />", () => {
     const toggleDarkSpy = jest.fn();
     const isDark = true;
     const { getByText } = render(
-      withHistoryRouter(
-        <Header isDark={isDark} toggleDark={toggleDarkSpy} />,
-        "/"
-      )
+      withRouter(<Header isDark={isDark} toggleDark={toggleDarkSpy} />, "/")
     );
 
     let button = getByText("Light mode");
@@ -68,7 +65,7 @@ describe("<Header />", () => {
       return getEligibility;
     });
 
-    const { getByText } = render(withHistoryRouter(<Header />, "/elections"));
+    const { getByText } = render(withRouter(<Header />, "/elections"));
 
     let button = getByText("Check eligibility");
     fireEvent.click(button);

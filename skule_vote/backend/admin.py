@@ -136,7 +136,7 @@ class ElectionSessionAdmin(admin.ModelAdmin):
 
     change_list_template = "election-session/change_list.html"
 
-    actions = ["generate_results"]
+    actions = ["generate_results_action"]
 
     @admin.action(description="Generate results for selected ElectionSessions")
     def generate_results_action(self, request, queryset):

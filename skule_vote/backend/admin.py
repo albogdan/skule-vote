@@ -24,6 +24,78 @@ from backend.serializers import (
 )
 
 
+def generate_results(queryset):
+    election_session_results = {}
+    for election_session in queryset:
+        elections = Election.objects.filter(election_session=election_session)
+        election_results = {}
+        for election in elections:
+            election_ballots = Ballot.objects.filter(election=election)
+            election_candidates = Candidate.objects.filter(election=election)
+
+            # ***** Format the data for all Ballots and Candidates, including DQ'ed *****
+            # Ballot dict contains Candidate objects, we need indicies from the Candidates list.
+            ballot_serializer = BallotSerializer(election_ballots)
+            election_ballots_formatted = (
+                ballot_serializer.map_candidates_in_ballots_to_choices(
+                    ballots=ballot_serializer.data, choices=election_candidates
+                )
+            )
+            # The choice array is a queryset, we need a dictionary
+            choices_dict = CandidateSerializer(election_candidates, many=True).data
+            for i in range(len(choices_dict)):
+                choices_dict[i] = dict(choices_dict[i])
+
+            # ***** Format the data for only non-DQ'ed Ballots and Candidates *****
+            election_ballots_no_dqed = election_ballots.exclude(
+                candidate__disqualified_status=True
+            )
+            election_candidates_no_dqed = election_candidates.exclude(
+                disqualified_status=True
+            )
+            # Ballot dict contains Candidate objects, we need indicies from the Candidates list.
+            ballot_serializer_no_dqed = BallotSerializer(election_ballots_no_dqed)
+            election_ballots_no_dqed_formatted = (
+                ballot_serializer_no_dqed.map_candidates_in_ballots_to_choices(
+                    ballots=ballot_serializer_no_dqed.data,
+                    choices=election_candidates_no_dqed,
+                )
+            )
+            choices_dict_no_dqed = CandidateSerializer(
+                election_candidates_no_dqed, many=True
+            ).data
+            for i in range(len(choices_dict_no_dqed)):
+                choices_dict_no_dqed[i] = dict(choices_dict_no_dqed[i])
+
+            # Initialize the election results for with and without DQ
+            election_results[f"{election.election_name}"] = {
+                "results_with_dq": {},
+                "results_without_dq": {},
+            }
+
+            # Calculate the results with DQ'ed Candidates included
+            election_results[f"{election.election_name}"][
+                "results_without_dq"
+            ] = calculate_results(
+                ballots=election_ballots_formatted,
+                choices=choices_dict,
+                numSeats=election.seats_available,
+            )
+
+            # Calculate the results with DQ'ed Candidates NOT included
+            election_results[f"{election.election_name}"][
+                "results_with_dq"
+            ] = calculate_results(
+                ballots=election_ballots_no_dqed_formatted,
+                choices=choices_dict_no_dqed,
+                numSeats=election.seats_available,
+            )
+        election_session_results[
+            f"{election_session.election_session_name} ElectionSession"
+        ] = election_results
+    return election_session_results
+
+
 @admin.register(ElectionSession)
 class ElectionSessionAdmin(admin.ModelAdmin):
     list_display = (
@@ -67,38 +139,9 @@ class ElectionSessionAdmin(admin.ModelAdmin):
     actions = ["generate_results"]
 
     @admin.action(description="Generate results for selected ElectionSessions")
-    def generate_results(self, request, queryset):
-
-        election_session_results = {}
-        for election_session in queryset:
-            elections = Election.objects.filter(election_session=election_session)
-            election_results = {}
-            for election in elections:
-                election_ballots = Ballot.objects.filter(election=election)
-                election_candidates = Candidate.objects.filter(election=election)
-
-                # Ballot dict contains Candidate objects, we need indicies from the Candidates list.
-                ballot_serializer = BallotSerializer(election_ballots)
-                election_ballots_formatted = (
-                    ballot_serializer.map_candidates_in_ballots_to_choices(
-                        ballots=ballot_serializer.data, choices=election_candidates
-                    )
-                )
-                # The choice array is a queryset, we need a dictionary
-                choices_dict = CandidateSerializer(election_candidates, many=True).data
-                for i in range(len(choices_dict)):
-                    choices_dict[i] = dict(choices_dict[i])
-
-                election_results[f"{election.election_name}"] = calculate_results(
-                    ballots=election_ballots_formatted,
-                    choices=choices_dict,
-                    numSeats=election.seats_available,
-                )
-            election_session_results[
-                f"{election_session.election_session_name} ElectionSession"
-            ] = election_results
-
-        response = HttpResponse(json.dumps(election_session_results, indent="\t"))
+    def generate_results_action(self, request, queryset):
+        results = generate_results(queryset)
+        response = HttpResponse(json.dumps(results, indent="\t"))
         response.headers[
             "Content-Disposition"
         ] = "attachment; filename=ElectionResults.txt"

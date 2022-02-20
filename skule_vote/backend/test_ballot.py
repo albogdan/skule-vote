@@ -4,10 +4,12 @@ from backend.ballot import calculate_results
 
 # from backend.ballot_new import calculate_results  # Uncomment to test with the new file
 
+from backend.admin import generate_results
 from backend.models import (
     Ballot,
-    Election,
     Candidate,
+    Election,
+    ElectionSession,
     Voter,
 )
 from backend.serializers import (
@@ -924,6 +926,352 @@ class BallotTestCase(SetupMixin, TestCase):
         self.assertEqual(results["quota"], 7)
         self.assertEqual(results["spoiledBallots"], NUM_SPOILED)
         self.assertEqual(results["totalVotes"], NUM_VOTERS - NUM_SPOILED)
+
+    # CASE 2: 1 seat election with winner determined in first round w/ disqualification
+    def test_one_seat_two_candidates_winner_with_and_without_dq(self):
+        self._create_officer(self.election_session)
+        officer = Election.objects.filter(category="officer")[0]
+
+        choices = self._create_candidates(officer, 2)
+        ron, candidate1, candidate2 = (
+            choices[0],
+            choices[1],
+            choices[2],
+        )
+        # DQ candidate 1
+        candidate1.disqualified_status = True
+        candidate1.save()
+
+        NUM_VOTERS = 12
+        NUM_SPOILED = 0
+        self._generate_voters(count=NUM_VOTERS)
+        voters = Voter.objects.all()
+
+        ron_only_ballots = []
+        for v in voters[:4]:
+            ron_only_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": ron,
+                    "rank": 0,
+                    "election": officer,
+                }
+            )
+
+        all_candidate_ballots = []
+        for v in voters[4:8]:
+            all_candidate_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": candidate1,
+                    "rank": 0,
+                    "election": officer,
+                }
+            )
+
+            all_candidate_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": candidate2,
+                    "rank": 1,
+                    "election": officer,
+                }
+            )
+
+            all_candidate_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": ron,
+                    "rank": 2,
+                    "election": officer,
+                }
+            )
+
+        one_candidate_ballots = []
+        for v in voters[8:11]:
+            one_candidate_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": candidate1,
+                    "rank": 0,
+                    "election": officer,
+                }
+            )
+
+            one_candidate_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": ron,
+                    "rank": 1,
+                    "election": officer,
+                }
+            )
+
+        for v in voters[11:12]:
+            one_candidate_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": candidate2,
+                    "rank": 0,
+                    "election": officer,
+                }
+            )
+
+            one_candidate_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": ron,
+                    "rank": 1,
+                    "election": officer,
+                }
+            )
+
+        ballots = ron_only_ballots + all_candidate_ballots + one_candidate_ballots
+        for ballot in ballots:
+            b = Ballot.objects.create(**ballot)
+            b.save()
+
+        results = generate_results(
+            ElectionSession.objects.filter(
+                election_session_name=self.election_session.election_session_name
+            )
+        )
+        election_results = results[
+            f"{self.election_session.election_session_name} ElectionSession"
+        ][officer.election_name]
+        print(results)
+        # Assert results without DQ - candidate 1 wins
+        self.assertEqual(
+            election_results["results_without_dq"]["winners"], [candidate1.name]
+        )
+        self.assertEqual(
+            election_results["results_without_dq"]["rounds"][0][candidate1.name], 7
+        )
+        self.assertEqual(
+            election_results["results_without_dq"]["rounds"][0][candidate2.name], 1
+        )
+        self.assertEqual(
+            election_results["results_without_dq"]["rounds"][0][ron.name], 4
+        )
+        self.assertEqual(len(election_results["results_without_dq"]["rounds"]), 1)
+        self.assertEqual(election_results["results_without_dq"]["quota"], 7)
+        self.assertEqual(
+            election_results["results_without_dq"]["spoiledBallots"], NUM_SPOILED
+        )
+        self.assertEqual(
+            election_results["results_without_dq"]["totalVotes"],
+            NUM_VOTERS - NUM_SPOILED,
+        )
+
+        # Assert results with DQ - RON wins
+        self.assertEqual(election_results["results_with_dq"]["winners"], [ron.name])
+        self.assertEqual(election_results["results_with_dq"]["rounds"][0][ron.name], 7)
+        self.assertEqual(
+            election_results["results_with_dq"]["rounds"][0][candidate2.name], 5
+        )
+        self.assertEqual(len(election_results["results_with_dq"]["rounds"]), 1)
+        self.assertEqual(election_results["results_with_dq"]["quota"], 7)
+        self.assertEqual(
+            election_results["results_with_dq"]["spoiledBallots"], NUM_SPOILED
+        )
+        self.assertEqual(
+            election_results["results_with_dq"]["totalVotes"], NUM_VOTERS - NUM_SPOILED
+        )
+
+    # CASE 2: 1 seat election with winner determined in first round  w/ disqualification
+    def test_one_seat_three_candidates_winner_with_and_without_dq(self):
+        self._create_officer(self.election_session)
+        officer = Election.objects.filter(category="officer")[0]
+
+        choices = self._create_candidates(officer, 3)
+        ron, candidate1, candidate2, candidate3 = (
+            choices[0],
+            choices[1],
+            choices[2],
+            choices[3],
+        )
+        # DQ candidate 1
+        candidate1.disqualified_status = True
+        candidate1.save()
+
+        NUM_VOTERS = 16
+        NUM_SPOILED = 0
+        self._generate_voters(count=NUM_VOTERS)
+        voters = Voter.objects.all()
+
+        ron_only_ballots = []
+        for v in voters[:4]:
+            ron_only_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": ron,
+                    "rank": 0,
+                    "election": officer,
+                }
+            )
+
+        all_candidate_ballots = []
+        for v in voters[4:8]:
+            all_candidate_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": candidate1,
+                    "rank": 0,
+                    "election": officer,
+                }
+            )
+
+            all_candidate_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": candidate2,
+                    "rank": 1,
+                    "election": officer,
+                }
+            )
+
+            all_candidate_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": candidate3,
+                    "rank": 2,
+                    "election": officer,
+                }
+            )
+
+            all_candidate_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": ron,
+                    "rank": 2,
+                    "election": officer,
+                }
+            )
+
+        one_candidate_ballots = []
+        for v in voters[8:11]:
+            one_candidate_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": candidate1,
+                    "rank": 0,
+                    "election": officer,
+                }
+            )
+
+            one_candidate_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": ron,
+                    "rank": 1,
+                    "election": officer,
+                }
+            )
+
+        for v in voters[11:12]:
+            one_candidate_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": candidate2,
+                    "rank": 0,
+                    "election": officer,
+                }
+            )
+
+            one_candidate_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": ron,
+                    "rank": 1,
+                    "election": officer,
+                }
+            )
+
+        for v in voters[12:16]:
+            all_candidate_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": candidate3,
+                    "rank": 0,
+                    "election": officer,
+                }
+            )
+            all_candidate_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": candidate2,
+                    "rank": 1,
+                    "election": officer,
+                }
+            )
+            all_candidate_ballots.append(
+                {
+                    "voter": v,
+                    "candidate": candidate1,
+                    "rank": 2,
+                    "election": officer,
+                }
+            )
+
+        ballots = ron_only_ballots + all_candidate_ballots + one_candidate_ballots
+        for ballot in ballots:
+            b = Ballot.objects.create(**ballot)
+            b.save()
+
+        results = generate_results(
+            ElectionSession.objects.filter(
+                election_session_name=self.election_session.election_session_name
+            )
+        )
+        election_results = results[
+            f"{self.election_session.election_session_name} ElectionSession"
+        ][officer.election_name]
+        print(results)
+        # Assert results without DQ - candidate 1 wins
+        self.assertEqual(
+            election_results["results_without_dq"]["winners"], [candidate1.name]
+        )
+        self.assertEqual(
+            election_results["results_without_dq"]["rounds"][2][candidate1.name], 11
+        )
+        self.assertEqual(
+            election_results["results_without_dq"]["rounds"][2][candidate2.name], 0
+        )
+        self.assertEqual(
+            election_results["results_without_dq"]["rounds"][2][candidate3.name], 0
+        )
+        self.assertEqual(
+            election_results["results_without_dq"]["rounds"][2][ron.name], 5
+        )
+        self.assertEqual(len(election_results["results_without_dq"]["rounds"]), 3)
+        self.assertEqual(election_results["results_without_dq"]["quota"], 9)
+        self.assertEqual(
+            election_results["results_without_dq"]["spoiledBallots"], NUM_SPOILED
+        )
+        self.assertEqual(
+            election_results["results_without_dq"]["totalVotes"],
+            NUM_VOTERS - NUM_SPOILED,
+        )
+
+        # Assert results with DQ - candidate 2 wins
+        self.assertEqual(
+            election_results["results_with_dq"]["winners"], [candidate2.name]
+        )
+        self.assertEqual(election_results["results_with_dq"]["rounds"][1][ron.name], 7)
+        self.assertEqual(
+            election_results["results_with_dq"]["rounds"][1][candidate2.name], 9
+        )
+        self.assertEqual(
+            election_results["results_with_dq"]["rounds"][1][candidate3.name], 0
+        )
+        self.assertEqual(len(election_results["results_with_dq"]["rounds"]), 2)
+        self.assertEqual(election_results["results_with_dq"]["quota"], 9)
+        self.assertEqual(
+            election_results["results_with_dq"]["spoiledBallots"], NUM_SPOILED
+        )
+        self.assertEqual(
+            election_results["results_with_dq"]["totalVotes"], NUM_VOTERS - NUM_SPOILED
+        )
 
     # CASE 3: Multi-seat election with 3 candidates and 2 seats, no one wins
     def test_two_seats_three_candidates_no_winner(self):

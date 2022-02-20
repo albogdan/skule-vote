@@ -927,7 +927,7 @@ class BallotTestCase(SetupMixin, TestCase):
         self.assertEqual(results["spoiledBallots"], NUM_SPOILED)
         self.assertEqual(results["totalVotes"], NUM_VOTERS - NUM_SPOILED)
 
-    # CASE 2: 1 seat election with winner determined in first round
+    # CASE 2: 1 seat election with winner determined in first round w/ disqualification
     def test_one_seat_two_candidates_winner_with_and_without_dq(self):
         self._create_officer(self.election_session)
         officer = Election.objects.filter(category="officer")[0]
@@ -1078,7 +1078,7 @@ class BallotTestCase(SetupMixin, TestCase):
             election_results["results_with_dq"]["totalVotes"], NUM_VOTERS - NUM_SPOILED
         )
 
-    # CASE 2: 1 seat election with winner determined in first round
+    # CASE 2: 1 seat election with winner determined in first round  w/ disqualification
     def test_one_seat_three_candidates_winner_with_and_without_dq(self):
         self._create_officer(self.election_session)
         officer = Election.objects.filter(category="officer")[0]

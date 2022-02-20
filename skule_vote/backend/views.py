@@ -82,8 +82,9 @@ def _create_verified_voter(query_dict, verify_hash=True):
             + pid
             + settings.UOFT_SECRET_KEY
         )
+        encoded_check_string = check_string.encode(encoding="utf-8")
         h = hashlib.md5()
-        h.update(check_string)
+        h.update(encoded_check_string)
         check_hash = h.hexdigest()
 
         try:
@@ -98,7 +99,7 @@ def _create_verified_voter(query_dict, verify_hash=True):
     eligible = (
         student == "True"
         and registered == "True"
-        and primaryorg == "APSE"
+        and primaryorg == "APSC"
         and undergrad == "True"
     )
     if not eligible:
@@ -109,7 +110,7 @@ def _create_verified_voter(query_dict, verify_hash=True):
         voter = Voter.objects.get(student_number_hash=pid)
         voter.pey = assocorg == "AEPEY"  # either AEPEY or null
         voter.study_year = 3 if yofstudy is None or yofstudy == "" else int(yofstudy)
-        voter.engineering_student = primaryorg == "APSE"
+        voter.engineering_student = primaryorg == "APSC"
 
         # The university will send us the POSt code
         # This substring determines the engineering discipline and corresponds to DISCIPLINE_CHOICES

@@ -453,7 +453,7 @@ class SetupMixin:
     ):
         # student number hash
         chars = string.ascii_letters + string.digits
-        pid = "".join(random.choice(chars) for i in range(16))
+        pid = "".join(random.choice(chars) for i in range(64))
 
         if pey:
             assocorg = "AEPEY"

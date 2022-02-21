@@ -38,8 +38,7 @@ class IncompleteVoterInfoError(Exception):
 
 
 def _now():
-    # return datetime.now().astimezone(settings.TZ_INFO)
-    return django.utils.timezone.localtime(timezone=settings.TZ_INFO)
+    return datetime.now().astimezone(settings.TZ_INFO)
 
 
 def _create_verified_voter(query_dict, verify_hash=True):

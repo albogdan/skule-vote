@@ -51,6 +51,9 @@ server {
         location /admin {
                 try_files $uri @proxy_api;
         }
+        location /vote {
+                try_files $uri @proxy_api;
+        }
 
         location @proxy_api {
                 proxy_set_header X-Forwarded-Proto https;  # CHANGE BACK TO https IN FUTURE

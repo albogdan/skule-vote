@@ -161,7 +161,7 @@ class Candidate(models.Model):
 class Voter(models.Model):
     STATUS_CHOICES = [("full_time", "Full Time"), ("part_time", "Part Time")]
 
-    student_number_hash = models.CharField(max_length=16, null=False)
+    student_number_hash = models.CharField(max_length=64, null=False)
     discipline = models.CharField(max_length=45, choices=DISCIPLINE_CHOICES, null=False)
 
     engineering_student = models.BooleanField(null=False)

@@ -21,14 +21,13 @@ describe("<Header />", () => {
     expect(getByTestId("darkLightModeIcon")).toBeInTheDocument();
     expect(getByText("Vote")).toBeInTheDocument();
     expect(queryByText("Check eligibility")).not.toBeInTheDocument();
-    expect(getByText("Logout")).toBeInTheDocument();
     expect(getByTestId("skuleVoteLogo").closest("a")).toHaveAttribute(
       "href",
       "/"
     );
     expect(getByText("Vote").closest("a")).toHaveAttribute(
       "href",
-      "/elections"
+      "https://portal.engineering.utoronto.ca/weblogin/sites/apsc/vote.asp"
     );
   });
 
@@ -40,7 +39,6 @@ describe("<Header />", () => {
     expect(getByTestId("darkLightModeIcon")).toBeInTheDocument();
     expect(queryByText("Vote")).not.toBeInTheDocument();
     expect(getByText("Check eligibility")).toBeInTheDocument();
-    expect(getByText("Logout")).toBeInTheDocument();
     expect(getByTestId("skuleVoteLogo").closest("a")).toHaveAttribute(
       "href",
       "/"

@@ -12,7 +12,7 @@ describe("<LandingPage />", () => {
     expect(getByTestId("skuleLogo")).toBeInTheDocument();
     expect(getByText("Vote").closest("a")).toHaveAttribute(
       "href",
-      "/elections"
+      "https://portal.engineering.utoronto.ca/weblogin/sites/apsc/vote.asp"
     );
   });
 });

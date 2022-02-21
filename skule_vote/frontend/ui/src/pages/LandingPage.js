@@ -96,11 +96,11 @@ const LandingPage = () => {
             </UrlLink>{" "}
             websites.
           </Typography>
-          <Link to="/elections">
+          <a href="https://portal.engineering.utoronto.ca/weblogin/sites/apsc/vote.asp">
             <Button color="primary" size="large" variant="contained">
               Vote
             </Button>
-          </Link>
+          </a>
         </LandingDivText>
       </LandingDiv>
 

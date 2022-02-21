@@ -453,7 +453,7 @@ class SetupMixin:
     ):
         # student number hash
         chars = string.ascii_letters + string.digits
-        pid = "".join(random.choice(chars) for i in range(16))
+        pid = "".join(random.choice(chars) for i in range(64))
 
         if pey:
             assocorg = "AEPEY"
@@ -465,7 +465,7 @@ class SetupMixin:
         attendance = attendance
         postcd = DISCIPLINES_POST_DICT[discipline]
 
-        primaryorg = "APSE" if engineering else "null"
+        primaryorg = "APSC" if engineering else "null"
         isstudent = str(student)
         isundergrad = str(undergrad)
         isregistered = str(registered)

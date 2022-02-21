@@ -86,12 +86,11 @@ const Header = ({ isDark, toggleDark }) => {
             </Button>
           ) : (
             <nav>
-              <Link to="/elections">
+              <a href="https://portal.engineering.utoronto.ca/weblogin/sites/apsc/vote.asp">
                 <Button aria-label="Vote">Vote</Button>
-              </Link>
+              </a>
             </nav>
           )}
-          <Button aria-label="Logout">Logout</Button>
         </Nav>
       </FlexToolbar>
     </AppBar>

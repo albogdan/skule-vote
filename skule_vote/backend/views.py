@@ -82,8 +82,9 @@ def _create_verified_voter(query_dict, verify_hash=True):
             + pid
             + settings.UOFT_SECRET_KEY
         )
+        encoded_check_string = check_string.encode(encoding="utf-8")
         h = hashlib.md5()
-        h.update(check_string)
+        h.update(encoded_check_string)
         check_hash = h.hexdigest()
 
         try:
@@ -98,7 +99,7 @@ def _create_verified_voter(query_dict, verify_hash=True):
     eligible = (
         student == "True"
         and registered == "True"
-        and primaryorg == "APSE"
+        and primaryorg == "APSC"
         and undergrad == "True"
     )
     if not eligible:
@@ -109,8 +110,7 @@ def _create_verified_voter(query_dict, verify_hash=True):
         voter = Voter.objects.get(student_number_hash=pid)
         voter.pey = assocorg == "AEPEY"  # either AEPEY or null
         voter.study_year = 3 if yofstudy is None or yofstudy == "" else int(yofstudy)
-        voter.engineering_student = primaryorg == "APSE"
-
+        voter.engineering_student = primaryorg == "APSC"
         # The university will send us the POSt code
         # This substring determines the engineering discipline and corresponds to DISCIPLINE_CHOICES
         voter.discipline = postcd[2:5]
@@ -125,7 +125,7 @@ def _create_verified_voter(query_dict, verify_hash=True):
             student_number_hash=pid,
             pey=(assocorg == "AEPEY"),
             study_year=(3 if yofstudy is None or yofstudy == "" else int(yofstudy)),
-            engineering_student=(primaryorg == "APSE"),
+            engineering_student=(primaryorg == "APSC"),
             discipline=postcd[2:5],
             student_status="full_time" if attendance == "FT" else "part_time",
         )
@@ -149,8 +149,10 @@ class CookieView(View):
         except IncompleteVoterInfoError:
             return HttpResponse(status=400)
 
-        # TODO: redirect to frontend
-        res = HttpResponseRedirect(reverse_lazy("api:backend:election-list"))
+        if settings.DEBUG or not settings.CONNECT_TO_UOFT:
+            res = HttpResponseRedirect(reverse_lazy("api:backend:election-list"))
+        else:
+            res = HttpResponseRedirect("/elections")
         res.set_signed_cookie("student_number_hash", student_number_hash)
         return res
 
@@ -201,7 +203,10 @@ class ElectionListView(generics.ListAPIView):
         except (django.core.signing.BadSignature, KeyError):
             raise exceptions.NotAuthenticated
 
-        voter = Voter.objects.get(student_number_hash=student_number_hash)
+        try:
+            voter = Voter.objects.get(student_number_hash=student_number_hash)
+        except Voter.DoesNotExist:
+            raise exceptions.NotAuthenticated
 
         now = _now()
         election_session = ElectionSession.objects.filter(
@@ -268,8 +273,9 @@ class VoterEligibleView(generics.GenericAPIView):
     def get(self, request, *args, **kwargs):
         try:
             student_number_hash = self.request.get_signed_cookie("student_number_hash")
+            voter = Voter.objects.get(student_number_hash=student_number_hash)
             return JsonResponse({"voter_eligible": True})
-        except (django.core.signing.BadSignature, KeyError):
+        except (django.core.signing.BadSignature, KeyError, Voter.DoesNotExist):
             return JsonResponse({"voter_eligible": False})
 
 

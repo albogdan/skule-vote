@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -96,11 +95,11 @@ const LandingPage = () => {
             </UrlLink>{" "}
             websites.
           </Typography>
-          <Link to="/elections">
+          <a href="https://portal.engineering.utoronto.ca/weblogin/sites/apsc/vote.asp">
             <Button color="primary" size="large" variant="contained">
               Vote
             </Button>
-          </Link>
+          </a>
         </LandingDivText>
       </LandingDiv>
 

@@ -112,7 +112,6 @@ def _create_verified_voter(query_dict, verify_hash=True):
         voter.pey = assocorg == "AEPEY"  # either AEPEY or null
         voter.study_year = 3 if yofstudy is None or yofstudy == "" else int(yofstudy)
         voter.engineering_student = primaryorg == "APSC"
-        print(voter.engineering_student)
         # The university will send us the POSt code
         # This substring determines the engineering discipline and corresponds to DISCIPLINE_CHOICES
         voter.discipline = postcd[2:5]
@@ -200,12 +199,11 @@ class ElectionListView(generics.ListAPIView):
         return self.list(request, *args, **kwargs)
 
     def get_queryset(self):
-        print("HI")
         try:
             student_number_hash = self.request.get_signed_cookie("student_number_hash")
         except (django.core.signing.BadSignature, KeyError):
             raise exceptions.NotAuthenticated
-        print("After check")
+
         try:
             voter = Voter.objects.get(student_number_hash=student_number_hash)
         except Voter.DoesNotExist:
@@ -215,41 +213,32 @@ class ElectionListView(generics.ListAPIView):
         election_session = ElectionSession.objects.filter(
             Q(start_time__lt=now) & Q(end_time__gt=now)
         )
-        print(ElectionSession.objects.all())
-        print(ElectionSession.objects.filter(Q(start_time__lt=now)))
-        print(ElectionSession.objects.filter(Q(end_time__gt=now)))
-        print(
-            now,
-            ElectionSession.objects.all()[0].start_time,
-            now > ElectionSession.objects.all()[0].start_time,
-        )
-        print(election_session)
         if not election_session.exists():
             return election_session
-        print("Got election session")
+
         # Return only Elections in an active ElectionSession
         q = Election.objects.filter(Q(election_session=election_session[0]))
 
         # A voter isn't eligible to vote in an election where they have already voted
         q = q.exclude(ballots__voter=voter)
-        print(1, len(q))
+
         # Filter based on student fulltime/parttime status
         q = q.filter(
             Q(eligibilities__status_eligible=voter.student_status)
             | Q(eligibilities__status_eligible="full_and_part_time")
         )
-        print(2, len(q))
+
         # For pey students we don't check year and vice versa
         if voter.pey:
             q = q.filter(eligibilities__pey_eligible=True)
         else:
             kwargs = {f"eligibilities__year_{voter.study_year}_eligible": True}
             q = q.filter(**kwargs)
-        print(3, len(q))
+
         # Finally filter based on discipline
         kwargs = {f"eligibilities__{voter.discipline.lower()}_eligible": True}
         q = q.filter(**kwargs)
-        print(4, len(q))
+
         return q
 
 

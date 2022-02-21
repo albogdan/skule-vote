@@ -465,7 +465,7 @@ class SetupMixin:
         attendance = attendance
         postcd = DISCIPLINES_POST_DICT[discipline]
 
-        primaryorg = "APSE" if engineering else "null"
+        primaryorg = "APSC" if engineering else "null"
         isstudent = str(student)
         isundergrad = str(undergrad)
         isregistered = str(registered)

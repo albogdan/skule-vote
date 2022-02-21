@@ -41,6 +41,7 @@ def _now():
     # return datetime.now().astimezone(settings.TZ_INFO)
     return django.utils.timezone.localtime(timezone=settings.TZ_INFO)
 
+
 def _create_verified_voter(query_dict, verify_hash=True):
     """
     This method decodes the voter information query string in the format returned by UofT. It then determines if the
@@ -217,7 +218,11 @@ class ElectionListView(generics.ListAPIView):
         print(ElectionSession.objects.all())
         print(ElectionSession.objects.filter(Q(start_time__lt=now)))
         print(ElectionSession.objects.filter(Q(end_time__gt=now)))
-        print(now, ElectionSession.objects.all()[0].start_time, now > ElectionSession.objects.all()[0].start_time)
+        print(
+            now,
+            ElectionSession.objects.all()[0].start_time,
+            now > ElectionSession.objects.all()[0].start_time,
+        )
         print(election_session)
         if not election_session.exists():
             return election_session
@@ -233,18 +238,18 @@ class ElectionListView(generics.ListAPIView):
             Q(eligibilities__status_eligible=voter.student_status)
             | Q(eligibilities__status_eligible="full_and_part_time")
         )
-        print(2,len(q))
+        print(2, len(q))
         # For pey students we don't check year and vice versa
         if voter.pey:
             q = q.filter(eligibilities__pey_eligible=True)
         else:
             kwargs = {f"eligibilities__year_{voter.study_year}_eligible": True}
             q = q.filter(**kwargs)
-        print(3,len(q))
+        print(3, len(q))
         # Finally filter based on discipline
         kwargs = {f"eligibilities__{voter.discipline.lower()}_eligible": True}
         q = q.filter(**kwargs)
-        print(4,len(q))
+        print(4, len(q))
         return q
 
 

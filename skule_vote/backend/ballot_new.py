@@ -286,7 +286,10 @@ def backwardsEliminationProcess(
             elif maxVotes == numVotes:
                 winnerList.append(i)
 
-    if len(eliminationList) == 1:
+    if isElimination and len(eliminationList) == 0:
+        # There are not enough candidates to fill the total number of seats
+        return
+    elif len(eliminationList) == 1:
         candidateList[eliminationList[0]] = "Eliminated"
         return
     elif len(winnerList) == 1:

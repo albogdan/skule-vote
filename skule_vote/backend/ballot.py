@@ -333,7 +333,10 @@ def backwardsEliminationProcess(
             elif maxVotes == roundHistory[currentRound][candidateList[i]]:
                 winnerList.append(i)
 
-    if len(eliminationList) == 1:
+    if eliminationPath and len(eliminationList) == 0:
+        # There are not enough candidates to fill the total number of seats
+        return
+    elif len(eliminationList) == 1:
         candidateList[eliminationList[0]] = "Eliminated"
         return
     elif len(winnerList) == 1:

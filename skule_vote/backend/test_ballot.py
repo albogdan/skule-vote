@@ -1946,7 +1946,7 @@ class BallotTestCase(SetupMixin, TestCase):
 
     # CASE 3: Multi-seat election with 4 candidates and 3 seats, 1 candidate and ron win
     def test_three_seats_four_candidates_two_winners_ron(self):
-        """Ron wins second round, therefore third round does not occue"""
+        """Ron wins second round, therefore third round does not occur"""
         self._create_officer(self.election_session, 3)
         officer = Election.objects.filter(category="officer")[0]
 
@@ -1986,4 +1986,48 @@ class BallotTestCase(SetupMixin, TestCase):
         self.assertEqual(len(results["rounds"]), 2)
         self.assertEqual(results["quota"], 2)
         self.assertEqual(results["spoiledBallots"], 1)
+        self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
+
+    # CASE 3: Multi-seat election with 3 candidates and 3 seats, 2 candidates win (not ron)
+    def test_three_seats_three_candidates_two_winners_no_ron(self):
+        """Ron does not pass the quota to win the third round"""
+        self._create_officer(self.election_session, 3)
+        officer = Election.objects.filter(category="officer")[0]
+
+        choices = self._create_candidates(officer, 2)
+        ron, candidate1, candidate2 = (
+            choices[0],
+            choices[1],
+            choices[2],
+        )
+
+        NUM_VOTERS = 5
+        NUM_SPOILED = 0
+        ballots, voters = self._create_ballots(
+            [
+                [candidate1, candidate2, ron],
+                [candidate1, candidate2, ron],
+                [candidate1, candidate2, ron],
+                [candidate2, candidate1],
+                [candidate2, candidate1],
+            ],
+            officer,
+            NUM_VOTERS,
+            NUM_SPOILED,
+        )
+
+        results = self._create_results(ballots, choices, officer)
+        self.assertEqual(results["winners"], [candidate1.name, candidate2.name])
+        self.assertEqual(results["rounds"][0][candidate1.name], 3)
+        self.assertEqual(results["rounds"][0][candidate2.name], 2)
+        self.assertEqual(results["rounds"][0][ron.name], 0)
+        self.assertEqual(results["rounds"][1][candidate1.name], 0)
+        self.assertEqual(results["rounds"][1][candidate2.name], 3)
+        self.assertEqual(results["rounds"][1][ron.name], 0)
+        self.assertEqual(results["rounds"][2][candidate1.name], 0)
+        self.assertEqual(results["rounds"][2][candidate2.name], 0)
+        self.assertEqual(results["rounds"][2][ron.name], 1 / 3)
+        self.assertEqual(len(results["rounds"]), 3)
+        self.assertEqual(results["quota"], 2)
+        self.assertEqual(results["spoiledBallots"], 0)
         self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)

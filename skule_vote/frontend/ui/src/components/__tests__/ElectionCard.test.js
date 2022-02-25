@@ -1,6 +1,7 @@
 import React from "react";
 import { render } from "@testing-library/react";
 import ElectionCard, { NoElectionsCard } from "components/ElectionCard";
+import { withThemeProvider } from "assets/testing";
 
 describe("<ElectionCard />", () => {
   it("renders ElectionCard with given position and >1 number of seats available", () => {
@@ -10,12 +11,14 @@ describe("<ElectionCard />", () => {
     const category = "officer";
 
     const { getByText } = render(
-      <ElectionCard
-        title={title}
-        seatsAvailable={seatsAvailable}
-        numCandidates={numCandidates}
-        category={category}
-      />
+      withThemeProvider(
+        <ElectionCard
+          title={title}
+          seatsAvailable={seatsAvailable}
+          numCandidates={numCandidates}
+          category={category}
+        />
+      )
     );
 
     expect(getByText(title)).toBeInTheDocument();
@@ -35,12 +38,14 @@ describe("<ElectionCard />", () => {
     const category = "officer";
 
     const { getByText } = render(
-      <ElectionCard
-        title={title}
-        seatsAvailable={seatsAvailable}
-        numCandidates={numCandidates}
-        category={category}
-      />
+      withThemeProvider(
+        <ElectionCard
+          title={title}
+          seatsAvailable={seatsAvailable}
+          numCandidates={numCandidates}
+          category={category}
+        />
+      )
     );
     expect(getByText(title)).toBeInTheDocument();
     expect(
@@ -55,12 +60,14 @@ describe("<ElectionCard />", () => {
     const category = "referenda";
 
     const { getByText, queryByText } = render(
-      <ElectionCard
-        title={title}
-        seatsAvailable={seatsAvailable}
-        numCandidates={numCandidates}
-        category={category}
-      />
+      withThemeProvider(
+        <ElectionCard
+          title={title}
+          seatsAvailable={seatsAvailable}
+          numCandidates={numCandidates}
+          category={category}
+        />
+      )
     );
     expect(getByText(title)).toBeInTheDocument();
     expect(queryByText(/available/i)).not.toBeInTheDocument();

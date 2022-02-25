@@ -7,7 +7,7 @@ import {
   useGetMessages,
 } from "hooks/ElectionHooks";
 import { readableDate } from "pages/ElectionPage";
-import { withSnackbarProvider } from "assets/testing";
+import { withSnackbarProvider, withThemeProvider } from "assets/testing";
 import { electionSession, eligibleElections } from "assets/mocks";
 
 jest.mock("hooks/ElectionHooks");
@@ -38,7 +38,7 @@ describe("<ElectionPage />", () => {
       .mockImplementation(() => Date.parse("2021-06-13T00:00:00-04:00")); // June 13, 2021
 
     const { getByText, getAllByText } = render(
-      withSnackbarProvider(<ElectionPage />)
+      withThemeProvider(withSnackbarProvider(<ElectionPage />))
     );
 
     expect(getByText("Elections")).toBeInTheDocument();
@@ -61,7 +61,7 @@ describe("<ElectionPage />", () => {
     });
 
     const { getByText, queryByText, getAllByText } = render(
-      withSnackbarProvider(<ElectionPage />)
+      withThemeProvider(withSnackbarProvider(<ElectionPage />))
     );
 
     expect(getByText("Elections")).toBeInTheDocument();
@@ -84,7 +84,9 @@ describe("<ElectionPage />", () => {
       .spyOn(Date, "now")
       .mockImplementation(() => Date.parse("2021-06-13T00:00:00-04:00")); // June 13, 2021
 
-    const { getByText } = render(withSnackbarProvider(<ElectionPage />));
+    const { getByText } = render(
+      withThemeProvider(withSnackbarProvider(<ElectionPage />))
+    );
 
     await waitFor(() => {
       expect(
@@ -98,7 +100,9 @@ describe("<ElectionPage />", () => {
       .spyOn(Date, "now")
       .mockImplementation(() => Date.parse("2021-06-10T00:00:00-04:00")); // June 10, 2021
 
-    const { getByText } = render(withSnackbarProvider(<ElectionPage />));
+    const { getByText } = render(
+      withThemeProvider(withSnackbarProvider(<ElectionPage />))
+    );
     await waitFor(() => {
       expect(
         getByText(`There's an upcoming election starting on ${startTimeStr}.`)

@@ -19,10 +19,10 @@ const BaseCard = styled(Paper)({
   },
 });
 
-const ElectionButton = styled(Button)({
+const ElectionButton = styled(Button)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
-  backgroundColor: "white",
+  backgroundColor: theme.palette.background.paper,
   color: "inherit",
   textTransform: "none",
   maxWidth: 400,
@@ -33,11 +33,11 @@ const ElectionButton = styled(Button)({
   },
   ":hover": {
     opacity: 0.9,
-    backgroundColor: "white",
+    backgroundColor: theme.palette.background.paper,
     boxShadow:
       "0px 2px 4px rgba(0, 0, 0, 0.14), 0px 3px 4px rgba(0, 0, 0, 0.12)",
   },
-});
+}));
 
 const ElectionCard = ({
   category,

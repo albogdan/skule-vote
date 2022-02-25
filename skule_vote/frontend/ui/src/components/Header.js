@@ -26,11 +26,6 @@ const Nav = styled.div`
   }
 `;
 
-const FlexToolbar = styled(Toolbar)`
-  display: flex;
-  justify-content: space-between;
-`;
-
 const LogoWhite = styled(SkuleVoteLogo)`
   height: 25px;
   width: auto;
@@ -71,7 +66,7 @@ const Header = ({ isDark, toggleDark }) => {
       position="sticky"
       enableColorOnDark
     >
-      <FlexToolbar>
+      <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
         <Link to="/">
           <LogoWhite data-testid="skuleVoteLogo" />
         </Link>
@@ -92,7 +87,7 @@ const Header = ({ isDark, toggleDark }) => {
             </nav>
           )}
         </Nav>
-      </FlexToolbar>
+      </Toolbar>
     </AppBar>
   );
 };

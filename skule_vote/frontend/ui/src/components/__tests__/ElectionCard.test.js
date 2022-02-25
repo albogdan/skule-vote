@@ -1,39 +1,77 @@
 import React from "react";
 import { render } from "@testing-library/react";
 import ElectionCard, { NoElectionsCard } from "components/ElectionCard";
+import { withThemeProvider } from "assets/testing";
 
 describe("<ElectionCard />", () => {
-  it("renders ElectionCard with given position and >1 number of candidates", () => {
+  it("renders ElectionCard with given position and >1 number of seats available", () => {
     const title = "VP Student Life";
-    const numCandidates = 3;
+    const seatsAvailable = 3;
+    const numCandidates = 4;
+    const category = "officer";
 
     const { getByText } = render(
-      <ElectionCard title={title} numCandidates={numCandidates} />
+      withThemeProvider(
+        <ElectionCard
+          title={title}
+          seatsAvailable={seatsAvailable}
+          numCandidates={numCandidates}
+          category={category}
+        />
+      )
     );
+
     expect(getByText(title)).toBeInTheDocument();
-    expect(getByText(`${numCandidates} Candidates`)).toBeInTheDocument();
+    expect(
+      getByText(
+        `${seatsAvailable} positions to be filled | ${
+          numCandidates - 1
+        } candidates`
+      )
+    ).toBeInTheDocument();
   });
 
-  it("renders ElectionCard with given position and 1 candidate", () => {
+  it("renders ElectionCard with given position and 1 seat available", () => {
     const title = "VP Communications";
-    const numCandidates = 1;
+    const seatsAvailable = 1;
+    const numCandidates = 2; // 2 because the other candidate is ron
+    const category = "officer";
 
     const { getByText } = render(
-      <ElectionCard title={title} numCandidates={numCandidates} />
+      withThemeProvider(
+        <ElectionCard
+          title={title}
+          seatsAvailable={seatsAvailable}
+          numCandidates={numCandidates}
+          category={category}
+        />
+      )
     );
     expect(getByText(title)).toBeInTheDocument();
-    expect(getByText(`${numCandidates} Candidate`)).toBeInTheDocument();
+    expect(
+      getByText("1 position to be filled | 1 candidate")
+    ).toBeInTheDocument();
   });
 
   it("renders ElectionCard with given referenda", () => {
     const title = "Referenda 1";
-    const numCandidates = 0;
+    const seatsAvailable = 1;
+    const numCandidates = 2;
+    const category = "referenda";
 
     const { getByText, queryByText } = render(
-      <ElectionCard title={title} numCandidates={numCandidates} />
+      withThemeProvider(
+        <ElectionCard
+          title={title}
+          seatsAvailable={seatsAvailable}
+          numCandidates={numCandidates}
+          category={category}
+        />
+      )
     );
     expect(getByText(title)).toBeInTheDocument();
-    expect(queryByText(/Candidate/i)).not.toBeInTheDocument();
+    expect(queryByText(/available/i)).not.toBeInTheDocument();
+    expect(queryByText(/candidate/i)).not.toBeInTheDocument();
   });
 });
 

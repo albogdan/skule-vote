@@ -31,7 +31,7 @@ const AppWrapper = styled.div`
   }
 
   @font-face {
-    font-family: "Gill Sans Light";
+    font-family: "Gill Sans";
     src: url(${GillSansLight}) format("opentype");
     font-weight: 300;
     font-style: normal;

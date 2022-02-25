@@ -43,7 +43,7 @@ const CardDiv = styled.div`
 
   max-width: 400px;
   width: 100%;
-  > div:not(:last-child) {
+  > button:not(:last-child) {
     margin-bottom: 16px;
   }
 `;
@@ -203,11 +203,13 @@ const ElectionPage = () => {
               <ElectionCard
                 key={i}
                 title={election.election_name}
-                numCandidates={election.seats_available}
+                seatsAvailable={election.seats_available}
                 openModal={() => {
                   setOpen(true);
                   setBallotElectionId(election.id);
                 }}
+                category={election.category}
+                numCandidates={election.candidates.length}
               />
             ))
           )}

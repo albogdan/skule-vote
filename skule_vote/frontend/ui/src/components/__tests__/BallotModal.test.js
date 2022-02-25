@@ -10,6 +10,10 @@ import { referendum, president, vp, engsciPres } from "assets/mocks";
 
 jest.mock("hooks/ElectionHooks");
 
+// You literally cannot see this character otherwise, it's not equivalent to ""
+const zeroWidthSpace = document.createElement("div");
+zeroWidthSpace.innerHTML = "&#8203;";
+
 describe("<BallotModal />", () => {
   it("renders BallotModal for a referendum", () => {
     const {
@@ -39,14 +43,17 @@ describe("<BallotModal />", () => {
     const selector = getByRole("button", {
       name: /Do you support this referendum?/i,
     });
-    expect(selector.querySelector("span").innerHTML).toEqual("​");
+    expect(selector.querySelector("span").innerHTML).toEqual(
+      zeroWidthSpace.innerHTML
+    );
     expect(
       queryByLabelText(/Do you support this candidate?/i)
     ).not.toBeInTheDocument();
     expect(queryByLabelText(/Rank/i)).not.toBeInTheDocument();
     expect(queryByText("Yes")).not.toBeInTheDocument();
     expect(queryByText("No")).not.toBeInTheDocument();
-    expect(getByText("Selected Ranking")).toBeInTheDocument();
+    expect(getByText("Selected Choice")).toBeInTheDocument();
+    expect(queryByText("Selected Ranking")).not.toBeInTheDocument();
     expect(getByText(/Please confirm that your/i)).toBeInTheDocument();
     expect(getByText(/No choice selected/i)).toBeInTheDocument();
     expect(getByText(/Cancel/)).toBeInTheDocument();
@@ -75,7 +82,9 @@ describe("<BallotModal />", () => {
     const selector = getByRole("button", {
       name: /Do you support this candidate?/i,
     });
-    expect(selector.querySelector("span").innerHTML).toEqual("​");
+    expect(selector.querySelector("span").innerHTML).toEqual(
+      zeroWidthSpace.innerHTML
+    );
     expect(
       queryByLabelText(/Do you support this referendum?/i)
     ).not.toBeInTheDocument();
@@ -103,8 +112,11 @@ describe("<BallotModal />", () => {
     }
     const selectors = getAllByRole("button", { name: /Rank/i });
     for (let s of selectors) {
-      expect(s.querySelector("span").innerHTML).toEqual("​");
+      expect(s.querySelector("span").innerHTML).toEqual(
+        zeroWidthSpace.innerHTML
+      );
     }
+    expect(getByText("Selected Ranking")).toBeInTheDocument();
     expect(
       queryByLabelText(/Do you support this candidate?/i)
     ).not.toBeInTheDocument();
@@ -511,12 +523,15 @@ describe("<EnhancedBallotModal />", () => {
     const selector = getByRole("button", {
       name: /Do you support this candidate?/i,
     });
-    expect(selector.querySelector("span").innerHTML).toEqual("​");
+    expect(selector.querySelector("span").innerHTML).toEqual(
+      zeroWidthSpace.innerHTML
+    );
     expect(queryByLabelText(/Rank/i)).not.toBeInTheDocument();
     expect(queryByText("Yes")).not.toBeInTheDocument();
     expect(queryByText("No")).not.toBeInTheDocument();
     expect(queryByText("Reopen Nominations")).not.toBeInTheDocument();
-    expect(getByText("Selected Ranking")).toBeInTheDocument();
+    expect(getByText("Selected Choice")).toBeInTheDocument();
+    expect(queryByText("Selected Ranking")).not.toBeInTheDocument();
     expect(getByText(/Please confirm that your/i)).toBeInTheDocument();
     expect(getByText(/No choice selected/i)).toBeInTheDocument();
     expect(getByText(/Cancel/)).toBeInTheDocument();

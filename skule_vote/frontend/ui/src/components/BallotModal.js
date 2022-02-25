@@ -189,12 +189,6 @@ export const BallotRulingAlert = ({ ruling, link, isDQ }) => {
   return <CustomMessage variant="warning" message={message} />;
 };
 
-// ruling  link
-//   F      F     check
-//   F      T     check
-//   T      F
-//   T      T
-
 // Candidate names and statements
 // isReferendum: boolean, candidates: Array<{}>,
 const Statements = ({ isReferendum, candidates }) => (
@@ -361,7 +355,9 @@ const SelectedRanking = ({ isReferendum, ranking, candidates, isDark }) => {
   const rankingLen = Object.keys(ranking).length;
   return (
     <>
-      <Typography variant="h2">Selected Ranking</Typography>
+      <Typography variant="h2">
+        {candidates.length === 2 ? "Selected Choice" : "Selected Ranking"}
+      </Typography>
       <Typography variant="body1">
         Please confirm that your choice(s) are correctly reflected here and cast
         your ballot.

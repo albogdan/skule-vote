@@ -91,7 +91,7 @@ export const eligibleElections = {
     seats_available: 0,
     id: 10,
     category: "referenda",
-    candidate: [
+    candidates: [
       {
         id: 0,
         name: "Referendum 1",

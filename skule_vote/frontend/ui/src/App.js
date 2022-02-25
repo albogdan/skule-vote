@@ -12,6 +12,7 @@ import Footer from "components/Footer";
 import Header from "components/Header";
 import { responsive } from "assets/breakpoints";
 import { useLocalStorage } from "hooks/GeneralHooks";
+import GillSansLight from "fonts/gill-sans-light.otf";
 
 const AppWrapper = styled.div`
   min-height: 100vh;
@@ -27,6 +28,13 @@ const AppWrapper = styled.div`
       props.$isDark
         ? props.palette.secondary.main
         : props.palette.primary.main};
+  }
+
+  @font-face {
+    font-family: "Gill Sans Light";
+    src: url(${GillSansLight}) format("opentype");
+    font-weight: 300;
+    font-style: normal;
   }
 `;
 

@@ -221,7 +221,7 @@ const BallotDropdowns = ({
       <Typography variant="body1">
         {candidates.length === 2
           ? "Please select your choice using the dropdown menu."
-          : "Please select as many choices as you want using the dropdown menus."}
+          : "Please select as many choices as you want using the dropdown menus. Please select as many choices as you want using the dropdown menus. You are encouraged to rank all of the above choices"}
       </Typography>
       <SelectorDiv>
         {candidates.map(

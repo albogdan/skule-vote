@@ -186,6 +186,11 @@ describe("<BallotModal />", () => {
     );
 
     expect(getByText(vp.election_name)).toBeInTheDocument();
+    expect(
+      getByText(
+        /Please select as many choices as you want using the dropdown menus/i
+      )
+    ).toBeInTheDocument();
     expect(queryByTestId("pleaseRankModalConfirm")).not.toBeInTheDocument();
 
     // Select Lisa, Quin, and RON
@@ -417,6 +422,9 @@ describe("<BallotModal />", () => {
     );
 
     expect(getByText(president.election_name)).toBeInTheDocument();
+    expect(
+      getByText(/Please select your choice using the dropdown menu/i)
+    ).toBeInTheDocument();
     const select1 = getByRole("button", {
       name: /Do you support this candidate?/i,
     });
@@ -468,6 +476,9 @@ describe("<BallotModal />", () => {
     );
 
     expect(getByText(referendum.election_name)).toBeInTheDocument();
+    expect(
+      getByText(/Please select your choice using the dropdown menu/i)
+    ).toBeInTheDocument();
     const select1 = getByRole("button", {
       name: /Do you support this referendum?/i,
     });

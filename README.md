@@ -13,6 +13,7 @@ The repository hosting the code for the [Skule Voting](https://vote.skule.ca) we
 - [Working with the Admin Site](#working-with-the-admin-site)
   - [Creating ElectionsSessions with CSV Files](#method-1-using-a-csv-file-recommended)
   - [Creating ElectionSessions Manually](#method-2-manually)
+
 ## Requirements
 
 - Python 3.8 or higher
@@ -20,6 +21,7 @@ The repository hosting the code for the [Skule Voting](https://vote.skule.ca) we
 - [Docker Compose](https://docs.docker.com/compose/install/)
 
 ## Getting Started
+
 ### Python Environment
 
 For local development, create a Python virtual environment.
@@ -72,7 +74,7 @@ In order to run the django and react development servers locally (or run tests),
 | DB_NAME                      |                                   | hackathon_site | Postgres database name.                                                                                                                                     |
 | **REACT_APP_DEV_SERVER_URL** | http://localhost:8000             |                | Path to the django development server, used by React. Update the port if you aren't using the default 8000.                                                 |
 | CONNECT_TO_UOFT              |                                   | 0              | If set, tries to obtain voter information by connecting to the UofT endpoint. Disabled by default to allow for testing, but must be enabled for production. |
-| UOFT_SECRET_KEY              |                                   | 0              | Used to verify the integrity of voter data sent by UofT. Only used when `CONNECT_TO_UOFT == 1` 
+| UOFT_SECRET_KEY              |                                   | 0              | Used to verify the integrity of voter data sent by UofT. Only used when `CONNECT_TO_UOFT == 1`                                                              |
 
 If you are using miniconda, you can add these to your environment such that each time you `conda activate skule_vote`, the variables will be sourced as well. To do this run (while the skule_vote environment is activated):
 
@@ -148,7 +150,7 @@ $ yarn test
 
 ### Styling the Frontend
 
-The UI app uses [Material UI](https://material-ui.com/) for styling and components. There is no usage of CSS or SCSS as we use a mixture of Material UI's [Palette](https://material-ui.com/customization/palette/) and the library [styled-components](https://styled-components.com/). Global colors, fonts, and dark mode configuration are set using Palette in `App.js` while general component styling is done with styled-components.
+The UI app uses [Material UI](https://material-ui.com/) for styling and components. There is no usage of CSS or SCSS as we use a mixture of Material UI's [Palette](https://material-ui.com/customization/palette/), Material UI's [styled()](https://mui.com/system/styled/#main-content) and the library [styled-components](https://styled-components.com/). Global colors, fonts, and dark mode configuration are set using Palette in `App.js` while general component styling is done with styled-components and styled(). We're trying to deprecate usage of styled-components. Please use styled() instead until we're able to fully remove usage of styled-components.
 
 To edit the globally-set colors, font-sizes, and font-families (which we don't recommend unless EngSoc has rebranded), simply edit the `createMuiTheme` object in `App.js`. The colors for `primary` and `secondary` are part of EngSoc's official colour scheme.
 
@@ -178,34 +180,36 @@ const Wrapper = styled.div`
 `;
 ```
 
-
 ## Working with the Admin Site
-The admin site can be found at `/admin` (for login credentials enquire with the previous CRO) and is used to set up `ElectionSessions`, `Elections`, `Candidates` for each `Election` and `Eligibilities` for each `Election`. These can be done either manually or automatically using a CSV file. Note that there are templates for how these files must appear in the `skule_vote/backend/static/backend/csv_templates` folder of this repo. 
 
-Additionally, if you go to the admin site and click on `Election Sessions` on the left-hand panel, you will get a page that shows you a list of all the `Election Sessions`. On top right this page you will see a button `Download CSV Templates` that will serve you a ZIP file of all of the CSV files in the `skule_vote/backend/static/backend/csv_templates` directory. 
+The admin site can be found at `/admin` (for login credentials enquire with the previous CRO) and is used to set up `ElectionSessions`, `Elections`, `Candidates` for each `Election` and `Eligibilities` for each `Election`. These can be done either manually or automatically using a CSV file. Note that there are templates for how these files must appear in the `skule_vote/backend/static/backend/csv_templates` folder of this repo.
+
+Additionally, if you go to the admin site and click on `Election Sessions` on the left-hand panel, you will get a page that shows you a list of all the `Election Sessions`. On top right this page you will see a button `Download CSV Templates` that will serve you a ZIP file of all of the CSV files in the `skule_vote/backend/static/backend/csv_templates` directory.
 
 **Developer Note**: If you wish to change the CSV templates in any way, make sure to regenerate the ZIP file and place it in the `skule_vote/backend/static/backend` directory.
 
-
 ### Setting up an Election Session
+
 #### Method 1: Using a CSV File (Recommended)
+
 To use this method, when you go to the `admin` site and add an `ElectionSession` you must add an `ElectionSession` with a `name`, `start_date` and `end_date`, and CSV files for each section of `election`, `candidate` and `eligibility`. These CSV files have certain constraints that must be obeyed. The constraints are as follows:
-   - The header (first row) of each CSV file must be the same as the ones in the `/csv_files` templates.
-   - Within a single CSV file all rows must be of equal length (have the same number of comma separated values).
-   - Election and Eligibility CSVs must have the same number of rows, since they are 1-to-1.
-   - The Election names in the Eligibilities and Candidates CSVs must match the ones in the Elections CSV.
-   - Within the Elections CSV:
-       * All of the `seats_available` must be integers and >=1.
-       * Election Categories must be one of `[Referenda, Officer, Board of Directors, Discipline Club, Class Representative, Other]`.
-   - Within the Eligibilities CSV:
-       * All of the eligible fields must be integers and either `1 (True)` or `0 (False)`.
-       * Eligibilities `status_eligible` fields must be one of `[Full Time, Part Time, Full and Part Time]`.
+
+- The header (first row) of each CSV file must be the same as the ones in the `/csv_files` templates.
+- Within a single CSV file all rows must be of equal length (have the same number of comma separated values).
+- Election and Eligibility CSVs must have the same number of rows, since they are 1-to-1.
+- The Election names in the Eligibilities and Candidates CSVs must match the ones in the Elections CSV.
+- Within the Elections CSV:
+  - All of the `seats_available` must be integers and >=1.
+  - Election Categories must be one of `[Referenda, Officer, Board of Directors, Discipline Club, Class Representative, Other]`.
+- Within the Eligibilities CSV:
+  - All of the eligible fields must be integers and either `1 (True)` or `0 (False)`.
+  - Eligibilities `status_eligible` fields must be one of `[Full Time, Part Time, Full and Part Time]`.
 
 **Note**: All the CSV files must be uploaded at once, or none at all. If this is not met then an error will be shown and nothing will happen.
 
-**Note**: if you upload CSVs successfully and realize you made a mistake, you can just re-upload the updated CSVs to the same `ElectionSession`. All of the previous `Elections`, `Candidates` and `Eligibilities` *connected to that `ElectionSession`* will be deleted and new ones will be created from the new CSV.
+**Note**: if you upload CSVs successfully and realize you made a mistake, you can just re-upload the updated CSVs to the same `ElectionSession`. All of the previous `Elections`, `Candidates` and `Eligibilities` _connected to that `ElectionSession`_ will be deleted and new ones will be created from the new CSV.
 
-**Note**: once an ElectionSession has started you *cannot* edit it to change its `name`, `start_date`, or upload any new CSV files. Any changes required for `Elections`, `Candidates` and `Eligibilities` must be made manually. You *can* change the `ElectionSession's` `end_date` once it has started, also manually.
+**Note**: once an ElectionSession has started you _cannot_ edit it to change its `name`, `start_date`, or upload any new CSV files. Any changes required for `Elections`, `Candidates` and `Eligibilities` must be made manually. You _can_ change the `ElectionSession's` `end_date` once it has started, also manually.
 
 #### Method 2: Manually
 

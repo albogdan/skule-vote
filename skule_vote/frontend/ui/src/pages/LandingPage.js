@@ -96,7 +96,7 @@ const LandingPage = () => {
             websites.
           </Typography>
           <a href="https://portal.engineering.utoronto.ca/weblogin/sites/apsc/vote.asp">
-            <Button color="primary" size="large" variant="contained">
+            <Button color="primary" size="large">
               Vote
             </Button>
           </a>

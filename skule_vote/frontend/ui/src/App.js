@@ -102,6 +102,7 @@ const App = () => {
           MuiButton: {
             defaultProps: {
               disableElevation: true,
+              variant: "contained",
             },
             styleOverrides: {
               root: {

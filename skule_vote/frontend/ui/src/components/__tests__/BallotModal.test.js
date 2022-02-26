@@ -3,9 +3,9 @@ import { render, waitFor, fireEvent } from "@testing-library/react";
 import EnhancedBallotModal, {
   BallotModal,
   ConfirmSpoilModal,
-  BallotRulingAlert,
 } from "components/BallotModal";
 import { useHandleSubmit } from "hooks/ElectionHooks";
+import { withThemeProvider } from "assets/testing";
 import { referendum, president, vp, engsciPres } from "assets/mocks";
 
 jest.mock("hooks/ElectionHooks");
@@ -23,13 +23,15 @@ describe("<BallotModal />", () => {
       queryByLabelText,
       getByRole,
     } = render(
-      <BallotModal
-        open={true}
-        isReferendum={true}
-        sortedCandidates={referendum.candidates}
-        electionName={referendum.election_name}
-        electionId={referendum.id}
-      />
+      withThemeProvider(
+        <BallotModal
+          open={true}
+          isReferendum={true}
+          sortedCandidates={referendum.candidates}
+          electionName={referendum.election_name}
+          electionId={referendum.id}
+        />
+      )
     );
 
     expect(getByText(referendum.election_name)).toBeInTheDocument();
@@ -63,13 +65,15 @@ describe("<BallotModal />", () => {
 
   it("renders BallotModal for an election with a single candidate", () => {
     const { getByText, queryByLabelText, getByLabelText, getByRole } = render(
-      <BallotModal
-        open={true}
-        isReferendum={false}
-        sortedCandidates={president.candidates}
-        electionName={president.election_name}
-        electionId={president.id}
-      />
+      withThemeProvider(
+        <BallotModal
+          open={true}
+          isReferendum={false}
+          sortedCandidates={president.candidates}
+          electionName={president.election_name}
+          electionId={president.id}
+        />
+      )
     );
 
     expect(getByText(president.election_name)).toBeInTheDocument();
@@ -94,13 +98,15 @@ describe("<BallotModal />", () => {
   it("renders BallotModal for an election with a multiple candidates", () => {
     const { getByText, queryByLabelText, getByLabelText, getAllByRole } =
       render(
-        <BallotModal
-          open={true}
-          isReferendum={false}
-          sortedCandidates={vp.candidates}
-          electionName={vp.election_name}
-          electionId={vp.id}
-        />
+        withThemeProvider(
+          <BallotModal
+            open={true}
+            isReferendum={false}
+            sortedCandidates={vp.candidates}
+            electionName={vp.election_name}
+            electionId={vp.id}
+          />
+        )
       );
 
     expect(getByText(vp.election_name)).toBeInTheDocument();
@@ -130,15 +136,17 @@ describe("<BallotModal />", () => {
     const handleSubmitSpy = jest.fn();
     const handleCloseSpy = jest.fn();
     const { getByText, findByText, queryByTestId, getByTestId } = render(
-      <BallotModal
-        open={true}
-        handleSubmit={handleSubmitSpy}
-        handleClose={handleCloseSpy}
-        isReferendum={false}
-        sortedCandidates={vp.candidates}
-        electionName={vp.election_name}
-        electionId={vp.id}
-      />
+      withThemeProvider(
+        <BallotModal
+          open={true}
+          handleSubmit={handleSubmitSpy}
+          handleClose={handleCloseSpy}
+          isReferendum={false}
+          sortedCandidates={vp.candidates}
+          electionName={vp.election_name}
+          electionId={vp.id}
+        />
+      )
     );
 
     expect(getByText(vp.election_name)).toBeInTheDocument();
@@ -160,22 +168,71 @@ describe("<BallotModal />", () => {
     });
   });
 
-  it("votes for candidates and submits", async () => {
+  it("votes for all candidates and submits", async () => {
     const handleSubmitSpy = jest.fn();
     const handleCloseSpy = jest.fn();
-    const { getByText, getByRole, findByText } = render(
-      <BallotModal
-        open={true}
-        handleSubmit={handleSubmitSpy}
-        handleClose={handleCloseSpy}
-        isReferendum={false}
-        sortedCandidates={vp.candidates}
-        electionName={vp.election_name}
-        electionId={vp.id}
-      />
+    const { getByText, getByRole, findByText, queryByTestId } = render(
+      withThemeProvider(
+        <BallotModal
+          open={true}
+          handleSubmit={handleSubmitSpy}
+          handleClose={handleCloseSpy}
+          isReferendum={false}
+          sortedCandidates={vp.candidates}
+          electionName={vp.election_name}
+          electionId={vp.id}
+        />
+      )
     );
 
     expect(getByText(vp.election_name)).toBeInTheDocument();
+    expect(queryByTestId("pleaseRankModalConfirm")).not.toBeInTheDocument();
+
+    // Select Lisa, Quin, and RON
+    const select1 = getByRole("button", { name: /Rank 1/i });
+    fireEvent.mouseDown(select1);
+    getByRole("option", { name: /Lisa Li/i }).click();
+    const select2 = getByRole("button", { name: /Rank 2/i });
+    fireEvent.mouseDown(select2);
+    getByRole("option", { name: /Quin Sykora/i }).click();
+    const select3 = getByRole("button", { name: /Rank 3/i });
+    fireEvent.mouseDown(select3);
+    getByRole("option", { name: /Reopen Nominations/i }).click();
+    await waitFor(() => {
+      expect(getByText("1. Lisa Li")).toBeInTheDocument();
+      expect(getByText("2. Quin Sykora")).toBeInTheDocument();
+      expect(getByText("3. Reopen Nominations")).toBeInTheDocument();
+    });
+
+    const buttonSubmit = await findByText(/Cast ballot/i);
+    fireEvent.click(buttonSubmit);
+
+    await waitFor(() => {
+      expect(handleSubmitSpy).toHaveBeenCalledWith(vp.id, { 0: 0, 1: 1, 2: 2 });
+      expect(handleCloseSpy).toHaveBeenCalled();
+    });
+  });
+
+  it("votes for some candidates, sees 'please rank all' modal, and submits", async () => {
+    const handleSubmitSpy = jest.fn();
+    const handleCloseSpy = jest.fn();
+    const { getByText, getByRole, findByText, getByTestId, queryByTestId } =
+      render(
+        withThemeProvider(
+          <BallotModal
+            open={true}
+            handleSubmit={handleSubmitSpy}
+            handleClose={handleCloseSpy}
+            isReferendum={false}
+            sortedCandidates={vp.candidates}
+            electionName={vp.election_name}
+            electionId={vp.id}
+          />
+        )
+      );
+
+    expect(getByText(vp.election_name)).toBeInTheDocument();
+    expect(queryByTestId("pleaseRankModalConfirm")).not.toBeInTheDocument();
 
     // Select Lisa and Quin
     const select1 = getByRole("button", { name: /Rank 1/i });
@@ -184,7 +241,6 @@ describe("<BallotModal />", () => {
     const select2 = getByRole("button", { name: /Rank 2/i });
     fireEvent.mouseDown(select2);
     getByRole("option", { name: /Quin Sykora/i }).click();
-
     await waitFor(() => {
       expect(getByText("1. Lisa Li")).toBeInTheDocument();
       expect(getByText("2. Quin Sykora")).toBeInTheDocument();
@@ -194,8 +250,70 @@ describe("<BallotModal />", () => {
     fireEvent.click(buttonSubmit);
 
     await waitFor(() => {
+      expect(handleSubmitSpy).not.toHaveBeenCalled();
+      expect(handleCloseSpy).not.toHaveBeenCalled();
+      expect(getByTestId("pleaseRankModalConfirm")).toBeInTheDocument();
+    });
+
+    const buttonPleaseRankModalConfirm = getByTestId("pleaseRankModalConfirm");
+    fireEvent.click(buttonPleaseRankModalConfirm);
+
+    await waitFor(() => {
       expect(handleSubmitSpy).toHaveBeenCalledWith(vp.id, { 0: 0, 1: 1 });
       expect(handleCloseSpy).toHaveBeenCalled();
+    });
+  });
+
+  it("votes for some candidates, sees 'please rank all' modal, and goes back", async () => {
+    const handleSubmitSpy = jest.fn();
+    const handleCloseSpy = jest.fn();
+    const { getByText, getByRole, findByText, getByTestId, queryByTestId } =
+      render(
+        withThemeProvider(
+          <BallotModal
+            open={true}
+            handleSubmit={handleSubmitSpy}
+            handleClose={handleCloseSpy}
+            isReferendum={false}
+            sortedCandidates={vp.candidates}
+            electionName={vp.election_name}
+            electionId={vp.id}
+          />
+        )
+      );
+
+    expect(getByText(vp.election_name)).toBeInTheDocument();
+    expect(queryByTestId("pleaseRankModalConfirm")).not.toBeInTheDocument();
+
+    // Select Lisa and Quin
+    const select1 = getByRole("button", { name: /Rank 1/i });
+    fireEvent.mouseDown(select1);
+    getByRole("option", { name: /Lisa Li/i }).click();
+    const select2 = getByRole("button", { name: /Rank 2/i });
+    fireEvent.mouseDown(select2);
+    getByRole("option", { name: /Quin Sykora/i }).click();
+    await waitFor(() => {
+      expect(getByText("1. Lisa Li")).toBeInTheDocument();
+      expect(getByText("2. Quin Sykora")).toBeInTheDocument();
+    });
+
+    const buttonSubmit = await findByText(/Cast ballot/i);
+    fireEvent.click(buttonSubmit);
+
+    await waitFor(() => {
+      expect(handleSubmitSpy).not.toHaveBeenCalled();
+      expect(handleCloseSpy).not.toHaveBeenCalled();
+      expect(getByTestId("pleaseRankModalConfirm")).toBeInTheDocument();
+    });
+
+    // const buttonPleaseRankModalConfirm = getByTestId("pleaseRankModalConfirm");
+    const takeMeBack = await findByText(/No, take me back/i);
+    fireEvent.click(takeMeBack);
+
+    await waitFor(() => {
+      expect(handleSubmitSpy).not.toHaveBeenCalled();
+      expect(handleCloseSpy).not.toHaveBeenCalled();
+      expect(queryByTestId("pleaseRankModalConfirm")).not.toBeInTheDocument();
     });
   });
 
@@ -203,15 +321,17 @@ describe("<BallotModal />", () => {
     const handleSubmitSpy = jest.fn();
     const handleCloseSpy = jest.fn();
     const { getByText, getAllByText, getByRole, findByText } = render(
-      <BallotModal
-        open={true}
-        handleSubmit={handleSubmitSpy}
-        handleClose={handleCloseSpy}
-        isReferendum={false}
-        sortedCandidates={vp.candidates}
-        electionName={vp.election_name}
-        electionId={vp.id}
-      />
+      withThemeProvider(
+        <BallotModal
+          open={true}
+          handleSubmit={handleSubmitSpy}
+          handleClose={handleCloseSpy}
+          isReferendum={false}
+          sortedCandidates={vp.candidates}
+          electionName={vp.election_name}
+          electionId={vp.id}
+        />
+      )
     );
 
     expect(getByText(vp.election_name)).toBeInTheDocument();
@@ -246,15 +366,17 @@ describe("<BallotModal />", () => {
     const handleSubmitSpy = jest.fn();
     const handleCloseSpy = jest.fn();
     const { getByText, getByRole, findByText } = render(
-      <BallotModal
-        open={true}
-        handleSubmit={handleSubmitSpy}
-        handleClose={handleCloseSpy}
-        isReferendum={false}
-        sortedCandidates={vp.candidates}
-        electionName={vp.election_name}
-        electionId={vp.id}
-      />
+      withThemeProvider(
+        <BallotModal
+          open={true}
+          handleSubmit={handleSubmitSpy}
+          handleClose={handleCloseSpy}
+          isReferendum={false}
+          sortedCandidates={vp.candidates}
+          electionName={vp.election_name}
+          electionId={vp.id}
+        />
+      )
     );
 
     expect(getByText(vp.election_name)).toBeInTheDocument();
@@ -281,15 +403,17 @@ describe("<BallotModal />", () => {
     const handleSubmitSpy = jest.fn();
     const handleCloseSpy = jest.fn();
     const { getByText, getByRole, findByText } = render(
-      <BallotModal
-        open={true}
-        handleSubmit={handleSubmitSpy}
-        handleClose={handleCloseSpy}
-        isReferendum={false}
-        sortedCandidates={president.candidates}
-        electionName={president.election_name}
-        electionId={president.id}
-      />
+      withThemeProvider(
+        <BallotModal
+          open={true}
+          handleSubmit={handleSubmitSpy}
+          handleClose={handleCloseSpy}
+          isReferendum={false}
+          sortedCandidates={president.candidates}
+          electionName={president.election_name}
+          electionId={president.id}
+        />
+      )
     );
 
     expect(getByText(president.election_name)).toBeInTheDocument();
@@ -330,15 +454,17 @@ describe("<BallotModal />", () => {
     const handleSubmitSpy = jest.fn();
     const handleCloseSpy = jest.fn();
     const { getByText, getByRole, findByText } = render(
-      <BallotModal
-        open={true}
-        handleSubmit={handleSubmitSpy}
-        handleClose={handleCloseSpy}
-        isReferendum={true}
-        sortedCandidates={referendum.candidates}
-        electionName={referendum.election_name}
-        electionId={referendum.id}
-      />
+      withThemeProvider(
+        <BallotModal
+          open={true}
+          handleSubmit={handleSubmitSpy}
+          handleClose={handleCloseSpy}
+          isReferendum={true}
+          sortedCandidates={referendum.candidates}
+          electionName={referendum.election_name}
+          electionId={referendum.id}
+        />
+      )
     );
 
     expect(getByText(referendum.election_name)).toBeInTheDocument();
@@ -386,13 +512,15 @@ describe("<BallotModal />", () => {
     });
 
     const { getByText } = render(
-      <BallotModal
-        open={true}
-        isReferendum={false}
-        sortedCandidates={vp.candidates}
-        electionName={vp.election_name}
-        electionId={vp.id}
-      />
+      withThemeProvider(
+        <BallotModal
+          open={true}
+          isReferendum={false}
+          sortedCandidates={vp.candidates}
+          electionName={vp.election_name}
+          electionId={vp.id}
+        />
+      )
     );
 
     expect(getByText(vp.election_name)).toBeInTheDocument();
@@ -416,13 +544,15 @@ describe("<BallotModal />", () => {
     });
 
     const { getByText, getAllByText } = render(
-      <BallotModal
-        open={true}
-        isReferendum={false}
-        sortedCandidates={vp.candidates}
-        electionName={vp.election_name}
-        electionId={vp.id}
-      />
+      withThemeProvider(
+        <BallotModal
+          open={true}
+          isReferendum={false}
+          sortedCandidates={vp.candidates}
+          electionName={vp.election_name}
+          electionId={vp.id}
+        />
+      )
     );
 
     expect(getByText(vp.election_name)).toBeInTheDocument();
@@ -433,58 +563,6 @@ describe("<BallotModal />", () => {
       "href",
       vp.candidates[4].rule_violation_link
     );
-  });
-});
-
-describe("<ConfirmSpoilModal />", () => {
-  it("renders ConfirmSpoilModal", () => {
-    const { getByText } = render(<ConfirmSpoilModal open={true} />);
-
-    expect(
-      getByText("Are you sure you want to spoil your ballot?")
-    ).toBeInTheDocument();
-    expect(getByText(/Cancel/)).toBeInTheDocument();
-    expect(getByText(/Spoil ballot/)).toBeInTheDocument();
-  });
-
-  it("confirms to spoil the ballot", async () => {
-    const spoilBallotSpy = jest.fn();
-    const onCloseSpy = jest.fn();
-    const { findByText } = render(
-      <ConfirmSpoilModal
-        open={true}
-        spoilBallot={spoilBallotSpy}
-        onClose={onCloseSpy}
-      />
-    );
-
-    const buttonSpoil = await findByText("Spoil ballot");
-    fireEvent.click(buttonSpoil);
-
-    await waitFor(() => {
-      expect(spoilBallotSpy).toHaveBeenCalled();
-      expect(onCloseSpy).not.toHaveBeenCalled();
-    });
-  });
-
-  it("cancels the modal", async () => {
-    const spoilBallotSpy = jest.fn();
-    const onCloseSpy = jest.fn();
-    const { findByText } = render(
-      <ConfirmSpoilModal
-        open={true}
-        spoilBallot={spoilBallotSpy}
-        onClose={onCloseSpy}
-      />
-    );
-
-    const buttonSpoil = await findByText("Cancel");
-    fireEvent.click(buttonSpoil);
-
-    await waitFor(() => {
-      expect(spoilBallotSpy).not.toHaveBeenCalled();
-      expect(onCloseSpy).toHaveBeenCalled();
-    });
   });
 });
 
@@ -510,7 +588,7 @@ describe("<EnhancedBallotModal />", () => {
       getByLabelText,
       queryByLabelText,
       getByRole,
-    } = render(<EnhancedBallotModal {...props} />);
+    } = render(withThemeProvider(<EnhancedBallotModal {...props} />));
 
     expect(getByText(engsciPres.election_name)).toBeInTheDocument();
     expect(getByText(engsciPres.candidates[0].statement)).toBeInTheDocument();
@@ -537,87 +615,5 @@ describe("<EnhancedBallotModal />", () => {
     expect(getByText(/Cancel/)).toBeInTheDocument();
     expect(getByText(/Spoil ballot/)).toBeInTheDocument();
     expect(getByText(/Cast ballot/).closest("button")).toBeDisabled();
-  });
-});
-
-describe("<BallotRulingAlert />", () => {
-  it("renders period because ruling does not end with one and link is included", () => {
-    const { getByTestId } = render(
-      <BallotRulingAlert ruling="This guy is bad   " link="www.link.com" />
-    );
-
-    expect(getByTestId("ballotRulingAlert").textContent).toEqual(
-      "This guy is bad. Please read the ruling here."
-    );
-  });
-
-  it("doesnt render period because link is not included", () => {
-    const { getByTestId } = render(
-      <BallotRulingAlert ruling="  This guy is bad" link="" />
-    );
-
-    expect(getByTestId("ballotRulingAlert").textContent).toEqual(
-      "This guy is bad"
-    );
-  });
-
-  it("doesnt render extra period because ruling ends with one when link is included", () => {
-    const { getByTestId } = render(
-      <BallotRulingAlert ruling="This guy is bad. " link="www.link.com" />
-    );
-
-    expect(getByTestId("ballotRulingAlert").textContent).toEqual(
-      "This guy is bad. Please read the ruling here."
-    );
-  });
-
-  it("doesnt render extra period because ruling ends with one when link isnt included", () => {
-    const { getByTestId } = render(
-      <BallotRulingAlert ruling="This guy is bad. " link="" />
-    );
-
-    expect(getByTestId("ballotRulingAlert").textContent).toEqual(
-      "This guy is bad."
-    );
-  });
-
-  it("renders disqualified default message because there's no ruling message", () => {
-    const { getByTestId } = render(
-      <BallotRulingAlert ruling="" link="www.link.com" isDQ />
-    );
-
-    expect(getByTestId("ballotRulingAlert").textContent).toEqual(
-      "This candidate has been disqualified. Please read the ruling here."
-    );
-  });
-
-  it("renders disqualified default message if props are empty strings", () => {
-    const { getByText } = render(<BallotRulingAlert ruling="" link="" isDQ />);
-
-    expect(
-      getByText(
-        "This candidate has been disqualified. Contact EngSoc for more information."
-      )
-    ).toBeInTheDocument();
-  });
-
-  it("renders rule violation default message because there's no ruling message", () => {
-    const { getByTestId } = render(
-      <BallotRulingAlert ruling="" link="www.link.com" />
-    );
-
-    expect(getByTestId("ballotRulingAlert").textContent).toEqual(
-      "This candidate violated a rule. Please read the ruling here."
-    );
-  });
-
-  it("renders rule violation default message if props are empty strings", () => {
-    const { getByText } = render(<BallotRulingAlert ruling="" link="" />);
-
-    expect(
-      getByText(
-        "This candidate violated a rule. Contact EngSoc for more information."
-      )
-    ).toBeInTheDocument();
   });
 });

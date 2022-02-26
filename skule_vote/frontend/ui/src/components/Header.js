@@ -55,6 +55,7 @@ const Header = ({ isDark, toggleDark }) => {
       aria-label={isDark ? "Light mode" : "Dark mode"}
       startIcon={<Brightness6Icon data-testid="darkLightModeIcon" />}
       onClick={() => toggleDark()}
+      variant="text"
     >
       {isDark ? "Light mode" : "Dark mode"}
     </Button>
@@ -76,13 +77,16 @@ const Header = ({ isDark, toggleDark }) => {
             <Button
               aria-label="Check eligibility"
               onClick={() => getEligibility()}
+              variant="text"
             >
               Check eligibility
             </Button>
           ) : (
             <nav>
               <a href="https://portal.engineering.utoronto.ca/weblogin/sites/apsc/vote.asp">
-                <Button aria-label="Vote">Vote</Button>
+                <Button aria-label="Vote" variant="text">
+                  Vote
+                </Button>
               </a>
             </nav>
           )}

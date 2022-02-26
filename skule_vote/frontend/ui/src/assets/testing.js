@@ -16,6 +16,17 @@ export const withSnackbarProvider = (component) => (
 );
 
 export const withThemeProvider = (component) => {
-  const theme = createTheme({});
+  let theme = createTheme({});
+
+  theme = {
+    ...theme,
+    palette: {
+      ...theme.palette,
+      purple: {
+        main: "#DCD1DD",
+        contrastText: "#424242",
+      },
+    },
+  };
   return <ThemeProvider theme={theme}>{component}</ThemeProvider>;
 };

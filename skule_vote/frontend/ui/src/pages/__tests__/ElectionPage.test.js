@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { render, waitFor } from "@testing-library/react";
 import ElectionPage from "pages/ElectionPage";
 import {
@@ -19,17 +19,13 @@ describe("<ElectionPage />", () => {
   beforeEach(() => {
     [, startTimeStr] = readableDate(electionSession.start_time);
     [, endTimeStr] = readableDate(electionSession.end_time);
-    const getElectionSession = jest.fn(() => electionSession);
-    const getEligibleElections = jest.fn(() => eligibleElections);
-    useGetElectionSession.mockImplementation(() => {
-      return getElectionSession;
-    });
-    useGetEligibleElections.mockImplementation(() => {
-      return getEligibleElections;
-    });
-    useGetMessages.mockImplementation(() => {
-      return jest.fn(() => []);
-    });
+    useGetEligibleElections.mockImplementation(() =>
+      useCallback(() => eligibleElections, [])
+    );
+    useGetElectionSession.mockImplementation(() =>
+      useCallback(() => electionSession, [])
+    );
+    useGetMessages.mockImplementation(() => useCallback(() => [], []));
   });
 
   it("renders election page with ballots during an election session", async () => {
@@ -55,9 +51,8 @@ describe("<ElectionPage />", () => {
     jest
       .spyOn(Date, "now")
       .mockImplementation(() => Date.parse("2021-06-10T00:00:00-04:00")); // June 10, 2021
-    const getEligibleElections = jest.fn(() => {});
     useGetEligibleElections.mockImplementation(() => {
-      return getEligibleElections;
+      return useCallback(() => {}, []);
     });
 
     const { getByText, queryByText, getAllByText } = render(

@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { get, post } from "api/api";
 import { useSnackbar } from "notistack";
 import { statusIsGood } from "hooks/GeneralHooks";
@@ -5,7 +6,7 @@ import { statusIsGood } from "hooks/GeneralHooks";
 export const useGetMessages = () => {
   const { enqueueSnackbar } = useSnackbar();
 
-  return async function getMessages() {
+  return useCallback(async () => {
     try {
       const response = await get("/api/messages/");
       if (statusIsGood(response.status)) {
@@ -23,13 +24,13 @@ export const useGetMessages = () => {
       );
     }
     return null;
-  };
+  }, [enqueueSnackbar]);
 };
 
 export const useGetElectionSession = () => {
   const { enqueueSnackbar } = useSnackbar();
 
-  return async function getElectionSession() {
+  return useCallback(async () => {
     try {
       const response = await get("/api/electionsession/");
       if (statusIsGood(response.status)) {
@@ -47,13 +48,13 @@ export const useGetElectionSession = () => {
       );
     }
     return null;
-  };
+  }, [enqueueSnackbar]);
 };
 
 export const useGetEligibleElections = () => {
   const { enqueueSnackbar } = useSnackbar();
 
-  return async function getEligibleElections() {
+  return useCallback(async () => {
     try {
       const response = await get("/api/elections/");
       if (statusIsGood(response.status)) {
@@ -76,7 +77,7 @@ export const useGetEligibleElections = () => {
       );
     }
     return null;
-  };
+  }, [enqueueSnackbar]);
 };
 
 export const useHandleSubmit = (setEligibleElections) => {

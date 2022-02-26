@@ -49,6 +49,7 @@ const LandingDivText = styled.div`
 `;
 
 const UrlLink = styled.a`
+  font-weight: 500;
   &:hover {
     text-decoration: underline;
   }

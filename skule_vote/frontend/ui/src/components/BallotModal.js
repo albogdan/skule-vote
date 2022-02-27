@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useRef } from "react";
 import styled from "styled-components";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
@@ -574,32 +574,30 @@ const EnhancedBallotModal = ({
   const { category, candidates, election_name, id } = ballotInfo;
   const isReferendum = category === "referenda";
 
-  const [candidatesList, setCandidatesList] = useState([]);
-
-  useEffect(() => {
-    // Seperate ron from non-ron candidates
-    const ron = candidates.filter(
-      (candidate) => candidate.name === REOPEN_NOMINATIONS
-    )[0];
-    // Randomly shuffle the list of non-ron candidates
-    let nonRon = shuffleArray(
+  let candidatesList = [];
+  // Seperate ron from non-ron candidates
+  const ron = candidates.filter(
+    (candidate) => candidate.name === REOPEN_NOMINATIONS
+  )[0];
+  // Randomly shuffle the list of non-ron candidates
+  let nonRon = useRef(
+    shuffleArray(
       candidates.filter((candidate) => candidate.name !== REOPEN_NOMINATIONS)
-    );
+    )
+  ).current;
 
-    // Append RON to the end
-    if (!isReferendum && candidates.length > 2) {
-      // candidatesList =
-      setCandidatesList(nonRon.concat(ron));
-    } else if (candidates.length === 2) {
-      // Replace ron with No
-      const noSelection = {
-        id: ron.id,
-        name: "No",
-        statement: null,
-      };
-      setCandidatesList(nonRon.concat(noSelection));
-    }
-  }, [candidates, isReferendum]);
+  // Append RON to the end
+  if (!isReferendum && candidates.length > 2) {
+    candidatesList = nonRon.concat(ron);
+  } else if (candidates.length === 2) {
+    // Replace ron with No
+    const noSelection = {
+      id: ron.id,
+      name: "No",
+      statement: null,
+    };
+    candidatesList = nonRon.concat(noSelection);
+  }
 
   return (
     <BallotModal

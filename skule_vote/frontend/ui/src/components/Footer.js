@@ -86,6 +86,7 @@ const SmallFooter = styled(FooterPaper)`
 `;
 
 const EmailLink = styled.a`
+  font-weight: 500;
   &:hover {
     text-decoration: underline;
   }

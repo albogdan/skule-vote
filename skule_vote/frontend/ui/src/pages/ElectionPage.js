@@ -129,8 +129,8 @@ const ElectionPage = () => {
 
   useEffect(() => {
     async function fetchElection() {
-      const getElecSession = await getElectionSession();
       const getEligibleElecs = await getEligibleElections();
+      const getElecSession = await getElectionSession();
       const getMsgs = await getMessages();
       if (getElecSession != null) {
         setElectionSession(getElecSession);

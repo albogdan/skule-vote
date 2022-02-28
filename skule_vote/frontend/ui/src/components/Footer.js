@@ -46,7 +46,7 @@ const Address = styled("div")({
   "> p": {
     marginBottom: 8,
   },
-  "> p:first-child": {
+  "> p:first-of-type": {
     fontWeight: 500,
   },
 });

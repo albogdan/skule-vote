@@ -13,7 +13,38 @@ jest.mock("hooks/GeneralHooks", () => ({
 }));
 
 describe("<Header />", () => {
-  it("renders Header on landing page", () => {
+  const OLD_ENV = process.env;
+
+  beforeEach(() => {
+    jest.resetModules(); // Clears the cache
+    process.env = { ...OLD_ENV }; // Make a copy
+  });
+
+  afterAll(() => {
+    process.env = OLD_ENV; // Restore old environment
+  });
+
+  it("renders Header on landing page on local", () => {
+    process.env.REACT_APP_DEV_SERVER_URL = "http://localhost:8000";
+    const { getByText, queryByText, getByTestId } = render(
+      withRouter(<Header />, "/")
+    );
+    expect(getByTestId("skuleVoteLogo")).toBeInTheDocument();
+    expect(getByTestId("darkLightModeIcon")).toBeInTheDocument();
+    expect(getByText("Vote")).toBeInTheDocument();
+    expect(queryByText("Check eligibility")).not.toBeInTheDocument();
+    expect(getByTestId("skuleVoteLogo").closest("a")).toHaveAttribute(
+      "href",
+      "/"
+    );
+    expect(getByText("Vote").closest("a")).toHaveAttribute(
+      "href",
+      "/elections"
+    );
+  });
+
+  it("renders Header on landing page on prod", () => {
+    process.env.REACT_APP_DEV_SERVER_URL = "vote.skule.ca";
     const { getByText, queryByText, getByTestId } = render(
       withRouter(<Header />, "/")
     );

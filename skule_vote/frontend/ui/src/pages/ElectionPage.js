@@ -1,7 +1,8 @@
 import React, { useEffect } from "react";
-import styled from "styled-components";
+import { styled } from "@mui/system";
 import Typography from "@mui/material/Typography";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
 import Button from "@mui/material/Button";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import Box from "@mui/material/Box";
@@ -12,7 +13,6 @@ import ElectionCard, { NoElectionsCard } from "components/ElectionCard";
 import EnhancedBallotModal from "components/BallotModal";
 import Messages from "components/Messages";
 import { Spacer } from "assets/layout";
-import { responsive } from "assets/breakpoints";
 import {
   useGetElectionSession,
   useGetEligibleElections,
@@ -20,45 +20,41 @@ import {
 } from "hooks/ElectionHooks";
 import { useHandleSubmit } from "hooks/ElectionHooks";
 
-const ElectionsWrapper = styled.div`
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  margin-top: 32px;
-  width: 100%;
-  @media ${responsive.smDown} {
-    flex-direction: column;
-    align-items: center;
-    max-width: 400px;
-    div {
-      width: 100%;
-    }
-  }
-`;
+const ElectionsWrapper = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "flex-start",
+  justifyContent: "center",
+  marginTop: 32,
+  width: "100%",
+  [theme.breakpoints.down("sm")]: {
+    flexDirection: "column",
+    alignItems: "center",
+    maxWidth: 400,
+  },
+}));
 
-const CardDiv = styled.div`
-  display: flex;
-  flex-direction: column;
+const CardDiv = styled("div")({
+  display: "flex",
+  flexDirection: "column",
+  maxWidth: 400,
+  width: "100%",
+  "> button:not(:last-child)": {
+    marginBottom: 16,
+  },
+});
 
-  max-width: 400px;
-  width: 100%;
-  > button:not(:last-child) {
-    margin-bottom: 16px;
-  }
-`;
-
-const FilterBtnDiv = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 32px;
-  max-width: 400px;
-  width: 100%;
-  p {
-    margin-left: 16px;
-    text-align: right;
-  }
-`;
+const FilterBtnDiv = styled("div")({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  marginBottom: 32,
+  maxWidth: 400,
+  width: "100%",
+  p: {
+    marginLeft: 16,
+    textAlign: "right",
+  },
+});
 
 export const listOfCategories = {
   all: "All",
@@ -88,7 +84,8 @@ export function readableDate(date) {
 }
 
 const ElectionPage = () => {
-  const isMobile = useMediaQuery(responsive.smDown);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [filterCategory, setFilterCategory] = React.useState("All");
@@ -180,7 +177,7 @@ const ElectionPage = () => {
             setAndCloseFilter={setAndCloseFilter}
           />
         </Box>
-        <Box sx={{ display: { xs: "block", sm: "none" } }}>
+        <Box sx={{ display: { xs: "block", sm: "none" }, width: "100%" }}>
           <FilterBtnDiv>
             <Button
               variant="outlined"

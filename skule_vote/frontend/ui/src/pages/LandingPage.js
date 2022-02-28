@@ -1,75 +1,74 @@
 import React from "react";
-import styled from "styled-components";
+import { styled } from "@mui/system";
 import { Link } from "react-router-dom";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import { ReactComponent as SkuleLogoBlue } from "images/SkuleLogoBlue.svg";
 import { UOFT_LOGIN } from "App";
-import { responsive } from "assets/breakpoints";
 
-const SkuleLogo = styled(SkuleLogoBlue)`
-  max-width: 400px;
-  width: 100%;
-  height: auto;
-  margin-right: 64px;
-  @media ${responsive.mdDown} {
-    margin-right: 0;
-    margin-bottom: 16px;
-    max-width: 300px;
-  }
-`;
+const SkuleLogo = styled(SkuleLogoBlue)(({ theme }) => ({
+  maxWidth: 400,
+  width: "100%",
+  height: "auto",
+  marginRight: 64,
+  [theme.breakpoints.down("md")]: {
+    marginRight: 0,
+    marginBottom: 16,
+    maxWidth: 300,
+  },
+}));
 
-const LandingDiv = styled.div`
-  display: flex;
-  max-width: 1000px;
-  margin: 100px 0;
-  @media ${responsive.mdDown} {
-    flex-direction: column;
-    align-items: center;
-    margin: 64px 0;
-  }
-`;
+const LandingDiv = styled("div")(({ theme }) => ({
+  display: "flex",
+  maxWidth: 1000,
+  margin: "100px 0",
+  [theme.breakpoints.down("md")]: {
+    flexDirection: "column",
+    alignItems: "center",
+    margin: "64px 0",
+  },
+}));
 
-const LandingDivText = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  > :first-child {
-    margin-bottom: 8px;
-  }
-  > :last-child {
-    margin-top: 32px;
-  }
-  @media ${responsive.mdDown} {
-    align-items: center;
-    text-align: center;
-    > :last-child {
-      margin-top: 16px;
-    }
-  }
-`;
+const LandingDivText = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-start",
+  "> h1": {
+    marginBottom: 8,
+  },
+  "> :last-child": {
+    marginTop: 32,
+  },
+  [theme.breakpoints.down("md")]: {
+    alignItems: "center",
+    textAlign: "center",
+    "> :last-child": {
+      marginTop: 16,
+    },
+  },
+}));
 
-const UrlLink = styled.a`
-  font-weight: 500;
-  &:hover {
-    text-decoration: underline;
-  }
-`;
+const UrlLink = styled("a")({
+  fontWeight: 500,
+  ":hover": {
+    textDecoration: "underline",
+  },
+});
 
-const ElectionDetailsPaper = styled(Paper)`
-  padding: 32px;
-  box-shadow: none !important;
-  margin-top: 16px;
-  @media ${responsive.smDown} {
-    padding: 16px;
-  }
-`;
+const ElectionDetailsPaper = styled(Paper)(({ theme }) => ({
+  padding: 32,
+  boxShadow: "none",
+  marginTop: 16,
+  [theme.breakpoints.down("sm")]: {
+    padding: 16,
+  },
+}));
 
-const ElectionDetails = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
+const ElectionDetails = styled("div")({
+  display: "flex",
+  flexDirection: "column",
+});
 
 const LandingPage = () => {
   const isLocal =

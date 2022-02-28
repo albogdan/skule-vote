@@ -5,29 +5,28 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
 import Modal from "@mui/material/Modal";
-import { responsive } from "assets/breakpoints";
 
-const TwoButtonDiv = styled("div")({
+const TwoButtonDiv = styled("div")(({ theme }) => ({
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
   width: "100%",
   "> button:last-child": {
     marginLeft: 4,
-    ["@media " + responsive.xsDown]: {
+    [theme.breakpoints.down("xs")]: {
       marginLeft: 0,
       marginTop: 16,
     },
   },
-  ["@media " + responsive.xsDown]: {
+  [theme.breakpoints.down("xs")]: {
     flexDirection: "column",
     button: {
       width: "100%",
     },
   },
-});
+}));
 
-export const ModalPaper = styled(Paper)({
+export const ModalPaper = styled(Paper)(({ theme }) => ({
   position: "absolute",
   padding: 32,
   margin: "50px auto",
@@ -38,14 +37,14 @@ export const ModalPaper = styled(Paper)({
   right: 0,
   overflowY: "auto",
   outline: "none",
-  ["@media " + responsive.smDown]: {
+  [theme.breakpoints.down("sm")]: {
     padding: 16,
     margin: "12px auto",
     maxHeight: "calc(100% - 24px)",
   },
   hr: {
     margin: "24px 0",
-    ["@media " + responsive.smDown]: {
+    [theme.breakpoints.down("sm")]: {
       margin: "16px 0",
     },
   },
@@ -54,11 +53,11 @@ export const ModalPaper = styled(Paper)({
   },
   h3: {
     margin: "16px 0 8px",
-    ["@media " + responsive.smDown]: {
+    [theme.breakpoints.down("sm")]: {
       marginTop: 16,
     },
   },
-});
+}));
 
 const SpoilBallotBtnFilled = styled(Button)(({ theme }) => ({
   color: "#fff",

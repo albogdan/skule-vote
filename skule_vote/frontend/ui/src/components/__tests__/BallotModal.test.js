@@ -1,9 +1,6 @@
 import React from "react";
 import { render, waitFor, fireEvent } from "@testing-library/react";
-import EnhancedBallotModal, {
-  BallotModal,
-  ConfirmSpoilModal,
-} from "components/BallotModal";
+import EnhancedBallotModal, { BallotModal } from "components/BallotModal";
 import { useHandleSubmit } from "hooks/ElectionHooks";
 import { withThemeProvider } from "assets/testing";
 import { referendum, president, vp, engsciPres } from "assets/mocks";

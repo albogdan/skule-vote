@@ -150,9 +150,9 @@ $ yarn test
 
 ### Styling the Frontend
 
-The UI app uses [Material UI](https://material-ui.com/) for styling and components. There is no usage of CSS or SCSS as we use a mixture of Material UI's [Palette](https://material-ui.com/customization/palette/), Material UI's [styled()](https://mui.com/system/styled/#main-content) and the library [styled-components](https://styled-components.com/). Global colors, fonts, and dark mode configuration are set using Palette in `App.js` while general component styling is done with styled-components and styled(). We're trying to deprecate usage of styled-components. Please use styled() instead until we're able to fully remove usage of styled-components.
+The UI app uses [MUI](https://material-ui.com/) for styling and components. There is no usage of CSS or SCSS as we use a mixture of MUI's [Palette](https://material-ui.com/customization/palette/) and MUI's [styled()](https://mui.com/system/styled/#main-content). Global colors, fonts, and dark mode configuration are set using Palette in `App.js` using MUI's `createTheme` while general component styling is done with styled().
 
-To edit the globally-set colors, font-sizes, and font-families (which we don't recommend unless EngSoc has rebranded), simply edit the `createMuiTheme` object in `App.js`. The colors for `primary` and `secondary` are part of EngSoc's official colour scheme.
+To edit the globally-set colors, font-sizes, and font-families (which we don't recommend unless EngSoc has rebranded), simply edit the `createTheme` object in `App.js`. The colors for `primary` and `secondary` are part of EngSoc's official colour scheme.
 
 #### Media Queries and Responsiveness
 

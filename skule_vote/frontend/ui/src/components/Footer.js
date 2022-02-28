@@ -1,96 +1,94 @@
 import React from "react";
-import styled from "styled-components";
+import { styled } from "@mui/system";
 import Paper from "@mui/material/Paper";
 import { useLocation } from "react-router-dom";
 import { ReactComponent as EngSocCrestBlack } from "images/EngSocCrestBlack.svg";
 import { ReactComponent as EngSocCrestWhite } from "images/EngSocCrestWhite.svg";
-import { responsive } from "assets/breakpoints";
 import Typography from "@mui/material/Typography";
 
-const FooterPaper = styled(Paper)`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  padding: 32px;
-  border-radius: 0 !important;
-  margin-top: 64px;
-  @media ${responsive.smDown} {
-    padding: 16px;
-    align-items: center;
-    margin-top: 32px;
-  }
-  > div {
-    margin-auto;
-    display: flex;
-    max-width: 1200px;
-    @media ${responsive.smDown} {
-      flex-direction: column;
-      align-items: center;
-    }
-  }
-`;
+const FooterPaper = styled(Paper)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  width: "100%",
+  padding: 32,
+  borderRadius: 0,
+  marginTop: 64,
+  [theme.breakpoints.down("sm")]: {
+    padding: 16,
+    alignItems: "center",
+    marginTop: 32,
+  },
+  "> div": {
+    display: "flex",
+    maxWidth: 1200,
+    [theme.breakpoints.down("sm")]: {
+      flexDirection: "column",
+      alignItems: "center",
+    },
+  },
+}));
 
-const CrestDiv = styled.div`
-  display: flex;
-  width: 100%;
-  align-items: flex-start;
-  margin-right: 32px;
-  @media ${responsive.smDown} {
-    margin-right: 0;
-    justify-content: center;
-  }
-`;
+const CrestDiv = styled("div")(({ theme }) => ({
+  display: "flex",
+  width: "100%",
+  alignItems: "flex-start",
+  marginRight: 32,
+  [theme.breakpoints.down("sm")]: {
+    marginRight: 0,
+    justifyContent: "center",
+  },
+}));
 
-const Address = styled.div`
-  display: flex;
-  flex-direction: column;
-  > p {
-    margin-bottom: 8px;
-  }
-  > :first-child {
-    font-weight: 500 !important;
-  }
-`;
+const Address = styled("div")({
+  display: "flex",
+  flexDirection: "column",
+  "> p": {
+    marginBottom: 8,
+  },
+  "> p:first-of-type": {
+    fontWeight: 500,
+  },
+});
 
-const Acknowledgement = styled.div`
-  display: flex;
-  flex-direction: column;
-  max-width: 800px;
-  width: 100%;
-  > p {
-    margin-bottom: 8px;
-  }
-  @media ${responsive.smDown} {
-    margin-top: 24px;
-    text-align: center;
-  }
-`;
+const Acknowledgement = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  maxWidth: 800,
+  width: "100%",
+  "> p": {
+    marginBottom: 8,
+  },
+  [theme.breakpoints.down("sm")]: {
+    marginTop: 24,
+    textAlign: "center",
+  },
+}));
 
-const WhiteCrest = styled(EngSocCrestWhite)`
-  width: 75px;
-  height: auto;
-  margin-right: 24px;
-`;
-const BlackCrest = styled(EngSocCrestBlack)`
-  width: 75px;
-  height: auto;
-  margin-right: 24px;
-`;
+const WhiteCrest = styled(EngSocCrestWhite)({
+  width: 75,
+  height: "auto",
+  marginRight: 24,
+});
+const BlackCrest = styled(EngSocCrestBlack)({
+  width: 75,
+  height: "auto",
+  marginRight: 24,
+});
 
-const SmallFooter = styled(FooterPaper)`
-  text-align: center;
-  > p {
-    margin-bottom: 8px;
-  }
-`;
+const SmallFooter = styled(FooterPaper)({
+  textAlign: "center",
+  "> p": {
+    marginBottom: 8,
+  },
+});
 
-const EmailLink = styled.a`
-  font-weight: 500;
-  &:hover {
-    text-decoration: underline;
-  }
-`;
+const EmailLink = styled("a")({
+  fontWeight: 500,
+  ":hover": {
+    textDecoration: "underline",
+  },
+});
 
 const Footer = ({ isDark }) => {
   const today = new Date();

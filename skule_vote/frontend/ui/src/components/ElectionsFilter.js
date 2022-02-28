@@ -1,52 +1,51 @@
 import React from "react";
-import styled from "styled-components";
+import { styled } from "@mui/system";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import ClearIcon from "@mui/icons-material/Clear";
 import IconButton from "@mui/material/IconButton";
 import Drawer from "@mui/material/Drawer";
-import { useTheme } from "@mui/material/styles";
 import Divider from "@mui/material/Divider";
 import Box from "@mui/material/Box";
 import { listOfCategories } from "pages/ElectionPage";
-import { responsive } from "assets/breakpoints";
 
-const ElectionsFilterPaper = styled(Paper)`
-  display: flex;
-  flex-direction: column;
-  width: 275px;
-  padding: 24px 0;
-  margin-right: 64px;
-  box-shadow: none;
-  h2 {
-    margin-left: 24px;
-    font-weight: 400;
-  }
-  hr {
-    margin: 16px 0;
-  }
-  @media ${responsive.mdDown} {
-    margin-right: 16px;
-    width: 250px;
-  }
-  @media ${responsive.smDown} {
-    padding-top: 0;
-    margin-right: 0;
-    background-color: transparent !important;
-    box-shadow: none !important;
-    background-image: none !important;
-  }
-`;
+const ElectionsFilterPaper = styled(Paper)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  width: 275,
+  padding: "24px 0",
+  marginRight: 64,
+  boxShadow: "none",
+  backgroundImage: "none",
+  h2: {
+    marginLeft: 24,
+    fontWeight: 400,
+  },
+  hr: {
+    margin: "16px 0",
+  },
+  [theme.breakpoints.down("md")]: {
+    marginRight: 16,
+    width: 250,
+  },
+  [theme.breakpoints.down("sm")]: {
+    paddingTop: 0,
+    marginRight: 0,
+  },
+}));
 
-const FilterItem = styled(Button)`
-  background-color: ${(props) =>
-    props.$active && (props.$isDark ? props.$main : "#DDECF6")} !important;
-  &:hover {
-    background-color: ${(props) =>
-      props.$isDark ? props.$main : "#DDECF6"} !important;
-  }
-`;
+const FilterItem = styled(Button, {
+  shouldForwardProp: (propName) => propName !== "active",
+})(({ theme, active }) => ({
+  backgroundColor:
+    active &&
+    (theme.palette.mode === "dark" ? theme.palette.primary.main : "#DDECF6"),
+  ":hover": {
+    backgroundColor:
+      theme.palette.mode === "dark" ? theme.palette.primary.main : "#DDECF6",
+  },
+}));
 
 export const ElectionsFilterDrawer = ({
   drawerOpen,
@@ -73,18 +72,13 @@ export const ElectionsFilterDrawer = ({
 );
 
 const ElectionsFilter = ({ filterCategory, setAndCloseFilter }) => {
-  const theme = useTheme();
-  const isDark = theme.palette.mode === "dark";
-
   return (
     <ElectionsFilterPaper elevation={0}>
       <Typography variant="h2">Filter</Typography>
       <Divider />
       {Object.values(listOfCategories).map((category, i) => (
         <FilterItem
-          $main={theme.palette.primary.main}
-          $active={filterCategory === category}
-          $isDark={isDark}
+          active={filterCategory === category}
           key={i}
           onClick={() => setAndCloseFilter(category)}
           variant="filter"

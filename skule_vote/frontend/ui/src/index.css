@@ -11,24 +11,3 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
-
-@font-face {
-  font-family: "Gill Sans Custom";
-  src: url("./fonts/gill-sans-light.otf") format("opentype");
-  font-weight: 300;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Gill Sans Custom";
-  src: url("./fonts/gill-sans.otf") format("opentype");
-  font-weight: 400;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Gill Sans Custom";
-  src: url("./fonts/gill-sans-medium.otf") format("opentype");
-  font-weight: 500;
-  font-style: normal;
-}

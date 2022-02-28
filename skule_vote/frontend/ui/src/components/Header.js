@@ -5,12 +5,12 @@ import Toolbar from "@mui/material/Toolbar";
 import { Link, useLocation } from "react-router-dom";
 import Brightness6Icon from "@mui/icons-material/Brightness6";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import { useGetEligibility } from "hooks/GeneralHooks";
 import { UOFT_LOGIN } from "App";
 import { ReactComponent as SkuleVoteLogo } from "images/SkuleVoteLogo.svg";
-import { responsive } from "assets/breakpoints";
 
 const Nav = styled("div")(({ theme }) => ({
   display: "flex",
@@ -38,7 +38,8 @@ const LogoWhite = styled(SkuleVoteLogo)(({ theme }) => ({
 }));
 
 const Header = ({ isDark, toggleDark }) => {
-  const isMobile = useMediaQuery(responsive.smDown);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const location = useLocation();
   const getEligibility = useGetEligibility();
 

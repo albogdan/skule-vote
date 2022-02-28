@@ -3,9 +3,8 @@ import { styled } from "@mui/system";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
-import { responsive } from "assets/breakpoints";
 
-const BaseCard = styled(Paper)({
+const BaseCard = styled(Paper)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
@@ -14,10 +13,10 @@ const BaseCard = styled(Paper)({
   padding: 24,
   boxShadow: "none",
   textAlign: "center",
-  ["@media " + responsive.smDown]: {
+  [theme.breakpoints.down("sm")]: {
     padding: 16,
   },
-});
+}));
 
 const ElectionButton = styled(Button)(({ theme }) => ({
   display: "flex",
@@ -28,7 +27,7 @@ const ElectionButton = styled(Button)(({ theme }) => ({
   maxWidth: 400,
   padding: 24,
   boxShadow: "none",
-  ["@media " + responsive.smDown]: {
+  [theme.breakpoints.down("sm")]: {
     padding: 16,
   },
   ":hover": {

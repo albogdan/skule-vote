@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { styled } from "@mui/system";
 import Typography from "@mui/material/Typography";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
 import Button from "@mui/material/Button";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import Box from "@mui/material/Box";
@@ -12,7 +13,6 @@ import ElectionCard, { NoElectionsCard } from "components/ElectionCard";
 import EnhancedBallotModal from "components/BallotModal";
 import Messages from "components/Messages";
 import { Spacer } from "assets/layout";
-import { responsive } from "assets/breakpoints";
 import {
   useGetElectionSession,
   useGetEligibleElections,
@@ -84,7 +84,8 @@ export function readableDate(date) {
 }
 
 const ElectionPage = () => {
-  const isMobile = useMediaQuery(responsive.smDown);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [filterCategory, setFilterCategory] = React.useState("All");

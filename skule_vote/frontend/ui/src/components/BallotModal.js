@@ -13,7 +13,6 @@ import Select from "@mui/material/Select";
 import FormHelperText from "@mui/material/FormHelperText";
 import { Spacer } from "assets/layout";
 import { BallotRulingAlert } from "components/Alerts";
-import { responsive } from "assets/breakpoints";
 import { ConfirmSpoilModal, PleaseRankModal } from "components/BallotSubmodals";
 import { ModalPaper } from "components/BallotSubmodals";
 
@@ -36,7 +35,7 @@ const SelectorDiv = styled("div")({
   },
 });
 
-const ThreeButtonDiv = styled("div")({
+const ThreeButtonDiv = styled("div")(({ theme }) => ({
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
@@ -50,7 +49,7 @@ const ThreeButtonDiv = styled("div")({
       "@media (max-width: 460px)": {
         marginLeft: 0,
       },
-      ["@media " + responsive.xsDown]: {
+      [theme.breakpoints.down("xs")]: {
         marginTop: 24,
       },
     },
@@ -65,7 +64,7 @@ const ThreeButtonDiv = styled("div")({
     },
   },
 
-  ["@media " + responsive.xsDown]: {
+  [theme.breakpoints.down("xs")]: {
     button: {
       width: "100%",
     },
@@ -73,7 +72,7 @@ const ThreeButtonDiv = styled("div")({
       flexDirection: "column",
     },
   },
-});
+}));
 
 const ErrorText = styled(Typography)(({ theme }) => ({
   "> p": theme.palette.mode === "dark" ? "color: #fbdfdf !important" : "",

@@ -69,6 +69,9 @@ const AppBody = styled.div`
   }
 `;
 
+export const UOFT_LOGIN =
+  "https://portal.engineering.utoronto.ca/weblogin/sites/apsc/vote.asp";
+
 const App = () => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const [isDark, setIsDark] = useLocalStorage(

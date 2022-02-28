@@ -1,9 +1,11 @@
 import React from "react";
 import styled from "styled-components";
+import { Link } from "react-router-dom";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import { ReactComponent as SkuleLogoBlue } from "images/SkuleLogoBlue.svg";
+import { UOFT_LOGIN } from "App";
 import { responsive } from "assets/breakpoints";
 
 const SkuleLogo = styled(SkuleLogoBlue)`
@@ -70,6 +72,10 @@ const ElectionDetails = styled.div`
 `;
 
 const LandingPage = () => {
+  const isLocal =
+    (process?.env?.REACT_APP_DEV_SERVER_URL ?? "").includes("localhost") ||
+    (process?.env?.REACT_APP_DEV_SERVER_URL ?? "").includes("127.0.0.1");
+
   return (
     <>
       <LandingDiv>
@@ -96,11 +102,19 @@ const LandingPage = () => {
             </UrlLink>{" "}
             websites.
           </Typography>
-          <a href="https://portal.engineering.utoronto.ca/weblogin/sites/apsc/vote.asp">
-            <Button color="primary" size="large" variant="contained">
-              Vote
-            </Button>
-          </a>
+          {isLocal ? (
+            <Link to="/elections">
+              <Button color="primary" size="large" variant="contained">
+                Vote
+              </Button>
+            </Link>
+          ) : (
+            <a href={UOFT_LOGIN}>
+              <Button color="primary" size="large" variant="contained">
+                Vote
+              </Button>
+            </a>
+          )}
         </LandingDivText>
       </LandingDiv>
 

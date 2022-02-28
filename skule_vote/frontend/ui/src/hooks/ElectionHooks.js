@@ -1,6 +1,7 @@
 import { get, post } from "api/api";
 import { useSnackbar } from "notistack";
 import { statusIsGood } from "hooks/GeneralHooks";
+import { UOFT_LOGIN } from "App";
 
 export const useGetMessages = () => {
   const { enqueueSnackbar } = useSnackbar();
@@ -65,6 +66,13 @@ export const useGetEligibleElections = () => {
             }, {});
       }
     } catch (e) {
+      const isLocal =
+        (process?.env?.REACT_APP_DEV_SERVER_URL ?? "").includes("localhost") ||
+        (process?.env?.REACT_APP_DEV_SERVER_URL ?? "").includes("127.0.0.1");
+
+      if (e.response?.status === 403 && !isLocal) {
+        window.location.href = UOFT_LOGIN;
+      }
       enqueueSnackbar(
         {
           message: `Failed to fetch eligible elections: ${

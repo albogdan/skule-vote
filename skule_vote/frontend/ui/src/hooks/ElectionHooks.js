@@ -71,18 +71,22 @@ export const useGetEligibleElections = () => {
         (process?.env?.REACT_APP_DEV_SERVER_URL ?? "").includes("localhost") ||
         (process?.env?.REACT_APP_DEV_SERVER_URL ?? "").includes("127.0.0.1");
 
-      if (e.response?.status === 403 && !isLocal) {
+      if (
+        (e.response?.status === 403 || e.response?.status === 502) &&
+        !isLocal
+      ) {
         window.location.href = UOFT_LOGIN;
+      } else {
+        enqueueSnackbar(
+          {
+            message: `Failed to fetch eligible elections: ${
+              e.response?.data?.detail ?? e.message ?? e.response?.status
+            }`,
+            variant: "error",
+          },
+          { variant: "error" }
+        );
       }
-      enqueueSnackbar(
-        {
-          message: `Failed to fetch eligible elections: ${
-            e.response?.data?.detail ?? e.message ?? e.response?.status
-          }`,
-          variant: "error",
-        },
-        { variant: "error" }
-      );
     }
     return null;
   }, [enqueueSnackbar]);

@@ -16,6 +16,7 @@ describe("<LandingPage />", () => {
   });
 
   it("renders landing page on local", () => {
+    process.env.REACT_APP_DEV_SERVER_URL = "http://localhost:8000";
     const { getByText, getByTestId } = render(withRouter(<LandingPage />));
     expect(getByText("Welcome to SkuleVote")).toBeInTheDocument();
     expect(getByText("Election Details")).toBeInTheDocument();
@@ -28,7 +29,7 @@ describe("<LandingPage />", () => {
   });
 
   it("renders landing page on prod", () => {
-    process.env.REACT_APP_DEV_SERVER_URL = "not local";
+    process.env.REACT_APP_DEV_SERVER_URL = "vote.skule.ca";
     const { getByText, getByTestId } = render(withRouter(<LandingPage />));
     expect(getByText("Welcome to SkuleVote")).toBeInTheDocument();
     expect(getByText("Election Details")).toBeInTheDocument();

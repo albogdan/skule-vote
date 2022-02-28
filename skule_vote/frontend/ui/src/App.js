@@ -12,6 +12,9 @@ import Footer from "components/Footer";
 import Header from "components/Header";
 import { responsive } from "assets/breakpoints";
 import { useLocalStorage } from "hooks/GeneralHooks";
+import GillSansLight from "fonts/gill-sans-light.otf";
+import GillSans from "fonts/gill-sans.otf";
+import GillSansMed from "fonts/gill-sans-medium.otf";
 
 const AppWrapper = styled.div`
   min-height: 100vh;
@@ -27,6 +30,27 @@ const AppWrapper = styled.div`
       props.$isDark
         ? props.palette.secondary.main
         : props.palette.primary.main};
+  }
+
+  @font-face {
+    font-family: "Gill Sans Custom";
+    src: url(${GillSansLight}) format("opentype");
+    font-weight: 300;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Gill Sans Custom";
+    src: url(${GillSans}) format("opentype");
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Gill Sans Custom";
+    src: url(${GillSansMed}) format("opentype");
+    font-weight: 500;
+    font-style: normal;
   }
 `;
 
@@ -45,6 +69,9 @@ const AppBody = styled.div`
   }
 `;
 
+export const UOFT_LOGIN =
+  "https://portal.engineering.utoronto.ca/weblogin/sites/apsc/vote.asp";
+
 const App = () => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const [isDark, setIsDark] = useLocalStorage(
@@ -59,9 +86,13 @@ const App = () => {
     () =>
       createTheme({
         typography: {
-          fontFamily: ["Gill Sans", "Gill Sans MT", "Lato", "sans-serif"].join(
-            ","
-          ),
+          fontFamily: [
+            "Gill Sans Custon",
+            "Gill Sans",
+            "Gill Sans MT",
+            "Lato",
+            "sans-serif",
+          ].join(","),
           h1: {
             fontSize: 45,
             fontWeight: 300,
@@ -78,7 +109,7 @@ const App = () => {
           },
           h3: {
             fontSize: 20,
-            fontWeight: 400,
+            fontWeight: 500,
             "@media (max-width:600px)": {
               fontSize: 18,
             },

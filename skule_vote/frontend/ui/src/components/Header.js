@@ -8,6 +8,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import { useGetEligibility } from "hooks/GeneralHooks";
+import { UOFT_LOGIN } from "App";
 import { ReactComponent as SkuleVoteLogo } from "images/SkuleVoteLogo.svg";
 import { responsive } from "assets/breakpoints";
 
@@ -61,6 +62,10 @@ const Header = ({ isDark, toggleDark }) => {
     </Button>
   );
 
+  const isLocal =
+    (process?.env?.REACT_APP_DEV_SERVER_URL ?? "").includes("localhost") ||
+    (process?.env?.REACT_APP_DEV_SERVER_URL ?? "").includes("127.0.0.1");
+
   return (
     <AppBar
       color={!isDark ? "primary" : "inherit"}
@@ -83,11 +88,19 @@ const Header = ({ isDark, toggleDark }) => {
             </Button>
           ) : (
             <nav>
-              <a href="https://portal.engineering.utoronto.ca/weblogin/sites/apsc/vote.asp">
-                <Button aria-label="Vote" variant="text">
-                  Vote
-                </Button>
-              </a>
+              {isLocal ? (
+                <Link to="/elections">
+                  <Button aria-label="Vote" variant="text">
+                    Vote
+                  </Button>
+                </Link>
+              ) : (
+                <a href={UOFT_LOGIN}>
+                  <Button aria-label="Vote" variant="text">
+                    Vote
+                  </Button>
+                </a>
+              )}
             </nav>
           )}
         </Nav>

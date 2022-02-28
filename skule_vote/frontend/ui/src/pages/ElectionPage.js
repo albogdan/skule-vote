@@ -1,5 +1,4 @@
-import React from "react";
-import { useMount } from "react-use";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import Typography from "@mui/material/Typography";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -128,7 +127,7 @@ const ElectionPage = () => {
     setBallotElectionId(null);
   };
 
-  useMount(() => {
+  useEffect(() => {
     async function fetchElection() {
       const getElecSession = await getElectionSession();
       const getEligibleElecs = await getEligibleElections();
@@ -148,7 +147,8 @@ const ElectionPage = () => {
       }, 60000);
     }
     fetchElection();
-  });
+  }, [getElectionSession, getEligibleElections, getMessages]);
+
   return (
     <>
       {eligibleElections?.[ballotElectionId] && (

@@ -1,16 +1,16 @@
 import React from "react";
-import styled from "styled-components";
+import { styled } from "@mui/system";
 import { CustomMessage } from "components/Alerts";
 
-const MessagesDiv = styled.div`
-  display: flex;
-  flex-direction: column;
-  max-width: 800px;
-  width: 100%;
-  > :not(:last-child) {
-    margin-bottom: 8px;
-  }
-`;
+const MessagesDiv = styled("div")({
+  display: "flex",
+  flexDirection: "column",
+  maxWidth: 800,
+  width: "100%",
+  "> :not(:last-child)": {
+    marginBottom: 8,
+  },
+});
 
 const Messages = ({ electionIsLive, times, messages }) => {
   const [startTime, startTimeStr, endTimeStr] = times;

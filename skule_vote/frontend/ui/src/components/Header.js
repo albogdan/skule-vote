@@ -1,5 +1,5 @@
 import React from "react";
-import styled from "styled-components";
+import { styled } from "@mui/system";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import { Link, useLocation } from "react-router-dom";
@@ -12,30 +12,30 @@ import { UOFT_LOGIN } from "App";
 import { ReactComponent as SkuleVoteLogo } from "images/SkuleVoteLogo.svg";
 import { responsive } from "assets/breakpoints";
 
-const Nav = styled.div`
-  display: flex;
-  white-space: nowrap;
-  button {
-    color: white;
-    padding: 18px 15px;
-    border-radius: 0;
-    font-size: 16px;
-    @media ${responsive.smDown} {
-      font-size: 14px;
-      padding: 16px 12px;
-    }
-  }
-`;
+const Nav = styled("div")(({ theme }) => ({
+  display: "flex",
+  whiteSpace: "nowrap",
+  button: {
+    color: "white",
+    padding: "18px 15px",
+    borderRadius: 0,
+    fontSize: 16,
+    [theme.breakpoints.down("sm")]: {
+      fontSize: 14,
+      padding: "16px 12px",
+    },
+  },
+}));
 
-const LogoWhite = styled(SkuleVoteLogo)`
-  height: 25px;
-  width: auto;
-  padding-top: 3px;
-  margin-right: 16px;
-  @media ${responsive.smDown} {
-    padding-top: 5px;
-  }
-`;
+const LogoWhite = styled(SkuleVoteLogo)(({ theme }) => ({
+  height: 25,
+  width: "auto",
+  paddingTop: 3,
+  marginRight: 16,
+  [theme.breakpoints.down("sm")]: {
+    paddingTop: 5,
+  },
+}));
 
 const Header = ({ isDark, toggleDark }) => {
   const isMobile = useMediaQuery(responsive.smDown);

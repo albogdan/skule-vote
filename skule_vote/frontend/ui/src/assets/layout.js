@@ -1,12 +1,14 @@
 import React from "react";
-import styled from "styled-components";
+import { styled } from "@mui/system";
 
-const StyledDiv = styled.div`
-  width: 1px;
-  height: 1px;
-  padding-top: ${({ y }) => y}px;
-  padding-left: ${({ x }) => x}px;
-  display: ${({ x }) => (x ? "inline-block" : "block")};
-`;
+const StyledDiv = styled("div", {
+  shouldForwardProp: (propName) => propName !== "x" || propName !== "y",
+})(({ x, y }) => ({
+  width: 1,
+  height: 1,
+  paddingTop: y,
+  paddingLeft: x,
+  display: x ? "inline-block" : "block",
+}));
 
 export const Spacer = ({ x = 0, y = 0 }) => <StyledDiv x={x} y={y} />;

@@ -7,7 +7,7 @@ import Divider from "@mui/material/Divider";
 import Modal from "@mui/material/Modal";
 import { responsive } from "assets/breakpoints";
 
-const TwoButtonDiv = styled("div")({
+const TwoButtonDiv = styled("div")(({ theme }) => ({
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
@@ -25,9 +25,9 @@ const TwoButtonDiv = styled("div")({
       width: "100%",
     },
   },
-});
+}));
 
-export const ModalPaper = styled(Paper)({
+export const ModalPaper = styled(Paper)(({ theme }) => ({
   position: "absolute",
   padding: 32,
   margin: "50px auto",
@@ -58,7 +58,7 @@ export const ModalPaper = styled(Paper)({
       marginTop: 16,
     },
   },
-});
+}));
 
 const SpoilBallotBtnFilled = styled(Button)(({ theme }) => ({
   color: "#fff",

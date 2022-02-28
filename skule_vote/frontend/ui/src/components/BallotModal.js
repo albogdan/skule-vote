@@ -1,6 +1,5 @@
 import React, { Fragment, useRef } from "react";
-import styled from "styled-components";
-import Paper from "@mui/material/Paper";
+import { styled } from "@mui/system";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
@@ -13,127 +12,85 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import FormHelperText from "@mui/material/FormHelperText";
 import { Spacer } from "assets/layout";
-import { CustomMessage } from "components/Alerts";
+import { BallotRulingAlert } from "components/Alerts";
 import { responsive } from "assets/breakpoints";
-import { useTheme } from "@mui/material/styles";
+import { ConfirmSpoilModal, PleaseRankModal } from "components/BallotSubmodals";
+import { ModalPaper } from "components/BallotSubmodals";
 
 export const REOPEN_NOMINATIONS = "Reopen Nominations";
 
-const ModalPaper = styled(Paper)`
-  position: absolute;
-  padding: 32px;
-  margin: 50px auto;
-  max-width: 900px;
-  width: 100%;
-  max-height: calc(100% - 100px);
-  left: 0;
-  right: 0;
-  overflow-y: auto;
-  outline: none;
-  @media ${responsive.smDown} {
-    padding: 16px;
-    margin: 12px;
-    width: calc(100% - 24px);
-    max-height: calc(100% - 24px);
-  }
-  hr {
-    margin: 24px 0;
-    @media ${responsive.smDown} {
-      margin: 16px 0;
-    }
-  }
-  h1,
-  h2 {
-    font-weight: 400;
-  }
-  h3 {
-    margin: 16px 0 8px;
-    @media ${responsive.smDown} {
-      margin-top: 16px;
-    }
-  }
-`;
+const HeaderDiv = styled("div")({
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  width: "100%",
+});
 
-const SpoilModalPaper = styled(ModalPaper)`
-  max-width: 450px;
-  margin-top: 100px;
-`;
+const SelectorDiv = styled("div")({
+  display: "flex",
+  flexDirection: "column",
+  width: "100%",
+  "> div": {
+    marginTop: 12,
+    maxWidth: 350,
+  },
+});
 
-const HeaderDiv = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-`;
+const ThreeButtonDiv = styled("div")({
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  width: "100%",
+  div: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    "> :last-child": {
+      marginLeft: 16,
+      "@media (max-width: 460px)": {
+        marginLeft: 0,
+      },
+      ["@media " + responsive.xsDown]: {
+        marginTop: 24,
+      },
+    },
+  },
 
-const SelectorDiv = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  > div {
-    margin-top: 12px;
-    max-width: 350px;
-  }
-`;
+  "@media (max-width: 460px)": {
+    flexDirection: "column",
+    alignItems: "flex-start",
+    div: {
+      width: "100%",
+      marginTop: 24,
+    },
+  },
 
-const TwoButtonDiv = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  div {
-    > :last-child {
-      margin-left: 16px;
-    }
-  }
-`;
+  ["@media " + responsive.xsDown]: {
+    button: {
+      width: "100%",
+    },
+    div: {
+      flexDirection: "column",
+    },
+  },
+});
 
-const ThreeButtonDiv = styled(TwoButtonDiv)`
-  @media (max-width: 460px) {
-    flex-direction: column;
-    align-items: flex-start;
-    div {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 24px;
-      > :last-child {
-        margin-left: 0;
-      }
-    }
-  }
-`;
+const ErrorText = styled(Typography)(({ theme }) => ({
+  "> p": theme.palette.mode === "dark" ? "color: #fbdfdf !important" : "",
+}));
 
-const ErrorText = styled(Typography)`
-  > p {
-    ${(props) => props.$isDark && "color: #fbdfdf !important;"}
-  }
-`;
+const SpoilBallotBtn = styled(Button)(({ theme }) => ({
+  color: theme.palette.purple.main,
+  borderColor: theme.palette.purple.main,
+}));
 
-const SpoilBallotBtn = styled(Button)`
-  color: ${(props) => (props.$isDark ? "#DCD1DD" : "#4D33A3")} !important;
-  border-color: ${(props) =>
-    props.$isDark ? "#DCD1DD" : "#4D33A3"} !important;
-`;
-
-const SpoilBallotBtnFilled = styled(Button)`
-  color: #fff;
-  background-color: #5f518d !important;
-  &:hover {
-    background-color: #51496b !important;
-  }
-`;
-
-const BlueCard = styled.div`
-  background-color: ${(props) =>
-    props.$theme.palette.mode === "dark"
-      ? props.$theme.palette.primary.main
-      : "#DDECF6"};
-  border-radius: 4px;
-  padding: 20px;
-  width: fit-content;
-`;
+const BlueCard = styled("div")(({ theme }) => ({
+  backgroundColor:
+    theme.palette.mode === "dark" ? theme.palette.primary.main : "#DDECF6",
+  borderRadius: 4,
+  padding: 20,
+  width: "fit-content",
+}));
 
 // Randomize array in-place using Durstenfeld shuffle algorithm
 const shuffleArray = (arr) => {
@@ -142,51 +99,6 @@ const shuffleArray = (arr) => {
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
-};
-
-const RulingA = ({ href, children }) => (
-  <a
-    href={href}
-    style={{ color: "inherit" }}
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    {children}
-  </a>
-);
-
-// Orange alert that appears below candidate's name if they have a disqualification or rule violation message
-// ruling: string, link?: string, isDQ?: bool
-export const BallotRulingAlert = ({ ruling, link, isDQ }) => {
-  let message;
-  const defaultMessage = isDQ
-    ? "This candidate has been disqualified."
-    : "This candidate violated a rule.";
-  if (!ruling && !link) {
-    message = `${defaultMessage} Contact EngSoc for more information.`;
-  } else if (!ruling) {
-    message = (
-      <span data-testid="ballotRulingAlert">
-        {defaultMessage} Please read the ruling{" "}
-        <RulingA href={link}>here</RulingA>.
-      </span>
-    );
-  } else {
-    ruling = ruling.trim();
-    const hasPeriod = ruling.slice(-1) === ".";
-    message = (
-      <span data-testid="ballotRulingAlert">
-        {ruling}
-        {link && (
-          <span>
-            {hasPeriod ? " " : ". "}Please read the ruling{" "}
-            <RulingA href={link}>here</RulingA>.
-          </span>
-        )}
-      </span>
-    );
-  }
-  return <CustomMessage variant="warning" message={message} />;
 };
 
 // Candidate names and statements
@@ -233,15 +145,8 @@ const Statements = ({ isReferendum, candidates }) => (
 );
 
 // i: number, candidates: Array<{}>, ranking: {[number]: number},
-// isReferendum: boolean, changeRanking: func, isDark: boolean
-const Selector = ({
-  i,
-  candidates,
-  ranking,
-  isReferendum,
-  changeRanking,
-  isDark,
-}) => {
+// isReferendum: boolean, changeRanking: func
+const Selector = ({ i, candidates, ranking, isReferendum, changeRanking }) => {
   const [selectVal, setSelectVal] = React.useState(ranking[i] ?? "");
   const handleRankOnchange = (event) => {
     setSelectVal(event.target.value);
@@ -288,14 +193,14 @@ const Selector = ({
         ))}
       </Select>
       {duplicateSelected && (
-        <ErrorText variant="subtitle2" $isDark={isDark}>
+        <ErrorText variant="subtitle2">
           <FormHelperText>
             Same candidate selected multiple times
           </FormHelperText>
         </ErrorText>
       )}
       {outOfOrder && (
-        <ErrorText variant="subtitle2" $isDark={isDark}>
+        <ErrorText variant="subtitle2">
           <FormHelperText>Choices not performed in order</FormHelperText>
         </ErrorText>
       )}
@@ -309,7 +214,6 @@ const BallotDropdowns = ({
   candidates,
   ranking,
   changeRanking,
-  isDark,
 }) => {
   return (
     <>
@@ -317,7 +221,7 @@ const BallotDropdowns = ({
       <Typography variant="body1">
         {candidates.length === 2
           ? "Please select your choice using the dropdown menu."
-          : "Please select as many choices as you want using the dropdown menus."}
+          : "Please select as many choices as you want using the dropdown menus. Please select as many choices as you want using the dropdown menus. You are encouraged to rank all of the above choices"}
       </Typography>
       <SelectorDiv>
         {candidates.map(
@@ -330,7 +234,6 @@ const BallotDropdowns = ({
                 changeRanking={changeRanking}
                 ranking={ranking}
                 isReferendum={isReferendum}
-                isDark={isDark}
               />
             )
         )}
@@ -340,9 +243,8 @@ const BallotDropdowns = ({
 };
 
 // Summarizes who/what user voted for
-// isReferendum: boolean, ranking: {[number]: number}, candidates: Array<{}>, isDark: boolean
-const SelectedRanking = ({ isReferendum, ranking, candidates, isDark }) => {
-  const theme = useTheme();
+// isReferendum: boolean, ranking: {[number]: number}, candidates: Array<{}>
+const SelectedRanking = ({ isReferendum, ranking, candidates }) => {
   // idToNameMap: {[id: number]: [name: string]}
   const idToNameMap = React.useMemo(
     () =>
@@ -373,7 +275,7 @@ const SelectedRanking = ({ isReferendum, ranking, candidates, isDark }) => {
       )}
       {/* Case: is a single candidate or referendum and vote has been selected */}
       {rankingLen === 1 && candidates.length === 2 && (
-        <BlueCard $theme={theme}>
+        <BlueCard>
           <Typography variant="body2">
             {isReferendum
               ? "Do you support this referendum?"
@@ -388,7 +290,7 @@ const SelectedRanking = ({ isReferendum, ranking, candidates, isDark }) => {
       )}
       {/* Case: multiple candidates and vote(s) has been selected */}
       {rankingLen > 0 && candidates.length > 2 && (
-        <BlueCard $theme={theme}>
+        <BlueCard>
           {Object.entries(ranking).map((rank) => (
             <Typography variant="body2" key={rank[0]}>
               {parseInt(rank[0], 10) + 1}. {idToNameMap?.[rank[1]] ?? "Error"}
@@ -401,36 +303,6 @@ const SelectedRanking = ({ isReferendum, ranking, candidates, isDark }) => {
   );
 };
 
-// Modal that opens to confirm you want to spoil your ballot
-// open: boolean, onClose: func, spoilBallot: func, isDark: boolean
-export const ConfirmSpoilModal = ({ open, onClose, spoilBallot, isDark }) => (
-  <Modal
-    open={open}
-    onClose={onClose}
-    aria-labelledby="confirm-spoil-modal"
-    aria-describedby="confirm-spoil-modal"
-  >
-    <SpoilModalPaper>
-      <Typography variant="h3">
-        Are you sure you want to spoil your ballot?
-      </Typography>
-      <Divider />
-      <TwoButtonDiv>
-        <Button variant="outlined" color="secondary" onClick={() => onClose()}>
-          Cancel
-        </Button>
-        <SpoilBallotBtnFilled
-          variant="contained"
-          onClick={() => spoilBallot()}
-          data-testid="spoilModalConfirm"
-        >
-          Spoil ballot
-        </SpoilBallotBtnFilled>
-      </TwoButtonDiv>
-    </SpoilModalPaper>
-  </Modal>
-);
-
 // handleClose: func, handleSubmit: func, open: boolean, isReferendum: boolean,
 // sortedCandidates: Array<{}>, electionName: string, electionId: number
 export const BallotModal = ({
@@ -442,13 +314,11 @@ export const BallotModal = ({
   electionName,
   electionId,
 }) => {
-  const theme = useTheme();
-  const isDark = theme.palette.mode === "dark";
-
   const [ranking, setRanking] = React.useState({});
   const rankingLen = Object.keys(ranking).length;
 
   const [openConfirmSpoil, setOpenConfirmSpoil] = React.useState(false);
+  const [openPleaseRank, setOpenPleaseRank] = React.useState(false);
 
   const changeRanking = (i, val) => {
     setRanking((prevState) => {
@@ -466,6 +336,15 @@ export const BallotModal = ({
     handleSubmit(electionId, ranking);
     closeForm();
   };
+
+  const handleCastBallot = () => {
+    if (rankingLen < sortedCandidates.length && sortedCandidates.length > 2) {
+      setOpenPleaseRank(true);
+    } else {
+      castBallot();
+    }
+  };
+
   const spoilBallot = () => {
     handleSubmit(electionId, {});
     closeForm();
@@ -476,17 +355,17 @@ export const BallotModal = ({
     setRanking({});
   };
 
-  const handleCloseConfirmSpoil = () => {
-    setOpenConfirmSpoil(false);
-  };
-
   return (
     <>
+      <PleaseRankModal
+        open={openPleaseRank}
+        onClose={() => setOpenPleaseRank(false)}
+        castBallot={castBallot}
+      />
       <ConfirmSpoilModal
         open={openConfirmSpoil}
-        onClose={handleCloseConfirmSpoil}
+        onClose={() => setOpenConfirmSpoil(false)}
         spoilBallot={spoilBallot}
-        isDark={isDark}
       />
       <Modal
         open={open}
@@ -517,20 +396,17 @@ export const BallotModal = ({
             candidates={sortedCandidates}
             changeRanking={changeRanking}
             ranking={ranking}
-            isDark={isDark}
           />
           <Divider />
           <SelectedRanking
             isReferendum={isReferendum}
             ranking={ranking}
             candidates={sortedCandidates}
-            isDark={isDark}
           />
           <Divider />
           <ThreeButtonDiv>
             <SpoilBallotBtn
               variant="outlined"
-              $isDark={isDark}
               onClick={() => setOpenConfirmSpoil(true)}
             >
               Spoil ballot
@@ -544,9 +420,8 @@ export const BallotModal = ({
                 Cancel
               </Button>
               <Button
-                variant="contained"
                 color="primary"
-                onClick={() => castBallot()}
+                onClick={() => handleCastBallot()}
                 // checks if choices are not in order or there are duplicate votes for the same person
                 disabled={
                   parseInt(Object.keys(ranking).slice(-1)[0], 10) !==

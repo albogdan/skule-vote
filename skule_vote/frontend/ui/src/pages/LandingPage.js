@@ -104,13 +104,13 @@ const LandingPage = () => {
           </Typography>
           {isLocal ? (
             <Link to="/elections">
-              <Button color="primary" size="large" variant="contained">
+              <Button color="primary" size="large">
                 Vote
               </Button>
             </Link>
           ) : (
             <a href={UOFT_LOGIN}>
-              <Button color="primary" size="large" variant="contained">
+              <Button color="primary" size="large">
                 Vote
               </Button>
             </a>

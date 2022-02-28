@@ -56,6 +56,7 @@ const Header = ({ isDark, toggleDark }) => {
       aria-label={isDark ? "Light mode" : "Dark mode"}
       startIcon={<Brightness6Icon data-testid="darkLightModeIcon" />}
       onClick={() => toggleDark()}
+      variant="text"
     >
       {isDark ? "Light mode" : "Dark mode"}
     </Button>
@@ -81,6 +82,7 @@ const Header = ({ isDark, toggleDark }) => {
             <Button
               aria-label="Check eligibility"
               onClick={() => getEligibility()}
+              variant="text"
             >
               Check eligibility
             </Button>
@@ -88,11 +90,15 @@ const Header = ({ isDark, toggleDark }) => {
             <nav>
               {isLocal ? (
                 <Link to="/elections">
-                  <Button aria-label="Vote">Vote</Button>
+                  <Button aria-label="Vote" variant="text">
+                    Vote
+                  </Button>
                 </Link>
               ) : (
                 <a href={UOFT_LOGIN}>
-                  <Button aria-label="Vote">Vote</Button>
+                  <Button aria-label="Vote" variant="text">
+                    Vote
+                  </Button>
                 </a>
               )}
             </nav>

@@ -49,7 +49,7 @@ export const ModalPaper = styled(Paper)(({ theme }) => ({
     },
   },
   "h1, h2": {
-    fontWeight: 500,
+    fontWeight: 400,
   },
   h3: {
     margin: "16px 0 8px",

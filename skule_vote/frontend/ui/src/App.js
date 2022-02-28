@@ -66,10 +66,10 @@ const App = () => {
         typography: {
           fontFamily: [
             "Gill Sans Custom",
-            // "Gill Sans",
-            // "Gill Sans MT",
-            // "Lato",
-            // "sans-serif",
+            "Gill Sans",
+            "Gill Sans MT",
+            "Lato",
+            "sans-serif",
           ].join(","),
           h1: {
             fontSize: 45,

@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { styled as styledMUI } from "@mui/system";
 import { SnackbarProvider } from "notistack";
 import CssBaseline from "@mui/material/CssBaseline";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -10,7 +11,6 @@ import LandingPage from "pages/LandingPage";
 import { CustomAlert } from "components/Alerts";
 import Footer from "components/Footer";
 import Header from "components/Header";
-import { responsive } from "assets/breakpoints";
 import { useLocalStorage } from "hooks/GeneralHooks";
 import GillSansLight from "fonts/gill-sans-light.otf";
 import GillSans from "fonts/gill-sans.otf";
@@ -54,20 +54,20 @@ const AppWrapper = styled.div`
   }
 `;
 
-const AppBody = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-width: 1200px;
-  margin: auto;
-  padding: 0 32px;
-  @media ${responsive.mdDown} {
-    padding: 0 16px;
-  }
-  @media ${responsive.smDown} {
-    padding: 0 12px;
-  }
-`;
+const AppBody = styledMUI("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  maxWidth: 1200,
+  margin: "auto",
+  padding: "0 32px",
+  [theme.breakpoints.down("md")]: {
+    padding: "0 16px",
+  },
+  [theme.breakpoints.down("sm")]: {
+    padding: "0 12px",
+  },
+}));
 
 export const UOFT_LOGIN =
   "https://portal.engineering.utoronto.ca/weblogin/sites/apsc/vote.asp";
@@ -87,11 +87,11 @@ const App = () => {
       createTheme({
         typography: {
           fontFamily: [
-            "Gill Sans Custon",
-            "Gill Sans",
-            "Gill Sans MT",
-            "Lato",
-            "sans-serif",
+            "Gill Sans Custom",
+            // "Gill Sans",
+            // "Gill Sans MT",
+            // "Lato",
+            // "sans-serif",
           ].join(","),
           h1: {
             fontSize: 45,

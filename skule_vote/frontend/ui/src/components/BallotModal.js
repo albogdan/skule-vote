@@ -136,7 +136,11 @@ const Statements = ({ isReferendum, candidates }) => (
                 <Spacer y={4} />
               </>
             )}
-            <Typography variant="body1">{candidate.statement}</Typography>
+            {candidate.statement.split("\n").map((item, i) => (
+              <Typography key={i} variant="body1" sx={{ mb: 1.5 }}>
+                {item}
+              </Typography>
+            ))}
           </Fragment>
         )
     )}

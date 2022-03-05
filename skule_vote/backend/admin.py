@@ -183,7 +183,7 @@ class CandidateAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
     )
-    list_filter = ("election", "election__election_session__election_session_name")
+    list_filter = ("election__election_session__election_session_name",)
 
     fieldsets = (
         ("Name of Candidate or Referendum.", {"fields": ("name",)}),

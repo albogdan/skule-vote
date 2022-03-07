@@ -1,8 +1,55 @@
 election_name,eng_eligible,che_eligible,civ_eligible,ele_eligible,cpe_eligible,esc_eligible,ind_eligible,lme_eligible,mec_eligible,mms_eligible,year_1_eligible,year_2_eligible,year_3_eligible,year_4_eligible,pey_eligible,status_eligible
+Track One Engineering Representative,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,Full and Part Time
+1st Year Chemical Engineering Representative,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,Full and Part Time
 1st Year Civil Engineering Representative,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,Full and Part Time
+1st Year Electrical & Computer Engineering Representative,0,0,0,1,1,0,0,0,0,0,1,0,0,0,0,Full and Part Time
+1st Year Engineering Science Representative,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,Full and Part Time
+1st Year Industrial Engineering Representative,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,Full and Part Time
+1st Year Mineral Engineering Representative,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,Full and Part Time
+1st Year Mechanical Engineering Representative,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,Full and Part Time
+1st Year Materials Science Engineering Representative,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,Full and Part Time
+2nd Year Chemical Engineering Representative,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,Full and Part Time
+2nd Year Civil Engineering Representative,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,Full and Part Time
+2nd Year Electrical & Computer Engineering Representative,0,0,0,1,1,0,0,0,0,0,0,1,0,0,0,Full and Part Time
 2nd Year Engineering Science Representative,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,Full and Part Time
-4th Year Chair,0,1,1,1,1,1,1,1,1,1,0,0,0,1,1,Full and Part Time
-Computer Club Chair,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1,Full and Part Time
+2nd Year Industrial Engineering Representative,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,Full and Part Time
+2nd Year Mineral Engineering Representative,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,Full and Part Time
+2nd Year Mechanical Engineering Representative,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,Full and Part Time
+2nd Year Materials Science Engineering Representative,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,Full and Part Time
+3rd Year Chemical Engineering Representative,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,Full and Part Time
+3rd Year Civil Engineering Representative,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,Full and Part Time
+3rd Year Electrical & Computer Engineering Representative,0,0,0,1,1,0,0,0,0,0,0,0,1,0,0,Full and Part Time
+3rd Year Engineering Science Representative,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,Full and Part Time
+3rd Year Industrial Engineering Representative,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,Full and Part Time
+3rd Year Mineral Engineering Representative,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,Full and Part Time
+3rd Year Mechanical Engineering Representative,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,Full and Part Time
+3rd Year Materials Science Engineering Representative,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,Full and Part Time
+PEY Chemical Engineering Representative,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,Part Time
+PEY Civil Engineering Representative,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,Part Time
+PEY Electrical & Computer Engineering Representative,0,0,0,1,1,0,0,0,0,0,0,0,0,0,1,Part Time
+PEY Engineering Science Representative,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,Part Time
+PEY Industrial Engineering Representative,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,Part Time
+PEY Mineral Engineering Representative,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,Part Time
+PEY Mechanical Engineering Representative,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,Part Time
+PEY Materials Science Engineering Representative,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,Part Time
+4th Year Chemical Engineering Representative,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,Full and Part Time
+4th Year Civil Engineering Representative,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,Full and Part Time
+4th Year Electrical & Computer Engineering Representative,0,0,0,1,1,0,0,0,0,0,0,0,0,1,0,Full and Part Time
+4th Year Engineering Science Representative,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,Full and Part Time
+4th Year Industrial Engineering Representative,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,Full and Part Time
+4th Year Mineral Engineering Representative,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,Full and Part Time
+4th Year Mechanical Engineering Representative,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,Full and Part Time
+4th Year Materials Science Engineering Representative,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,Full and Part Time
+1st Year Chair,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,Full and Part Time
+2nd Year Chair,0,1,1,1,1,1,1,1,1,1,0,1,0,0,0,Full and Part Time
+3rd Year Chair,0,1,1,1,1,1,1,1,1,1,0,0,1,0,0,Full and Part Time
+4th Year Chair,0,1,1,1,1,1,1,1,1,1,0,0,0,1,0,Full and Part Time
+Electrical and Computer Club Chair,0,0,0,1,1,0,0,0,0,0,1,1,1,1,1,Full and Part Time
 Engineering Science Club Chair,0,0,0,0,0,1,0,0,0,0,1,1,1,1,1,Full and Part Time
-Part Time Student Chair,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,Part Time
-PEY Chemical Engineering Representative,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,Full and Part Time
+Part Time Student Chair,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,Part Time
+UTAT Special Levy,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,Full and Part Time
+SUDS Manager,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,Full and Part Time
+President,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,Full and Part Time
+VP Student Life,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,Full and Part Time
+Engineering Science Board Rep,0,0,0,0,0,1,0,0,0,0,1,1,1,1,1,Full and Part Time
+At Large Board Rep,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,Full and Part Time

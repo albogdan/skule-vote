@@ -42,8 +42,8 @@ class ElectionSessionAdminTestCase(SetupMixin, TestCase):
             kwargs={"object_id": election_session.id},
         )
 
-        new_start = self._now() + timedelta(days=5)
-        new_end = self._now() + timedelta(days=10)
+        new_start = (self._now() + timedelta(days=5)).astimezone(settings.TZ_INFO)
+        new_end = (self._now() + timedelta(days=10)).astimezone(settings.TZ_INFO)
         new_data = {
             "election_session_name": "ElectionSession2021Part2",
             "start_time_0": new_start.date(),
@@ -76,7 +76,7 @@ class ElectionSessionAdminTestCase(SetupMixin, TestCase):
             kwargs={"object_id": election_session.id},
         )
 
-        new_end = self._now() + timedelta(days=10)
+        new_end = (self._now() + timedelta(days=10)).astimezone(settings.TZ_INFO)
         new_data = {
             "election_session_name": self.data["election_session_name"],
             "start_time_0": self.data["start_time"].date(),

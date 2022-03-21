@@ -5,6 +5,8 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
 import Modal from "@mui/material/Modal";
+import WarningIcon from "@mui/icons-material/Warning";
+import Stack from "@mui/material/Stack";
 
 const TwoButtonDiv = styled("div")(({ theme }) => ({
   display: "flex",
@@ -38,9 +40,9 @@ export const ModalPaper = styled(Paper)(({ theme }) => ({
   overflowY: "auto",
   outline: "none",
   [theme.breakpoints.down("sm")]: {
-    padding: 16,
-    margin: "12px auto",
-    maxHeight: "calc(100% - 24px)",
+    padding: "24px 16px 40px",
+    margin: "24px auto",
+    maxHeight: "calc(100% - 48px)",
   },
   hr: {
     margin: "24px 0",
@@ -55,6 +57,19 @@ export const ModalPaper = styled(Paper)(({ theme }) => ({
     margin: "16px 0 8px",
     [theme.breakpoints.down("sm")]: {
       marginTop: 16,
+    },
+  },
+}));
+
+const SubModalPaper = styled(ModalPaper)(({ theme }) => ({
+  marginTop: "100px !important",
+  maxWidth: 500,
+  [theme.breakpoints.down("sm")]: {
+    padding: "32px 16px 16px",
+  },
+  h3: {
+    [theme.breakpoints.down("sm")]: {
+      marginTop: 0,
     },
   },
 }));
@@ -76,7 +91,7 @@ export const ConfirmSpoilModal = ({ open, onClose, spoilBallot }) => (
     aria-labelledby="confirm-spoil-modal"
     aria-describedby="confirm-spoil-modal"
   >
-    <ModalPaper sx={{ marginTop: "100px !important", maxWidth: 500 }}>
+    <SubModalPaper>
       <Typography variant="h3">
         Are you sure you want to spoil your ballot?
       </Typography>
@@ -92,7 +107,7 @@ export const ConfirmSpoilModal = ({ open, onClose, spoilBallot }) => (
           Spoil ballot
         </SpoilBallotBtnFilled>
       </TwoButtonDiv>
-    </ModalPaper>
+    </SubModalPaper>
   </Modal>
 );
 
@@ -105,10 +120,13 @@ export const PleaseRankModal = ({ open, onClose, castBallot }) => (
     aria-labelledby="rank-all-modal"
     aria-describedby="rank-all-modal"
   >
-    <ModalPaper sx={{ marginTop: "100px !important", maxWidth: 500 }}>
-      <Typography variant="h3">
-        Are you sure you wish to proceed? You didn't rank all your choices.
-      </Typography>
+    <SubModalPaper>
+      <Stack direction="row" alignItems="flex-start" spacing={2}>
+        <WarningIcon color="warning" />
+        <Typography variant="h3">
+          You didn't rank all your choices. Are you sure you wish to proceed?
+        </Typography>
+      </Stack>
       <Divider />
       <TwoButtonDiv>
         <Button
@@ -123,6 +141,6 @@ export const PleaseRankModal = ({ open, onClose, castBallot }) => (
           No, take me back
         </Button>
       </TwoButtonDiv>
-    </ModalPaper>
+    </SubModalPaper>
   </Modal>
 );

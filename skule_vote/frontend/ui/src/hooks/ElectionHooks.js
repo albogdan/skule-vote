@@ -102,13 +102,6 @@ export const useHandleSubmit = (setEligibleElections) => {
     try {
       const response = await post("/api/vote/", { electionId, ranking });
       if (statusIsGood(response.status)) {
-        enqueueSnackbar(
-          {
-            message: "Your vote has been successfully cast",
-            variant: "success",
-          },
-          { variant: "success" }
-        );
         // Remove this election from the list of eligible elections
         setEligibleElections((prevState) => {
           if (prevState == null) {
@@ -119,6 +112,13 @@ export const useHandleSubmit = (setEligibleElections) => {
           delete updated[electionId];
           return updated;
         });
+        enqueueSnackbar(
+          {
+            message: "Your vote has been successfully cast",
+            variant: "success",
+          },
+          { variant: "success" }
+        );
       }
     } catch (e) {
       enqueueSnackbar(

@@ -11,19 +11,13 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import FormHelperText from "@mui/material/FormHelperText";
+import Stack from "@mui/material/Stack";
 import { Spacer } from "assets/layout";
 import { BallotRulingAlert } from "components/Alerts";
 import { ConfirmSpoilModal, PleaseRankModal } from "components/BallotSubmodals";
 import { ModalPaper } from "components/BallotSubmodals";
 
 export const REOPEN_NOMINATIONS = "Reopen Nominations";
-
-const HeaderDiv = styled("div")({
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  width: "100%",
-});
 
 const SelectorDiv = styled("div")({
   display: "flex",
@@ -186,7 +180,9 @@ const Selector = ({ i, candidates, ranking, isReferendum, changeRanking }) => {
         label={label}
         color="secondary"
       >
-        <MenuItem value="">-</MenuItem>
+        <MenuItem value="" key="-">
+          -
+        </MenuItem>
         {candidates.map((candidate) => (
           <MenuItem value={candidate.id} key={candidate.id}>
             {candidates.length === 2 && candidate.statement != null
@@ -224,7 +220,7 @@ const BallotDropdowns = ({
       <Typography variant="body1">
         {candidates.length === 2
           ? "Please select your choice using the dropdown menu."
-          : "Please select as many choices as you want using the dropdown menus. Please select as many choices as you want using the dropdown menus. You are encouraged to rank all of the above choices."}
+          : "Please select as many choices as you want using the dropdown menus. You are encouraged to rank all of the above choices."}
       </Typography>
       <SelectorDiv>
         {candidates.map(
@@ -263,17 +259,18 @@ const SelectedRanking = ({ isReferendum, ranking, candidates }) => {
       <Typography variant="h2">
         {candidates.length === 2 ? "Selected Choice" : "Selected Ranking"}
       </Typography>
-      <Typography variant="body1">
+      <Typography variant="body1" sx={{ mb: 0.5 }}>
         Please confirm that your choice(s) are correctly reflected here and cast
         your ballot.
+      </Typography>
+      <Typography variant="body1">
+        You can submit a blank ballot by pressing "Spoil Ballot".
       </Typography>
       <br />
       {/* Case: nothing has been selected yet */}
       {rankingLen === 0 && (
-        <Typography variant="body1">
+        <Typography variant="body1" sx={{ fontStyle: "italic" }}>
           No choice selected
-          <br />
-          (You can submit a blank ballot by pressing "Spoil Ballot")
         </Typography>
       )}
       {/* Case: is a single candidate or referendum and vote has been selected */}
@@ -377,7 +374,12 @@ export const BallotModal = ({
         aria-describedby="ballot-modal"
       >
         <ModalPaper>
-          <HeaderDiv>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="flex-start"
+            sx={{ width: "100%" }}
+          >
             <Typography variant="h1">{electionName}</Typography>
             <IconButton
               data-testid="drawerClose"
@@ -387,7 +389,7 @@ export const BallotModal = ({
             >
               <ClearIcon />
             </IconButton>
-          </HeaderDiv>
+          </Stack>
           <Divider />
           <Statements
             isReferendum={isReferendum}

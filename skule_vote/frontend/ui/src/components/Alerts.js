@@ -34,7 +34,7 @@ export const CustomAlert = forwardRef((props, ref) => {
     <IconButton
       aria-label="closeAlert"
       color="inherit"
-      size="small"
+      size="large"
       onClick={() => closeSnackbar(props.id)}
     >
       <CloseIcon data-testid="closeAlert" fontSize="inherit" />
@@ -43,7 +43,12 @@ export const CustomAlert = forwardRef((props, ref) => {
 
   return (
     <AlertDiv ref={ref} fill={fillColorMap[variant]}>
-      <Alert variant="outlined" severity={variant} action={CloseBtn}>
+      <Alert
+        variant="outlined"
+        severity={variant}
+        action={CloseBtn}
+        sx={{ display: "flex", alignItems: "center", py: 0 }}
+      >
         {message}
       </Alert>
     </AlertDiv>

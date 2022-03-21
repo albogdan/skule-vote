@@ -72,7 +72,7 @@ const App = () => {
             "sans-serif",
           ].join(","),
           h1: {
-            fontSize: 45,
+            fontSize: 42,
             fontWeight: 300,
             "@media (max-width:600px)": {
               fontSize: 32,
@@ -133,10 +133,21 @@ const App = () => {
 
             `,
           },
+          MuiIconButton: {
+            defaultProps: {
+              disableRipple: true,
+            },
+          },
+          MuiMenuItem: {
+            defaultProps: {
+              disableRipple: true,
+            },
+          },
           MuiButton: {
             defaultProps: {
               disableElevation: true,
               variant: "contained",
+              disableRipple: true,
             },
             styleOverrides: {
               root: {

@@ -5,6 +5,7 @@ import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import { ReactComponent as SkuleLogoBlue } from "images/SkuleLogoBlue.svg";
+import Stack from "@mui/material/Stack";
 import { UOFT_LOGIN } from "App";
 
 const SkuleLogo = styled(SkuleLogoBlue)(({ theme }) => ({
@@ -65,11 +66,6 @@ const ElectionDetailsPaper = styled(Paper)(({ theme }) => ({
   },
 }));
 
-const ElectionDetails = styled("div")({
-  display: "flex",
-  flexDirection: "column",
-});
-
 const LandingPage = () => {
   const isLocal =
     (process?.env?.REACT_APP_DEV_SERVER_URL ?? "").includes("localhost") ||
@@ -117,7 +113,7 @@ const LandingPage = () => {
         </LandingDivText>
       </LandingDiv>
 
-      <ElectionDetails>
+      <Stack>
         <Typography variant="h2">Election Details</Typography>
         <ElectionDetailsPaper>
           <Typography variant="body1">
@@ -184,7 +180,7 @@ const LandingPage = () => {
             Michael Vu, and Rafal Dittwald
           </Typography>
         </ElectionDetailsPaper>
-      </ElectionDetails>
+      </Stack>
     </>
   );
 };

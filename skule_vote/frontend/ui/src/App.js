@@ -14,6 +14,7 @@ import { useLocalStorage } from "hooks/GeneralHooks";
 import GillSansLight from "fonts/gill-sans-light.otf";
 import GillSans from "fonts/gill-sans.otf";
 import GillSansMed from "fonts/gill-sans-medium.otf";
+import ComicSans from "fonts/Comic-Sans-MS.otf";
 
 const AppWrapper = styled("div")(({ theme }) => ({
   minHeight: "100vh",
@@ -131,6 +132,12 @@ const App = () => {
                 font-style: normal;
               }
 
+              @font-face {
+                font-family: "Comic Sans Custom";
+                src: url(${ComicSans}) format("opentype");
+                font-weight: 400;
+                font-style: normal;
+              }
             `,
           },
           MuiIconButton: {

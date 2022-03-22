@@ -219,7 +219,7 @@ To use this method, when you go to the `admin` site and add an `ElectionSession`
 
 The `RON/No Candidate` is created by default on the creation of each `Election`. It is also deleted by cascade on deletion of any `Election`, which includes manual `Election` deletion or as a cascade from deleting an `ElectionSession`. We describe it as the `RON/No Candidate` since it can take the form of a `RON Candidate` in the case where there are two or more other `Candidates`, or the `No Candidate` in the case of a single other `Candidate`.
 
-The `RON/No Candidate` has a default statement that says `Choose this option to reopen nominations.`. This will appear to the user when `RON` is active. When `No` is active, we remove the message and change the name to `No`. This is all done in the frontend.
+The `RON/No Candidate` has a default statement that says `Choose this option if you don’t believe there are suitable candidate(s). If 'Reopen Nominations' wins, nominations for this position will be re-opened so that more candidates can run.`. This will appear to the user when `RON` is active. When `No` is active, we remove the message and change the name to `No`. This is all done in the frontend.
 
 The `RON/No Candidate` is protected from accidental deletion in the following ways:
 

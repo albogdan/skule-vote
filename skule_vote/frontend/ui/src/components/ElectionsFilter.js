@@ -112,7 +112,9 @@ const ElectionsFilter = ({
           fullWidth
         >
           <Typography variant="body1">{listOfCategories[category]}</Typography>
-          <Chip label={electionsCount[category] ?? "0"} />
+          {electionsCount.all > 0 && (
+            <Chip label={electionsCount[category] ?? "0"} />
+          )}
         </FilterItem>
       ))}
     </ElectionsFilterPaper>

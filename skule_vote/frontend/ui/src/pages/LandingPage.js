@@ -174,11 +174,13 @@ const LandingPage = () => {
             collected from the student body for the upcoming school year.
           </Typography>
           <br />
-          <Typography variant="body1">
-            Special thanks to the development team over the years: Armin Ale,
-            Alex Bogdan, Lisa Li, Aleksei Wan, Jonathan Swyers, Robert Fairley,
-            Michael Vu, and Rafal Dittwald
-          </Typography>
+          <Link to="/devs">
+            <Typography variant="body1" sx={{ color: "text.primary" }}>
+              Special thanks to the development team over the years: Armin Ale,
+              Alex Bogdan, Lisa Li, Aleksei Wan, Jonathan Swyers, Robert
+              Fairley, Michael Vu, and Rafal Dittwald
+            </Typography>
+          </Link>
         </ElectionDetailsPaper>
       </Stack>
     </>

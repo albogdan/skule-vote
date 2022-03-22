@@ -7,6 +7,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { Route, BrowserRouter, Routes, Navigate } from "react-router-dom";
 import ElectionPage from "pages/ElectionPage";
 import LandingPage from "pages/LandingPage";
+import DevsPage from "pages/DevsPage";
 import { CustomAlert } from "components/Alerts";
 import Footer from "components/Footer";
 import Header from "components/Header";
@@ -228,6 +229,7 @@ const App = () => {
                 <Routes>
                   <Route exact path="/" element={<LandingPage />} />
                   <Route exact path="/elections" element={<ElectionPage />} />
+                  <Route exact path="/devs" element={<DevsPage />} />
                   <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
               </AppBody>

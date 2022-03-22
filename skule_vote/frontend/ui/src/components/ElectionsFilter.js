@@ -94,7 +94,7 @@ const ElectionsFilter = ({
         }
         return prev;
       },
-      { all: Object.values(eligibleElections).length }
+      { all: Object.values(eligibleElections ?? {}).length }
     );
     setElectionsCount(cnt);
   }, [eligibleElections]);

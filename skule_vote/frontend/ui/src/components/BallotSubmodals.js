@@ -67,11 +67,6 @@ const SubModalPaper = styled(ModalPaper)(({ theme }) => ({
   [theme.breakpoints.down("sm")]: {
     padding: "32px 16px 16px",
   },
-  h3: {
-    [theme.breakpoints.down("sm")]: {
-      marginTop: 0,
-    },
-  },
 }));
 
 const SpoilBallotBtnFilled = styled(Button)(({ theme }) => ({
@@ -121,10 +116,10 @@ export const PleaseRankModal = ({ open, onClose, castBallot }) => (
     aria-describedby="rank-all-modal"
   >
     <SubModalPaper>
-      <Stack direction="row" alignItems="flex-start" spacing={2}>
+      <Stack direction="row" alignItems="flex-start" spacing={2} mt={2}>
         <WarningIcon color="warning" />
         <Typography variant="h3">
-          You didn't rank all your choices. Are you sure you wish to proceed?
+          You didn't rank all your choices. Would you like to go back?
         </Typography>
       </Stack>
       <Divider />
@@ -135,10 +130,10 @@ export const PleaseRankModal = ({ open, onClose, castBallot }) => (
           onClick={() => castBallot()}
           data-testid="pleaseRankModalConfirm"
         >
-          Yes, cast my vote
+          No, cast my vote
         </Button>
         <Button color="primary" onClick={() => onClose()}>
-          No, take me back
+          Yes, take me back
         </Button>
       </TwoButtonDiv>
     </SubModalPaper>

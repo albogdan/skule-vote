@@ -22,13 +22,8 @@ describe("<ElectionCard />", () => {
     );
 
     expect(getByText(title)).toBeInTheDocument();
-    expect(
-      getByText(
-        `${seatsAvailable} positions to be filled | ${
-          numCandidates - 1
-        } candidates`
-      )
-    ).toBeInTheDocument();
+    expect(getByText(/3 positions to be filled/i)).toBeInTheDocument();
+    expect(getByText(/3 candidates/)).toBeInTheDocument();
   });
 
   it("renders ElectionCard with given position and 1 seat available", () => {
@@ -48,9 +43,8 @@ describe("<ElectionCard />", () => {
       )
     );
     expect(getByText(title)).toBeInTheDocument();
-    expect(
-      getByText("1 position to be filled | 1 candidate")
-    ).toBeInTheDocument();
+    expect(getByText(/1 position to be filled/i)).toBeInTheDocument();
+    expect(getByText(/1 candidate/i)).toBeInTheDocument();
   });
 
   it("renders ElectionCard with given referenda", () => {

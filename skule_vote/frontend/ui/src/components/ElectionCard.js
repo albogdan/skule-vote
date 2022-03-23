@@ -51,7 +51,7 @@ const ElectionCard = ({
       {category !== "referenda" && (
         <Typography variant="subtitle1" sx={{ mt: 0.5, opacity: 0.65 }}>
           {seatsAvailable} position{seatsAvailable > 1 && "s"} to be filled
-          &nbsp;|&nbsp; {numCandidates - 1} candidate
+          &nbsp;&bull;&nbsp; {numCandidates - 1} candidate
           {numCandidates > 2 && "s"}
         </Typography>
       )}

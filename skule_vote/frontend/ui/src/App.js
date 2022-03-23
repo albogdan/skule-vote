@@ -15,6 +15,7 @@ import { useLocalStorage } from "hooks/GeneralHooks";
 import GillSansLight from "fonts/gill-sans-light.otf";
 import GillSans from "fonts/gill-sans.otf";
 import GillSansMed from "fonts/gill-sans-medium.otf";
+import ComicSans from "fonts/Comic-Sans-MS.otf";
 
 const AppWrapper = styled("div")(({ theme }) => ({
   minHeight: "100vh",
@@ -73,7 +74,7 @@ const App = () => {
             "sans-serif",
           ].join(","),
           h1: {
-            fontSize: 45,
+            fontSize: 42,
             fontWeight: 300,
             "@media (max-width:600px)": {
               fontSize: 32,
@@ -132,12 +133,29 @@ const App = () => {
                 font-style: normal;
               }
 
+              @font-face {
+                font-family: "Comic Sans Custom";
+                src: url(${ComicSans}) format("opentype");
+                font-weight: 400;
+                font-style: normal;
+              }
             `,
+          },
+          MuiIconButton: {
+            defaultProps: {
+              disableRipple: true,
+            },
+          },
+          MuiMenuItem: {
+            defaultProps: {
+              disableRipple: true,
+            },
           },
           MuiButton: {
             defaultProps: {
               disableElevation: true,
               variant: "contained",
+              disableRipple: true,
             },
             styleOverrides: {
               root: {

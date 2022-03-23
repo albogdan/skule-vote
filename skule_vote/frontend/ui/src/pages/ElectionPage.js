@@ -161,6 +161,7 @@ const ElectionPage = () => {
         toggleDrawer={toggleDrawer}
         filterCategory={filterCategory}
         setAndCloseFilter={setAndCloseFilter}
+        eligibleElections={eligibleElections}
       />
       <Spacer y={isMobile ? 12 : 16} />
       <Messages
@@ -173,6 +174,7 @@ const ElectionPage = () => {
       <ElectionsWrapper>
         <Box sx={{ display: { xs: "none", sm: "block" } }}>
           <ElectionsFilter
+            eligibleElections={eligibleElections}
             filterCategory={filterCategory}
             setAndCloseFilter={setAndCloseFilter}
           />

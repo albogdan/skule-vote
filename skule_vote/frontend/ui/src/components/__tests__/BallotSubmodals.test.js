@@ -64,12 +64,10 @@ describe("<PleaseRankModal />", () => {
     const { getByText } = render(<PleaseRankModal open={true} />);
 
     expect(
-      getByText(
-        "Are you sure you wish to proceed? You didn't rank all your choices."
-      )
+      getByText("You didn't rank all your choices. Would you like to go back?")
     ).toBeInTheDocument();
-    expect(getByText(/Yes, cast my vote/)).toBeInTheDocument();
-    expect(getByText(/No, take me back/)).toBeInTheDocument();
+    expect(getByText(/No, cast my vote/)).toBeInTheDocument();
+    expect(getByText(/Yes, take me back/)).toBeInTheDocument();
   });
 
   it("confirms to cast the ballot", async () => {
@@ -84,7 +82,7 @@ describe("<PleaseRankModal />", () => {
         />
       )
     );
-    const buttonSpoil = await findByText("Yes, cast my vote");
+    const buttonSpoil = await findByText("No, cast my vote");
     fireEvent.click(buttonSpoil);
 
     await waitFor(() => {
@@ -105,7 +103,7 @@ describe("<PleaseRankModal />", () => {
         />
       )
     );
-    const buttonSpoil = await findByText("No, take me back");
+    const buttonSpoil = await findByText("Yes, take me back");
     fireEvent.click(buttonSpoil);
 
     await waitFor(() => {

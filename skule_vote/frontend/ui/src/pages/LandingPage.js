@@ -5,6 +5,7 @@ import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import { ReactComponent as SkuleLogoBlue } from "images/SkuleLogoBlue.svg";
+import Stack from "@mui/material/Stack";
 import { UOFT_LOGIN } from "App";
 
 const SkuleLogo = styled(SkuleLogoBlue)(({ theme }) => ({
@@ -65,11 +66,6 @@ const ElectionDetailsPaper = styled(Paper)(({ theme }) => ({
   },
 }));
 
-const ElectionDetails = styled("div")({
-  display: "flex",
-  flexDirection: "column",
-});
-
 const LandingPage = () => {
   const isLocal =
     (process?.env?.REACT_APP_DEV_SERVER_URL ?? "").includes("localhost") ||
@@ -117,7 +113,7 @@ const LandingPage = () => {
         </LandingDivText>
       </LandingDiv>
 
-      <ElectionDetails>
+      <Stack>
         <Typography variant="h2">Election Details</Typography>
         <ElectionDetailsPaper>
           <Typography variant="body1">
@@ -178,13 +174,15 @@ const LandingPage = () => {
             collected from the student body for the upcoming school year.
           </Typography>
           <br />
-          <Typography variant="body1">
-            Special thanks to the development team over the years: Armin Ale,
-            Alex Bogdan, Lisa Li, Aleksei Wan, Jonathan Swyers, Robert Fairley,
-            Michael Vu, and Rafal Dittwald
-          </Typography>
+          <Link to="/devs">
+            <Typography variant="body1" sx={{ color: "text.primary" }}>
+              Special thanks to the development team over the years: Armin Ale,
+              Alex Bogdan, Lisa Li, Aleksei Wan, Jonathan Swyers, Robert
+              Fairley, Michael Vu, and Rafal Dittwald
+            </Typography>
+          </Link>
         </ElectionDetailsPaper>
-      </ElectionDetails>
+      </Stack>
     </>
   );
 };

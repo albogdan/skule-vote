@@ -308,8 +308,7 @@ describe("<BallotModal />", () => {
       expect(getByTestId("pleaseRankModalConfirm")).toBeInTheDocument();
     });
 
-    // const buttonPleaseRankModalConfirm = getByTestId("pleaseRankModalConfirm");
-    const takeMeBack = await findByText(/No, take me back/i);
+    const takeMeBack = await findByText(/Yes, take me back/i);
     fireEvent.click(takeMeBack);
 
     await waitFor(() => {

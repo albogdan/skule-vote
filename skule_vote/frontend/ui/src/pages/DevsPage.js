@@ -5,7 +5,7 @@ import { Typography } from "@mui/material";
 import { Spacer } from "assets/layout";
 
 const ComicSans = styled(Typography)({
-  fontFamily: "Comic Sans MS, Comic Sans, cursive",
+  fontFamily: "Comic Sans MS, Comic Sans Custom, Comic Sans, cursive",
   textAlign: "center",
 });
 
@@ -20,15 +20,8 @@ const DevsPage = () => (
     <Spacer y={24} />
     <TeamImg src={photo2t2team} alt="2T2 Team" />
     <Spacer y={24} />
-    <ComicSans variant="h1" sx={{}}>
-      Meet the Devs
-    </ComicSans>
-    <ComicSans
-      variant="body2"
-      sx={{ fontFamily: "Comic Sans MS, Comic Sans, cursive" }}
-    >
-      Lisa Alex Armin
-    </ComicSans>
+    <ComicSans variant="h1">Meet the Devs</ComicSans>
+    <ComicSans variant="body2">Lisa Alex Armin</ComicSans>
     <Spacer y={24} />
     <ComicSans variant="h2">
       Special thanks to the rest of the Skule Vote 2T2 Team

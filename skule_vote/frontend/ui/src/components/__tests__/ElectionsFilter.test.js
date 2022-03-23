@@ -4,10 +4,13 @@ import ElectionsFilter, {
   ElectionsFilterDrawer,
 } from "components/ElectionsFilter";
 import { listOfCategories } from "pages/ElectionPage";
+import { eligibleElections } from "assets/mocks";
 
 describe("<ElectionsFilter />", () => {
   it("renders ElectionsFilter", () => {
-    const { getByText } = render(<ElectionsFilter />);
+    const { getByText } = render(
+      <ElectionsFilter eligibleElections={eligibleElections} />
+    );
     for (let c of Object.values(listOfCategories)) {
       expect(getByText(c)).toBeInTheDocument();
     }
@@ -17,7 +20,10 @@ describe("<ElectionsFilter />", () => {
   it("called setAndCloseFilter when an item is clicked", () => {
     const setAndCloseFilterSpy = jest.fn();
     const { getByText } = render(
-      <ElectionsFilter setAndCloseFilter={setAndCloseFilterSpy} />
+      <ElectionsFilter
+        setAndCloseFilter={setAndCloseFilterSpy}
+        eligibleElections={eligibleElections}
+      />
     );
 
     const button = getByText("Officer");
@@ -28,7 +34,12 @@ describe("<ElectionsFilter />", () => {
 
 describe("<ElectionsFilterDrawer />", () => {
   it("renders ElectionsFilterDrawer", () => {
-    const { getByText } = render(<ElectionsFilterDrawer drawerOpen={true} />);
+    const { getByText } = render(
+      <ElectionsFilterDrawer
+        drawerOpen={true}
+        eligibleElections={eligibleElections}
+      />
+    );
     for (let c of Object.values(listOfCategories)) {
       expect(getByText(c)).toBeInTheDocument();
     }
@@ -37,7 +48,11 @@ describe("<ElectionsFilterDrawer />", () => {
   it("calls toggleDrawer when close icon is clicked", () => {
     const toggleDrawerSpy = jest.fn();
     const { getByTestId } = render(
-      <ElectionsFilterDrawer toggleDrawer={toggleDrawerSpy} drawerOpen={true} />
+      <ElectionsFilterDrawer
+        toggleDrawer={toggleDrawerSpy}
+        drawerOpen={true}
+        eligibleElections={eligibleElections}
+      />
     );
     fireEvent.click(getByTestId("drawerClose"));
     expect(toggleDrawerSpy).toHaveBeenCalled();

@@ -101,7 +101,9 @@ class Election(models.Model):
         data = {
             "name": "Reopen Nominations",
             "election": self,
-            "statement": "Choose this option to reopen nominations.",
+            "statement": "Choose this option if you don’t believe there are suitable candidate(s). "
+            "If 'Reopen Nominations' wins, nominations for this position will be re-opened "
+            "so that more candidates can run.",
         }
         candidate = Candidate(**data)
         candidate.save()

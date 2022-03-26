@@ -27,6 +27,7 @@ describe("<BallotModal />", () => {
           sortedCandidates={referendum.candidates}
           electionName={referendum.election_name}
           electionId={referendum.id}
+          ronId={1}
         />
       )
     );
@@ -69,6 +70,7 @@ describe("<BallotModal />", () => {
           sortedCandidates={president.candidates}
           electionName={president.election_name}
           electionId={president.id}
+          ronId={1}
         />
       )
     );
@@ -102,6 +104,7 @@ describe("<BallotModal />", () => {
             sortedCandidates={vp.candidates}
             electionName={vp.election_name}
             electionId={vp.id}
+            ronId={2}
           />
         )
       );
@@ -142,6 +145,7 @@ describe("<BallotModal />", () => {
           sortedCandidates={vp.candidates}
           electionName={vp.election_name}
           electionId={vp.id}
+          ronId={2}
         />
       )
     );
@@ -178,6 +182,7 @@ describe("<BallotModal />", () => {
           sortedCandidates={vp.candidates}
           electionName={vp.election_name}
           electionId={vp.id}
+          ronId={2}
         />
       )
     );
@@ -229,6 +234,7 @@ describe("<BallotModal />", () => {
             sortedCandidates={vp.candidates}
             electionName={vp.election_name}
             electionId={vp.id}
+            ronId={2}
           />
         )
       );
@@ -280,6 +286,7 @@ describe("<BallotModal />", () => {
             sortedCandidates={vp.candidates}
             electionName={vp.election_name}
             electionId={vp.id}
+            ronId={2}
           />
         )
       );
@@ -318,6 +325,49 @@ describe("<BallotModal />", () => {
     });
   });
 
+  it("votes for some candidates including RON, does not see 'please rank all' modal", async () => {
+    const handleSubmitSpy = jest.fn();
+    const handleCloseSpy = jest.fn();
+    const { getByText, getByRole, findByText, queryByTestId } = render(
+      withThemeProvider(
+        <BallotModal
+          open={true}
+          handleSubmit={handleSubmitSpy}
+          handleClose={handleCloseSpy}
+          isReferendum={false}
+          sortedCandidates={vp.candidates}
+          electionName={vp.election_name}
+          electionId={vp.id}
+          ronId={2}
+        />
+      )
+    );
+
+    expect(getByText(vp.election_name)).toBeInTheDocument();
+    expect(queryByTestId("pleaseRankModalConfirm")).not.toBeInTheDocument();
+
+    // Select Lisa and RON
+    const select1 = getByRole("button", { name: /Rank 1/i });
+    fireEvent.mouseDown(select1);
+    getByRole("option", { name: /Lisa Li/i }).click();
+    const select2 = getByRole("button", { name: /Rank 2/i });
+    fireEvent.mouseDown(select2);
+    getByRole("option", { name: /Reopen Nominations/i }).click();
+    await waitFor(() => {
+      expect(getByText("1. Lisa Li")).toBeInTheDocument();
+      expect(getByText("2. Reopen Nominations")).toBeInTheDocument();
+    });
+
+    const buttonSubmit = await findByText(/Cast ballot/i);
+    fireEvent.click(buttonSubmit);
+
+    await waitFor(() => {
+      expect(handleSubmitSpy).toHaveBeenCalledWith(vp.id, { 0: 0, 1: 2 });
+      expect(handleCloseSpy).toHaveBeenCalled();
+      expect(queryByTestId("pleaseRankModalConfirm")).not.toBeInTheDocument();
+    });
+  });
+
   it("votes for same candidate twice and renders error", async () => {
     const handleSubmitSpy = jest.fn();
     const handleCloseSpy = jest.fn();
@@ -331,6 +381,7 @@ describe("<BallotModal />", () => {
           sortedCandidates={vp.candidates}
           electionName={vp.election_name}
           electionId={vp.id}
+          ronId={2}
         />
       )
     );
@@ -376,6 +427,7 @@ describe("<BallotModal />", () => {
           sortedCandidates={vp.candidates}
           electionName={vp.election_name}
           electionId={vp.id}
+          ronId={2}
         />
       )
     );
@@ -413,6 +465,7 @@ describe("<BallotModal />", () => {
           sortedCandidates={president.candidates}
           electionName={president.election_name}
           electionId={president.id}
+          ronId={1}
         />
       )
     );
@@ -467,6 +520,7 @@ describe("<BallotModal />", () => {
           sortedCandidates={referendum.candidates}
           electionName={referendum.election_name}
           electionId={referendum.id}
+          ronId={1}
         />
       )
     );
@@ -510,7 +564,7 @@ describe("<BallotModal />", () => {
 
   it("renders candidate's rule violation", () => {
     vp.candidates.push({
-      id: 4,
+      id: 3,
       name: "Alex Bogdan",
       statement: "Test 2",
       disqualified_status: true,
@@ -526,6 +580,7 @@ describe("<BallotModal />", () => {
           sortedCandidates={vp.candidates}
           electionName={vp.election_name}
           electionId={vp.id}
+          ronId={2}
         />
       )
     );
@@ -542,7 +597,7 @@ describe("<BallotModal />", () => {
 
   it("renders candidate's disqualification", () => {
     vp.candidates.push({
-      id: 5,
+      id: 4,
       name: "Armin Ale",
       statement: "Test 3",
       disqualified_status: false,
@@ -558,6 +613,7 @@ describe("<BallotModal />", () => {
           sortedCandidates={vp.candidates}
           electionName={vp.election_name}
           electionId={vp.id}
+          ronId={2}
         />
       )
     );

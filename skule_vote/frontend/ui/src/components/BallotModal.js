@@ -313,6 +313,7 @@ export const BallotModal = ({
   sortedCandidates,
   electionName,
   electionId,
+  ronId,
 }) => {
   const [ranking, setRanking] = React.useState({});
   const rankingLen = Object.keys(ranking).length;
@@ -338,7 +339,11 @@ export const BallotModal = ({
   };
 
   const handleCastBallot = () => {
-    if (rankingLen < sortedCandidates.length && sortedCandidates.length > 2) {
+    if (
+      rankingLen < sortedCandidates.length &&
+      sortedCandidates.length > 2 &&
+      !Object.values(ranking).includes(ronId ?? -1)
+    ) {
       setOpenPleaseRank(true);
     } else {
       castBallot();
@@ -488,6 +493,7 @@ const EnhancedBallotModal = ({
       sortedCandidates={candidatesList}
       electionName={election_name}
       electionId={id}
+      ronId={ron.id}
     />
   );
 };

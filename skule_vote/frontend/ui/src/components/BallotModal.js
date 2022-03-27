@@ -105,6 +105,7 @@ const Statements = ({ isReferendum, candidates }) => (
     )}
     {candidates.map(
       (candidate) =>
+        candidate.name !== "No" &&
         candidate.statement != null && (
           <Fragment key={candidate.id}>
             {!isReferendum && (
@@ -130,11 +131,17 @@ const Statements = ({ isReferendum, candidates }) => (
                 <Spacer y={4} />
               </>
             )}
-            {candidate.statement.split("\n").map((item, i) => (
-              <Typography key={i} variant="body1" sx={{ mb: 1.5 }}>
-                {item}
+            {candidate.statement ? (
+              candidate.statement.split("\n").map((item, i) => (
+                <Typography key={i} variant="body1" sx={{ mb: 1.5 }}>
+                  {item}
+                </Typography>
+              ))
+            ) : (
+              <Typography variant="body1" sx={{ mb: 1.5, fontStyle: "italic" }}>
+                This candidate did not provide a statement.
               </Typography>
-            ))}
+            )}
           </Fragment>
         )
     )}

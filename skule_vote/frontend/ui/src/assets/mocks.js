@@ -75,7 +75,7 @@ export const engsciPres = {
     {
       id: 1,
       name: "Reopen Nominations",
-      statement: null,
+      statement: "Choose this option to reopen nominations.",
     },
   ],
 };

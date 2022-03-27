@@ -627,6 +627,34 @@ describe("<BallotModal />", () => {
       vp.candidates[4].rule_violation_link
     );
   });
+
+  it("renders no statement message", () => {
+    vp.candidates.push({
+      id: 5,
+      name: "Zahir Firoze",
+      statement: "",
+      disqualified_status: false,
+    });
+
+    const { getByText } = render(
+      withThemeProvider(
+        <BallotModal
+          open={true}
+          isReferendum={false}
+          sortedCandidates={vp.candidates}
+          electionName={vp.election_name}
+          electionId={vp.id}
+          ronId={2}
+        />
+      )
+    );
+
+    expect(getByText(vp.election_name)).toBeInTheDocument();
+    expect(getByText(vp.candidates[5].name)).toBeInTheDocument();
+    expect(
+      getByText("This candidate did not provide a statement.")
+    ).toBeInTheDocument();
+  });
 });
 
 describe("<EnhancedBallotModal />", () => {

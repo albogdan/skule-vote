@@ -103,41 +103,44 @@ const Statements = ({ isReferendum, candidates }) => (
         Candidates &amp; Statements
       </Typography>
     )}
-    {candidates.map(
-      (candidate) =>
-        candidate.statement != null && (
-          <Fragment key={candidate.id}>
-            {!isReferendum && (
-              <Typography variant="h3">{candidate.name}</Typography>
-            )}
-            {candidate.disqualified_status && (
-              <>
-                <BallotRulingAlert
-                  ruling={candidate.disqualified_message}
-                  link={candidate.disqualified_link}
-                  isDQ
-                />
-                <Spacer y={4} />
-              </>
-            )}
-            {(candidate.rule_violation_message ||
-              candidate.rule_violation_link) && (
-              <>
-                <BallotRulingAlert
-                  ruling={candidate.rule_violation_message}
-                  link={candidate.rule_violation_link}
-                />
-                <Spacer y={4} />
-              </>
-            )}
-            {candidate.statement.split("\n").map((item, i) => (
-              <Typography key={i} variant="body1" sx={{ mb: 1.5 }}>
-                {item}
-              </Typography>
-            ))}
-          </Fragment>
-        )
-    )}
+    {candidates.map((candidate) => (
+      <Fragment key={candidate.id}>
+        {!isReferendum && (
+          <Typography variant="h3">{candidate.name}</Typography>
+        )}
+        {candidate.disqualified_status && (
+          <>
+            <BallotRulingAlert
+              ruling={candidate.disqualified_message}
+              link={candidate.disqualified_link}
+              isDQ
+            />
+            <Spacer y={4} />
+          </>
+        )}
+        {(candidate.rule_violation_message ||
+          candidate.rule_violation_link) && (
+          <>
+            <BallotRulingAlert
+              ruling={candidate.rule_violation_message}
+              link={candidate.rule_violation_link}
+            />
+            <Spacer y={4} />
+          </>
+        )}
+        {candidate.statement ? (
+          candidate.statement.split("\n").map((item, i) => (
+            <Typography key={i} variant="body1" sx={{ mb: 1.5 }}>
+              {item}
+            </Typography>
+          ))
+        ) : (
+          <Typography variant="body1" sx={{ mb: 1.5, fontStyle: "italic" }}>
+            This candidate did not provide a statement.
+          </Typography>
+        )}
+      </Fragment>
+    ))}
   </>
 );
 

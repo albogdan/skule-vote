@@ -10,6 +10,9 @@ The repository hosting the code for the [Skule Voting](https://vote.skule.ca) we
   - [Environment Variables](#environment-variables)
   - [Running the development server](#running-the-development-server)
   - [Creating users locally](#creating-users-locally)
+  - [Tests](#tests)
+    - [React Tests](#react)
+  - [Styling the Frontend](#styling-the-frontend)
 - [Working with the Admin Site](#working-with-the-admin-site)
   - [Creating ElectionsSessions with CSV Files](#method-1-using-a-csv-file-recommended)
   - [Creating ElectionSessions Manually](#method-2-manually)
@@ -150,35 +153,9 @@ $ yarn test
 
 ### Styling the Frontend
 
-The UI app uses [MUI](https://material-ui.com/) for styling and components. There is no usage of CSS or SCSS as we use a mixture of MUI's [Palette](https://material-ui.com/customization/palette/) and MUI's [styled()](https://mui.com/system/styled/#main-content). Global colors, fonts, and dark mode configuration are set using Palette in `App.js` using MUI's `createTheme` while general component styling is done with styled().
+The UI app uses [MUI](https://mui.com/) for styling and components. There is no usage of CSS or SCSS as we use a mixture of MUI's [Palette](https://mui.com/material-ui/customization/palette/#main-content) and MUI's [styled()](https://mui.com/material-ui/customization/palette/#main-content). Global colors, fonts, and dark mode configuration are set using Palette in `App.js` using MUI's `createTheme` while general component styling is done with styled().
 
 To edit the globally-set colors, font-sizes, and font-families (which we don't recommend unless EngSoc has rebranded), simply edit the `createTheme` object in `App.js`. The colors for `primary` and `secondary` are part of EngSoc's official colour scheme.
-
-#### Media Queries and Responsiveness
-
-Predetermined breakpoints are set in `assets/breakpoints.js`. These values correspond to Material UI's breakpoints in their components. Do not change these predetermined values as it will cause inconsistency with breakpoints in Material UI which are out of our control.
-
-To use the breakpoints, instead of...
-
-```bash
-const Wrapper = styled.div`
-  padding: 20px 15px;
-  @media (max-width: 600px) {
-    padding: 16px 12px;
-  }
-`;
-```
-
-...import `responsive` from `breakpoints.js` and use like...
-
-```bash
-const Wrapper = styled.div`
-  padding: 20px 15px;
-  @media ${responsive.smDown} {
-    padding: 16px 12px;
-  }
-`;
-```
 
 ## Working with the Admin Site
 

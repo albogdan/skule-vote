@@ -5,7 +5,6 @@ from backend.ballot import calculate_results
 
 # from backend.ballot_new import calculate_results  # Uncomment to test with the new file
 
-from backend.admin import generate_results
 from backend.models import (
     Ballot,
     Candidate,
@@ -27,7 +26,10 @@ class BallotRealDataTestCase(SetupMixin, TestCase):
 
         self.election_session = self._create_election_session()
 
-    def _create_candidates(self, names, election):
+    def _create_candidates(self, election_choices, election):
+        names = [c["M"]["name"]["S"] for c in election_choices]
+        names.pop()  # Remove Ron from list
+
         for name in names:
             candidate = Candidate(
                 name=name, statement="Insert statement here.", election=election
@@ -124,16 +126,12 @@ class BallotRealDataTestCase(SetupMixin, TestCase):
             lines = f.read()
             election = json.loads(lines)
 
-        names = [c["M"]["name"]["S"] for c in election["choices"]["L"]]
-        names.pop()  # Remove Ron from list
-
-        choices = self._create_candidates(names, officer)
-
+        choices = self._create_candidates(election["choices"]["L"], officer)
         ballots, voters = self._create_ballots(
             election["Ballots"]["L"], officer, choices
         )
-
         results = self._create_results(ballots, choices, officer)
+
         self.assertEqual(results["winners"], ["Joshua Pius"])
 
         self.assertEqual(results["rounds"][0]["Matthew Van Oirschot"], 29)
@@ -196,3 +194,81 @@ class BallotRealDataTestCase(SetupMixin, TestCase):
         self.assertEqual(results["spoiledBallots"], 1)
         self.assertEqual(results["totalVotes"], 210)
         self.assertEqual(len(voters), 210 + 1)
+
+    def test_vpsl_post_2021(self):
+        # Real data and results from the 2021 VPSL election, post-disqualification of Andrew Chen
+        self._create_officer(self.election_session, 1)
+        officer = Election.objects.filter(category="officer")[0]
+
+        with open("./backend/test_data/2021_VPSL_post.txt", "r") as f:
+            lines = f.read()
+            election = json.loads(lines)
+
+        choices = self._create_candidates(election["choices"]["L"], officer)
+        ballots, voters = self._create_ballots(
+            election["Ballots"]["L"], officer, choices
+        )
+        results = self._create_results(ballots, choices, officer)
+
+        self.assertEqual(results["winners"], ["Karman Lochab"])
+
+        self.assertEqual(results["rounds"][0]["Terry Luan"], 157)
+        self.assertEqual(results["rounds"][0]["Karman Lochab"], 167)
+        self.assertEqual(results["rounds"][0]["Andrew Chen"], 0)
+        self.assertEqual(results["rounds"][0]["Reopen Nominations"], 42)
+
+        self.assertEqual(results["rounds"][1]["Terry Luan"], 157)
+        self.assertEqual(results["rounds"][1]["Karman Lochab"], 167)
+        self.assertEqual(results["rounds"][1]["Andrew Chen"], 0)
+        self.assertEqual(results["rounds"][1]["Reopen Nominations"], 42)
+
+        self.assertEqual(results["rounds"][2]["Terry Luan"], 0)
+        self.assertEqual(results["rounds"][2]["Karman Lochab"], 240)
+        self.assertEqual(results["rounds"][2]["Andrew Chen"], 0)
+        self.assertEqual(results["rounds"][2]["Reopen Nominations"], 90)
+
+        self.assertEqual(len(results["rounds"]), 3)
+
+        self.assertEqual(results["quota"], 184)
+        self.assertEqual(results["spoiledBallots"], 75)
+        self.assertEqual(results["totalVotes"], 366)
+        self.assertEqual(len(voters), 366 + 75)
+
+    def test_vpsl_pre_2021(self):
+        # Real data and results from the 2021 VPSL election, pre-disqualification of Andrew Chen
+        self._create_officer(self.election_session, 1)
+        officer = Election.objects.filter(category="officer")[0]
+
+        with open("./backend/test_data/2021_VPSL_pre.txt", "r") as f:
+            lines = f.read()
+            election = json.loads(lines)
+
+        choices = self._create_candidates(election["choices"]["L"], officer)
+        ballots, voters = self._create_ballots(
+            election["Ballots"]["L"], officer, choices
+        )
+        results = self._create_results(ballots, choices, officer)
+
+        self.assertEqual(results["winners"], ["Terry Luan"])
+
+        self.assertEqual(results["rounds"][0]["Terry Luan"], 119)
+        self.assertEqual(results["rounds"][0]["Karman Lochab"], 116)
+        self.assertEqual(results["rounds"][0]["Andrew Chen"], 163)
+        self.assertEqual(results["rounds"][0]["Reopen Nominations"], 34)
+
+        self.assertEqual(results["rounds"][1]["Terry Luan"], 196)
+        self.assertEqual(results["rounds"][1]["Karman Lochab"], 0)
+        self.assertEqual(results["rounds"][1]["Andrew Chen"], 173)
+        self.assertEqual(results["rounds"][1]["Reopen Nominations"], 40)
+
+        self.assertEqual(results["rounds"][2]["Terry Luan"], 282)
+        self.assertEqual(results["rounds"][2]["Karman Lochab"], 0)
+        self.assertEqual(results["rounds"][2]["Andrew Chen"], 0)
+        self.assertEqual(results["rounds"][2]["Reopen Nominations"], 49)
+
+        self.assertEqual(len(results["rounds"]), 3)
+
+        self.assertEqual(results["quota"], 217)
+        self.assertEqual(results["spoiledBallots"], 9)
+        self.assertEqual(results["totalVotes"], 432)
+        self.assertEqual(len(voters), 432 + 9)

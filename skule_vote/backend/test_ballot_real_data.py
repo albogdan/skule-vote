@@ -117,12 +117,12 @@ class BallotRealDataTestCase(SetupMixin, TestCase):
 
         return ballots, voters
 
-    def test_valedictoria_2022(self):
-        # Real data and results from the 2022 Valedictoria election
+    def test_valedictorian_2022(self):
+        # Real data and results from the 2022 Valedictorian election
         self._create_officer(self.election_session, 1)
         officer = Election.objects.filter(category="officer")[0]
 
-        with open("./backend/test_data/2022_Valedictoria.txt", "r") as f:
+        with open("./backend/test_data/2022_Valedictorian.txt", "r") as f:
             lines = f.read()
             election = json.loads(lines)
 

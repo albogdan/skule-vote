@@ -2,8 +2,6 @@ from django.test import TestCase
 
 from backend.ballot import calculate_results
 
-# from backend.ballot_new import calculate_results  # Uncomment to test with the new file
-
 from backend.admin import generate_results
 from backend.models import (
     Ballot,

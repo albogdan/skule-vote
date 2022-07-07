@@ -1305,8 +1305,87 @@ class BallotTestCase(SetupMixin, TestCase):
         self.assertEqual(results["spoiledBallots"], 1)
         self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
 
-    # CASE 3: Multi-seat election with 5 candidates and 2 seats, has 4 rounds
-    def test_two_seats_five_candidates_0_winners_4_rounds(self):
+    # CASE 3: Multi-seat election with 5 candidates and 2 seats
+    def test_two_seats_five_candidates(self):
+        """
+        The distribution of votes in each round is IDENTICAL to the test below
+        (test_two_seats_five_candidates_var_2). However, the results of the final
+        4th round are different. The reason is due to backwardsEliminationProcess.
+        To determine which candidate to eliminate, backwardsEliminationProcess
+        looks at the rankings per ballot prior to the current round.
+
+        In this test, some ballots have length 1 while all other ballots have length 2.
+        In the other test, all ballots have length 2. Thus, the ballots of len(1) produce
+        different results in backwardsEliminationProcess than a ballot of len(>1) even
+        though the votes each candidate gets per round is the same.
+
+        Ultimately, the final results are the same, which is what matters. These 2 tests
+        show the weird behavior of backwardsEliminationProcess that took me some time to debug.
+        """
+        self._create_officer(self.election_session, 2)
+        officer = Election.objects.filter(category="officer")[0]
+
+        choices = self._create_candidates(officer, 4)
+        ron, candidate1, candidate2, candidate3, candidate4 = (
+            choices[0],
+            choices[1],
+            choices[2],
+            choices[3],
+            choices[4],
+        )
+
+        NUM_VOTERS = 9
+        NUM_SPOILED = 1
+        ballots, voters = self._create_ballots(
+            [
+                [candidate1, candidate2],
+                [candidate1, candidate2],
+                [candidate2, candidate1],
+                [candidate2, candidate1],
+                [candidate3],
+                [candidate3],
+                [candidate4, candidate1],
+                [ron],
+            ],
+            officer,
+            NUM_VOTERS,
+            NUM_SPOILED,
+        )
+
+        results = self._create_results(ballots, choices, officer)
+        self.assertEqual(results["winners"], [candidate1.name])
+        self.assertEqual(results["rounds"][0][candidate1.name], 2)
+        self.assertEqual(results["rounds"][0][candidate2.name], 2)
+        self.assertEqual(results["rounds"][0][candidate3.name], 2)
+        self.assertEqual(results["rounds"][0][candidate4.name], 1)
+        self.assertEqual(results["rounds"][0][ron.name], 1)
+        self.assertEqual(results["rounds"][1][candidate1.name], 3)
+        self.assertEqual(results["rounds"][1][candidate2.name], 2)
+        self.assertEqual(results["rounds"][1][candidate3.name], 2)
+        self.assertEqual(results["rounds"][1][candidate4.name], 0)
+        self.assertEqual(results["rounds"][1][ron.name], 1)
+        self.assertEqual(results["rounds"][2][candidate1.name], 0)
+        self.assertEqual(results["rounds"][2][candidate2.name], 2)
+        self.assertEqual(results["rounds"][2][candidate3.name], 2)
+        self.assertEqual(results["rounds"][2][candidate4.name], 0)
+        self.assertEqual(results["rounds"][2][ron.name], 1)
+        self.assertEqual(results["rounds"][3][candidate1.name], 0)
+        self.assertEqual(results["rounds"][3][candidate2.name], 0)
+        self.assertEqual(results["rounds"][3][candidate3.name], 2)
+        self.assertEqual(results["rounds"][3][candidate4.name], 0)
+        self.assertEqual(results["rounds"][3][ron.name], 1)
+        self.assertEqual(len(results["rounds"]), 4)
+        self.assertEqual(results["quota"], 3)
+        self.assertEqual(results["spoiledBallots"], 1)
+        self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
+
+    # CASE 3: Multi-seat election with 5 candidates and 2 seats
+    def test_two_seats_five_candidates_var_2(self):
+        """
+        Please read the docstring of test_two_seats_three_candidates_0_winners_3_rounds
+        to understand why this test exists and how it relates to
+        test_two_seats_three_candidates_0_winners_3_rounds
+        """
         self._create_officer(self.election_session, 2)
         officer = Election.objects.filter(category="officer")[0]
 

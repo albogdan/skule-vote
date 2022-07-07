@@ -5,225 +5,193 @@ import math
 RON = "Reopen Nominations"
 
 
-def calculate_results(ballots, choices, numSeats):
-    result = {
-        "winners": [],
-        "rounds": [],
-        "quota": 0,
-        "totalVotes": -1,
-        "spoiledBallots": 0,
-    }
+# Parameters:
 
-    # YES/NO election (simplest case) i.e. a referendum or one person running
+# "ballots" is every single ballot cast in that election (i.e. array of "ballot")
+# "ranking" is an array as well, in order (index corresponds to "choice" array)
+# ballot: {
+#   sid: string (voterID, useless here)
+#   ranking: number[] (index of choice in choices array)
+# }
+
+# "choices" is an array of "choice" (i.e. list of all candidates/options)
+# choice: {
+#   name: string
+#   statement: string (useless here)
+# }
+
+# numSeats: Number of seats available in election
+
+# "totalVotes" is the total votes cast (manually verify with quota after)
+# each object in "rounds" is 1 round and displays the voteCount for remaining candidates
+# Returns: {
+#   winners: [] (array of names)
+#   rounds: [{choice1: voteCount, ...}] (index in array = round number)
+#   quota: Number
+#   totalVotes: Number (total number of ballots cast)
+#   spoiledBallots: Number (total number of spoiled ballots)
+# }
+# */
+
+
+def calculate_results(ballots, choices, numSeats):
+    _winners = []  # Array of winner's names
+    _rounds = []  # [{choice1Name: voteCount, ...}] (index in array = round number)
+    _quota = 0  # Number
+    _totalVotes = -1  # Number (total number of ballots cast)
+    _spoiledBallots = 0  # Number (total number of spoiled ballots)
+
+    # CASE 1: YES/NO election i.e. a referendum or one person running
     if len(choices) == 2:
         totalVotes, spoiledBallots = 0, 0
+        _rounds.append({c["name"]: 0 for c in choices})  # Adding round 0 choices
 
-        # initialize variables
-        roundObject = {}
-        for i in range(len(choices)):
-            roundObject[choices[i]["name"]] = 0
+        # Go through each ballot, which will either be yes, no, or blank (spoil)
+        for ballot in ballots:
+            ranking = ballot["ranking"]
 
-        result["rounds"].append(roundObject)
-        # go through each ballot, which will either be yes, no, or blank (spoil)
-        for i in range(len(ballots)):
-            ranking = ballots[i]["ranking"]
-
-            # check for spoiled (ranking would be an empty list)
-            if len(ranking) != 0:
+            # If ranking is an empty array, they spoiled the ballot
+            if not ranking:
+                spoiledBallots += 1
+            else:
                 if ranking[0] < len(choices):
                     name = choices[ranking[0]]["name"]
-                    result["rounds"][0][name] += 1
+                    _rounds[0][name] += 1
                 else:
                     print(f"ERROR - Ballot contained invalid ranking: {ranking[0]}")
-
                 totalVotes += 1
-            else:
-                spoiledBallots += 1
 
-        result["totalVotes"] = totalVotes
-        result["spoiledBallots"] = spoiledBallots
-        result["quota"] = math.floor(
-            totalVotes / 2 + 1
-        )  # may be unnecessary for this election, but better to have it and not need it
+        _totalVotes = totalVotes
+        _spoiledBallots = spoiledBallots
+        # Quota may be unnecessary for this election, but better to have it and not need it
+        _quota = math.floor(totalVotes / 2 + 1)
 
-        ch1, ch2 = choices[0]["name"], choices[1]["name"]
-        result["winners"].append(
-            ch1 if (result["rounds"][0][ch1] > result["rounds"][0][ch2]) else ch2
-        )
+        ch1 = choices[0]["name"]
+        ch2 = choices[1]["name"]
+        if _rounds[0][ch1] == _rounds[0][ch2]:  # Check for a tie
+            _winners.append("NO (TIE)")
+        else:
+            _winners.append(ch1 if (_rounds[0][ch1] > _rounds[0][ch2]) else ch2)
 
-        # // check for a tie
-        if result["rounds"][0][ch1] == result["rounds"][0][ch2]:
-            result["winners"][0] = "NO (TIE)"
-
-    # single seat election
-    #     keep eliminating the bottom choice (you cannot eliminate "Reopen Nominations" aka RON), until
+    # CASE 2: Single seat election
+    # >>> Keep eliminating the bottom choice (you cannot eliminate "Reopen Nominations" aka RON), until
     #     one person gets >50% of the vote, keeping track of intermediate rounds for audit reasons    */
     elif numSeats == 1:
-
-        stillCounting = True  # need to know when to stop looping over ballots
-        remainingChoices = (
-            []
-        )  # starts with all choices once someone is eliminated it sets name to "Eliminated" to maintain indices
+        # Need to know when to stop looping over ballots
+        stillCounting = True
+        # Start with all choices; once someone is eliminated it sets name to "Eliminated" to maintain indices
+        remainingChoices = [c["name"] for c in choices]
         currentRound, totalVotes, spoiledBallots = 0, 0, 0
 
-        # // "remainingChoices" has all choices to start
-        for i in range(len(choices)):
-            remainingChoices.append(choices[i]["name"])
-
         while stillCounting:
+            _rounds.append({c["name"]: 0 for c in choices})  # Adding choices per round
 
-            # // a little redundant, but avoids linkage of "roundObjects"
-            roundObject = {}
-            for i in range(len(choices)):
-                roundObject[choices[i]["name"]] = 0
+            for ballot in ballots:
+                ranking = ballot["ranking"]
 
-            result["rounds"].append(roundObject)
-
-            for i in range(len(ballots)):
-                ranking = ballots[i]["ranking"]
-
-                if len(ranking) != 0:  # check for spoiled ballot
+                # If ranking is an empty array, they spoiled the ballot
+                if not ranking:
+                    spoiledBallots += 1
+                else:
                     currentRanking = 0
-                    keepChecking = True
 
-                    # need to keep going down the list if someone's first choice has been eliminated (perform some checks each time)
-                    while keepChecking:
-                        # check for someone not completing a ballot fully (i.e. spoiling part of it)
-                        if currentRanking < len(ranking):
-                            # check for valid ranking
-                            if ranking[currentRanking] < len(choices):
-                                if (
-                                    remainingChoices[ranking[currentRanking]]
-                                    != "Eliminated"
-                                ):
-                                    name = remainingChoices[ranking[currentRanking]]
-                                    result["rounds"][currentRound][name] += 1
-                                    keepChecking = False
-                                else:
-                                    currentRanking += 1
-                            else:
-                                print(
-                                    f"ERROR - Ballot contained invalid ranking: {ranking[currentRanking]}"
-                                )
-                                # TODO: Figure out what we're doing in this edge case, below is temp for now
-                                keepChecking = False
-
+                    # Keep going down the list if someone's first choice has been eliminated (perform some checks each time)
+                    # Check for someone not completing a ballot fully (i.e. spoiling part of it)
+                    while currentRanking < len(ranking):
+                        # Check for valid ranking
+                        if ranking[currentRanking] < len(choices):
+                            name = remainingChoices[ranking[currentRanking]]
+                            if name != "Eliminated":
+                                _rounds[currentRound][name] += 1
+                                break
                         else:
-                            keepChecking = False  # this ballot is no longer useful
+                            print(
+                                f"ERROR - Ballot contained invalid ranking: {ranking[currentRanking]}"
+                            )
+                            # TODO: Figure out what we're doing in this edge case, below is temp for now
+                            break
+                        currentRanking += 1
 
                     totalVotes += 1
-                else:
-                    spoiledBallots += 1
 
-            # check the results for this round
-            maxVotes = -1
-            maxName = ""
-            minVotes = 999999
-            for i in range(len(remainingChoices)):
-                if remainingChoices[i] != "Eliminated":
-                    votes = result["rounds"][currentRound][remainingChoices[i]]
+            # Check the results for this round
+            maxVotes, minVotes = -1, 999999
+            for choice in remainingChoices:
+                if choice != "Eliminated":
+                    votes = _rounds[currentRound][choice]
 
                     if votes > maxVotes:
                         maxVotes = votes
-                        maxName = remainingChoices[i]
-                    if votes < minVotes and remainingChoices[i] != RON:
+                    if votes < minVotes and choice != RON:
                         minVotes = votes
 
-            # assign totalVotes after the first pass through the ballots to use any ballot that has a valid first-preference
-            # also assign spoiledBallots at this time too
-            if result["totalVotes"] == -1:
-                result["totalVotes"] = totalVotes
-                result["spoiledBallots"] = spoiledBallots
-                result["quota"] = math.floor(totalVotes / (numSeats + 1) + 1)
+            # Assign totalVotes after the first pass through the ballots to use any ballot that has a valid first-preference
+            # Also assign spoiledBallots at this time too
+            if _totalVotes == -1:
+                _totalVotes = totalVotes
+                _spoiledBallots = spoiledBallots
+                _quota = math.floor(totalVotes / (numSeats + 1) + 1)
 
-            # check for a winner, otherwise keep going and eliminate everyone with the lowest amount of votes total
-            if maxVotes >= result["quota"]:
-                # should only be one, but possibility remains for a complete tie
-                result["winners"] = backwardsEliminationProcess(
-                    -1,
-                    maxVotes,
-                    remainingChoices,
-                    result["rounds"],
-                    currentRound,
-                    ballots,
+            # Check for a winner, otherwise keep going and eliminate everyone with the lowest amount of votes total
+            if maxVotes >= _quota:
+                _winners = backwardsEliminationProcess(
+                    -1, maxVotes, remainingChoices, _rounds, currentRound, ballots
                 )
                 stillCounting = False
-
             else:
                 backwardsEliminationProcess(
-                    minVotes,
-                    -1,
-                    remainingChoices,
-                    result["rounds"],
-                    currentRound,
-                    ballots,
+                    minVotes, -1, remainingChoices, _rounds, currentRound, ballots
                 )
                 currentRound += 1
 
-                # check to make sure there are still valid candidates left
-                validCandidates = False
-                for i in range(len(remainingChoices)):
-                    if (
-                        remainingChoices[i] != "Eliminated"
-                        and remainingChoices[i] != RON
-                    ):
-                        validCandidates = True
-                        break
-
-                if not validCandidates:
+                # Make sure there are still valid candidates left
+                validCandidates = filter(
+                    lambda x: (x != "Eliminated" and x != RON), remainingChoices
+                )
+                if not list(validCandidates):
                     stillCounting = False
 
-    #  multi-seat election with more than two candidates
-    #     Note: Case when RON wins something, stop (any other seats are unfilled) */
+    # CASE 3: Multi-seat election with more than two candidates
+    # >>> Note: Case when RON wins something, stop counting further rounds (remaining seats are unfilled) */
     else:
-        stillCounting = True  # need to know when to stop looping over ballots
-        remainingChoices = (
-            []
-        )  # similar as above case, except will also use "Winner" to indicate a winner of one of the seats
+        stillCounting = True  # Need to know when to stop looping over ballots
+        # Their name will be replaced with "Winner" to indicate a winner of one of the seats
+        remainingChoices = [c["name"] for c in choices]
         currentRound, totalVotes, spoiledBallots, totalWinners = 0, 0, 0, 0
-        winnerObject = {}  # keeps track of candidates votes when they win the election
-
-        # "remainingChoices" has all choices to start
-        for i in range(len(choices)):
-            remainingChoices.append(choices[i]["name"])
+        winnerObject = {}  # Keeps track of winning candidates' votes
 
         while stillCounting:
-
-            # a little redundant, but avoids linkage of "roundObjects"
-            roundObject = {}
-            for i in range(len(choices)):
-                roundObject[choices[i]["name"]] = 0
-
-            result["rounds"].append(roundObject)
+            _rounds.append({c["name"]: 0 for c in choices})  # Adding choices per round
 
             for i in range(len(ballots)):
                 ranking = ballots[i]["ranking"]
 
-                if len(ranking) != 0:  # check for spoiled ballot
+                # If ranking is an empty array, they spoiled the ballot
+                if not ranking:
+                    spoiledBallots += 1
+                else:
                     currentRanking = 0
                     keepChecking = True
-                    voteValue = (
-                        1  # updates as you pass over winners and adjusts accordingly
-                    )
+                    # VoteValue updates as you pass over winners and adjusts accordingly
+                    voteValue = 1
 
-                    # need to keep going down the list if someone's first choice has been eliminated (perform some checks each time)
+                    # Keep going down the list if someone's first choice has been eliminated (perform some checks each time)
                     while keepChecking:
-                        # check for someone not completing a ballot fully (i.e. spoiling part of it)
+                        # Check for someone not completing a ballot fully (i.e. spoiling part of it)
                         if currentRanking < len(ranking):
-                            # check for valid ranking
+                            # Check for valid ranking
                             if ranking[currentRanking] < len(choices):
                                 name = remainingChoices[ranking[currentRanking]]
-
-                                # this should only be hit after "quota" is set and you're at least on the second round
                                 if name != "Eliminated" and name != "Winner":
-                                    result["rounds"][currentRound][name] += voteValue
+                                    _rounds[currentRound][name] += voteValue
                                     keepChecking = False
                                 else:
+                                    # This should only be hit after "quota" is set and you're at least on the second round
                                     if name == "Winner":
                                         name = choices[ranking[currentRanking]]["name"]
                                         voteValue = (
                                             voteValue
-                                            * (winnerObject[name] - result["quota"])
+                                            * (winnerObject[name] - _quota)
                                             / (winnerObject[name])
                                         )
 
@@ -233,81 +201,67 @@ def calculate_results(ballots, choices, numSeats):
                                     f"ERROR - Ballot contained invalid ranking: {ranking[currentRanking]}"
                                 )
                                 # TODO: Figure out what we're doing in this edge case, below is temp for now
-                                keepChecking = False
+                                break
                         else:
-                            keepChecking = False  # this ballot is no longer useful
+                            # This ballot is no longer useful
+                            keepChecking = False
 
                     totalVotes += 1
-                else:
-                    spoiledBallots += 1
 
-            # /check the results for this round
-            maxVotes = -1
-            minVotes = 999999
-            for i in range(len(remainingChoices)):
-                if (
-                    remainingChoices[i] != "Eliminated"
-                    and remainingChoices[i] != "Winner"
-                ):
-                    votes = result["rounds"][currentRound][remainingChoices[i]]
+            # Check the results for this round
+            maxVotes, minVotes = -1, 999999
+            for choice in remainingChoices:
+                if choice != "Eliminated" and choice != "Winner":
+                    votes = _rounds[currentRound][choice]
 
                     if votes > maxVotes:
                         maxVotes = votes
-                    if votes < minVotes and remainingChoices[i] != RON:
+                    if votes < minVotes and choice != RON:
                         minVotes = votes
 
-            # assign totalVotes after the first pass through the ballots to use any ballot that has a valid first-preference
-            # also assign spoiledBallots at this time too
-            if result["totalVotes"] == -1:
-                result["totalVotes"] = totalVotes
-                result["spoiledBallots"] = spoiledBallots
-                result["quota"] = math.floor(totalVotes / (numSeats + 1) + 1)
+            # Assign totalVotes after the first pass through the ballots to use any ballot that has a valid first-preference
+            # Also assign spoiledBallots at this time too
+            if _totalVotes == -1:
+                _totalVotes = totalVotes
+                _spoiledBallots = spoiledBallots
+                _quota = math.floor(totalVotes / (numSeats + 1) + 1)
 
-            # check for a winner, otherwise keep going and eliminate everyone with the lowest amount of votes total
-            if maxVotes >= result["quota"]:
+            # Check for a winner, otherwise keep going and eliminate everyone with the lowest amount of votes total
+            if maxVotes >= _quota:
                 winnerList = backwardsEliminationProcess(
-                    -1,
-                    maxVotes,
-                    remainingChoices,
-                    result["rounds"],
-                    currentRound,
-                    ballots,
+                    -1, maxVotes, remainingChoices, _rounds, currentRound, ballots
                 )
 
-                for i in range(len(winnerList)):
-                    totalWinners += 1
-                    result["winners"].append(winnerList[i])
-                    winnerObject[winnerList[i]] = maxVotes
+                totalWinners += len(winnerList)
+                _winners.extend(winnerList)
+                for winner in winnerList:
+                    winnerObject[winner] = maxVotes
 
-                    if totalWinners >= numSeats or winnerList[i] == RON:
-                        stillCounting = False
+                if totalWinners >= numSeats or RON in winnerList:
+                    stillCounting = False
+
             else:
                 backwardsEliminationProcess(
-                    minVotes,
-                    -1,
-                    remainingChoices,
-                    result["rounds"],
-                    currentRound,
-                    ballots,
+                    minVotes, -1, remainingChoices, _rounds, currentRound, ballots
                 )
 
-                # check to make sure there are still valid candidates left
-                validCandidates = False
-                for i in range(len(remainingChoices)):
-                    if (
-                        remainingChoices[i] != "Eliminated"
-                        and remainingChoices[i] != "Winner"
-                        and remainingChoices[i] != RON
-                    ):
-                        validCandidates = True
-                        break
-
-                if not validCandidates:
+                # Make sure there are still valid candidates left
+                validCandidates = filter(
+                    lambda x: (x != "Eliminated" and x != "Winner" and x != RON),
+                    remainingChoices,
+                )
+                if not list(validCandidates):
                     stillCounting = False
 
             currentRound += 1
 
-    return result
+    return {
+        "winners": _winners,
+        "rounds": _rounds,
+        "quota": _quota,
+        "totalVotes": _totalVotes,
+        "spoiledBallots": _spoiledBallots,
+    }
 
 
 # /*  Used for deciding which candidate to eliminate or which one to declare as a winner for a round. Use a backwards elimination
@@ -316,24 +270,23 @@ def calculate_results(ballots, choices, numSeats):
 #     should review the ballots carefully in cases of "extreme ties" to make the final call if need be.
 #     Note: either "minVotes" or "maxVotes" will equal -1, so the function decides on the fly which comparison to make.   */
 def backwardsEliminationProcess(
-    minVotes, maxVotes, candidateList, roundHistory, currentRound, ballots
+    minVotes, maxVotes, candidateList, _rounds, currentRound, ballots
 ):
-    # stores the indices of the names in candidateList
+    # Stores the indices of the names from candidateList
     eliminationList, winnerList = [], []
-    eliminationPath = minVotes != -1  # easy boolean comparison to be used later
+    # Determine if we're looking for a winner or someone to eliminate
+    isElimination = minVotes != -1
     returnList = []
 
-    for i in range(len(candidateList)):
-        if candidateList[i] != "Eliminated" and candidateList[i] != "Winner":
-            if (
-                minVotes == roundHistory[currentRound][candidateList[i]]
-                and candidateList[i] != RON
-            ):
+    for i, candidate in enumerate(candidateList):
+        if candidate != "Eliminated" and candidate != "Winner":
+            numVotes = _rounds[currentRound][candidate]
+            if minVotes == numVotes and candidate != RON:
                 eliminationList.append(i)
-            elif maxVotes == roundHistory[currentRound][candidateList[i]]:
+            elif maxVotes == numVotes:
                 winnerList.append(i)
 
-    if eliminationPath and len(eliminationList) == 0:
+    if isElimination and len(eliminationList) == 0:
         # There are not enough candidates to fill the total number of seats
         return
     elif len(eliminationList) == 1:
@@ -342,153 +295,95 @@ def backwardsEliminationProcess(
     elif len(winnerList) == 1:
         returnList.append(candidateList[winnerList[0]])
         candidateList[winnerList[0]] = "Winner"
+        return returnList
     else:
-        # first look through the rounds backwards until you reach the first round
+        # First look through the rounds backwards until you reach the first round
         while currentRound > 0:
             currentRound -= 1
+            currRoundVotes = _rounds[currentRound]
 
-            # arbitrary choice of zero index for comparison purposes
-            if eliminationPath:
-                minVotes = roundHistory[currentRound][candidateList[eliminationList[0]]]
-
-                for i in range(1, len(eliminationList)):
-                    if (
-                        roundHistory[currentRound][candidateList[eliminationList[i]]]
-                        < minVotes
-                    ):
-                        minVotes = roundHistory[currentRound][
-                            candidateList[eliminationList[i]]
-                        ]
-
+            if isElimination:
+                minVotes = min(
+                    [currRoundVotes[candidateList[elim]] for elim in eliminationList]
+                )
                 eliminationList = checkCandidates(
-                    minVotes, candidateList, roundHistory, currentRound, eliminationList
+                    minVotes, candidateList, currRoundVotes, eliminationList
                 )
             else:
-                maxVotes = roundHistory[currentRound][candidateList[winnerList[0]]]
-
-                for i in range(1, len(winnerList)):
-                    if (
-                        roundHistory[currentRound][candidateList[winnerList[i]]]
-                        > maxVotes
-                    ):
-                        maxVotes = roundHistory[currentRound][
-                            candidateList[winnerList[i]]
-                        ]
-
+                maxVotes = max(
+                    [currRoundVotes[candidateList[winner]] for winner in winnerList]
+                )
                 winnerList = checkCandidates(
-                    maxVotes, candidateList, roundHistory, currentRound, winnerList
+                    maxVotes, candidateList, currRoundVotes, winnerList
                 )
 
             if len(eliminationList) == 1 or len(winnerList) == 1:
                 break
 
-        # if you still don't have a single candidate remaining, start looking through 2nd choice onwards (currentRound should equal 0)
+        # If there is still more than 1 winner or more than 1 person to eliminate, start
+        # looking through every ballot starting from their 2nd choice onwards
         currentRanking = 1
 
-        # len(roundHistory[0].keys()) is the max number of choices (i.e. number of candidates)
+        # len(_rounds[0]) is the max number of choices (i.e. number of candidates)
         while (
-            currentRanking < len(roundHistory[0].keys())
+            currentRanking < len(_rounds[0])
             and len(eliminationList) != 1
             and len(winnerList) != 1
         ):
-            # initialize votes array to line up with votes for candidates being considered for elimination
-            votes = []
-            listLength = (
-                len(eliminationList) if len(eliminationList) > 0 else len(winnerList)
-            )
-            for i in range(listLength):
-                votes.append(0)
+            # One of the lists has length 0 and the other is populated, depending if we're looking for
+            # a winner or someone to eliminate
+            listLength = max(len(eliminationList), len(winnerList))
+            # Initialize votes array to line up with votes for candidates being considered for elimination
+            votes = [0 for _ in range(listLength)]
 
-            for i in range(len(ballots)):
-                ranking = ballots[i]["ranking"]
+            for ballot in ballots:
+                ranking = ballot["ranking"]
 
-                # check for spoiled ballot or partially spoiled ballot
+                # Check for spoiled ballot or partially spoiled ballot
                 if len(ranking) != 0 and currentRanking < len(ranking):
                     for j in range(listLength):
                         if (
-                            eliminationPath
+                            isElimination
                             and eliminationList[j] == ranking[currentRanking]
                         ) or (
-                            not eliminationPath
+                            not isElimination
                             and winnerList[j] == ranking[currentRanking]
                         ):  # check for valid ranking
                             votes[j] += 1
                             break
 
-            # arbitrary choice of zero index for comparison purposes
-            minVotes, maxVotes = votes[0], votes[0]
-            changed = False
-
-            for i in range(1, len(votes)):
-                if eliminationPath and votes[i] < minVotes:
-                    minVotes = votes[i]
-                    changed = True
-                elif not eliminationPath and votes[i] > maxVotes:
-                    maxVotes = votes[i]
-                    changed = True
-
-            if changed:
-                i = 0
-                while i < len(votes):
-                    if eliminationPath and votes[i] == minVotes:
-                        eliminationList.pop(i)
-                        votes.pop(i)
-                    elif not eliminationPath and votes[i] == maxVotes:
-                        winnerList.pop(i)
-                        votes.pop(i)
-                    else:
-                        i += 1
+            # If candidates have a different number of votes (len(set(votes)) > 1), update eliminationList/winnerList, else
+            # they stay the same
+            if len(set(votes)) > 1:
+                if isElimination:
+                    minVotes = min(votes)
+                    eliminationList = [
+                        e for i, e in enumerate(eliminationList) if votes[i] != minVotes
+                    ]
+                else:
+                    maxVotes = max(votes)
+                    winnerList = [
+                        w for i, w in enumerate(winnerList) if votes[i] != maxVotes
+                    ]
 
             currentRanking += 1
 
-        # always end with going through the list in case you still end up with a tie by the end of the process
-        if eliminationPath:
-            for i in range(len(eliminationList)):
-                candidateList[eliminationList[i]] = "Eliminated"
+        # Always end with going through the list in case you still end up with a tie by the end of the process
+        if isElimination:
+            for elim in eliminationList:
+                candidateList[elim] = "Eliminated"
         else:
-            for i in range(len(winnerList)):
-                returnList.append(candidateList[winnerList[i]])
-                candidateList[winnerList[i]] = "Winner"
+            for winner in winnerList:
+                returnList.append(candidateList[winner])
+                candidateList[winner] = "Winner"
 
     return returnList
 
 
-def checkCandidates(
-    votesToCheck, candidateList, roundHistory, currentRound, currentList
-):
-    newList = []
-
-    for i in range(len(currentList)):
-        if votesToCheck == roundHistory[currentRound][candidateList[currentList[i]]]:
-            newList.append(currentList[i])
-
+def checkCandidates(voteThreshold, candidateList, currRoundVotes, currentList):
+    newList = [
+        curr
+        for curr in currentList
+        if voteThreshold == currRoundVotes[candidateList[curr]]
+    ]
     return newList
-
-
-# Parameters:
-
-# "ballots" is every single ballot cast in that election (i.e. array of "ballot")
-# "ranking" is an array as well, in order (index corresponds to "choice" array)
-# ballot: {
-# sid: string (voterID, useless here)
-# ranking: number[] (index of choice in choices array)
-# }
-
-# "choices" is an array of "choice" (i.e. list of all candidates/options)
-# choice: {
-# name: string
-# statement: string (useless here)
-# }
-
-# numSeats: Number of seats available in election
-
-# "totalVotes" is the total votes cast (manually verify with quota after)
-# each object in "rounds" is 1 round and displays the voteCount for remaining candidates
-# Returns: {
-# winners: [] (array of names)
-# rounds: [{choice1: voteCount, ...}] (index in array = round number)
-# quota: Number
-# totalVotes: Number (total number of ballots cast)
-# spoiledBallots: Number (total number of spoiled ballots)
-# }
-# */

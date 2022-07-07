@@ -2,8 +2,6 @@ from django.test import TestCase
 
 from backend.ballot import calculate_results
 
-# from backend.ballot_new import calculate_results  # Uncomment to test with the new file
-
 from backend.admin import generate_results
 from backend.models import (
     Ballot,
@@ -1039,7 +1037,6 @@ class BallotTestCase(SetupMixin, TestCase):
         election_results = results[
             f"{self.election_session.election_session_name} ElectionSession"
         ][officer.election_name]
-        print(results)
         # Assert results without DQ - candidate 1 wins
         self.assertEqual(
             election_results["results_without_dq"]["winners"], [candidate1.name]
@@ -1226,7 +1223,6 @@ class BallotTestCase(SetupMixin, TestCase):
         election_results = results[
             f"{self.election_session.election_session_name} ElectionSession"
         ][officer.election_name]
-        print(results)
         # Assert results without DQ - candidate 1 wins
         self.assertEqual(
             election_results["results_without_dq"]["winners"], [candidate1.name]
@@ -1309,20 +1305,22 @@ class BallotTestCase(SetupMixin, TestCase):
         self.assertEqual(results["spoiledBallots"], 1)
         self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
 
-    # CASE 3: Multi-seat election with 5 candidates and 2 seats, has 3 rounds
-    def test_two_seats_five_candidates_0_winners_3_rounds(self):
+    # CASE 3: Multi-seat election with 5 candidates and 2 seats
+    def test_two_seats_five_candidates(self):
         """
         The distribution of votes in each round is IDENTICAL to the test below
-        (test_two_seats_five_candidates_0_winners_4_rounds). However, this one
-        has 3 rounds while the other has 4 rounds. The reason is due to
-        backwardsEliminationProcess. To determine which candidate to
-        eliminate, backwardsEliminationProcess looks at the rankings per ballot
-        prior to the current round.
+        (test_two_seats_five_candidates_var_2). However, the results of the final
+        4th round are different. The reason is due to backwardsEliminationProcess.
+        To determine which candidate to eliminate, backwardsEliminationProcess
+        looks at the rankings per ballot prior to the current round.
 
         In this test, some ballots have length 1 while all other ballots have length 2.
         In the other test, all ballots have length 2. Thus, the ballots of len(1) produce
         different results in backwardsEliminationProcess than a ballot of len(>1) even
         though the votes each candidate gets per round is the same.
+
+        Ultimately, the final results are the same, which is what matters. These 2 tests
+        show the weird behavior of backwardsEliminationProcess that took me some time to debug.
         """
         self._create_officer(self.election_session, 2)
         officer = Election.objects.filter(category="officer")[0]
@@ -1371,13 +1369,18 @@ class BallotTestCase(SetupMixin, TestCase):
         self.assertEqual(results["rounds"][2][candidate3.name], 2)
         self.assertEqual(results["rounds"][2][candidate4.name], 0)
         self.assertEqual(results["rounds"][2][ron.name], 1)
+        self.assertEqual(results["rounds"][3][candidate1.name], 0)
+        self.assertEqual(results["rounds"][3][candidate2.name], 0)
+        self.assertEqual(results["rounds"][3][candidate3.name], 2)
+        self.assertEqual(results["rounds"][3][candidate4.name], 0)
+        self.assertEqual(results["rounds"][3][ron.name], 1)
         self.assertEqual(len(results["rounds"]), 4)
         self.assertEqual(results["quota"], 3)
         self.assertEqual(results["spoiledBallots"], 1)
         self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)
 
-    # CASE 3: Multi-seat election with 5 candidates and 2 seats, has 4 rounds
-    def test_two_seats_five_candidates_0_winners_4_rounds(self):
+    # CASE 3: Multi-seat election with 5 candidates and 2 seats
+    def test_two_seats_five_candidates_var_2(self):
         """
         Please read the docstring of test_two_seats_three_candidates_0_winners_3_rounds
         to understand why this test exists and how it relates to
@@ -1430,7 +1433,12 @@ class BallotTestCase(SetupMixin, TestCase):
         self.assertEqual(results["rounds"][2][candidate3.name], 2)
         self.assertEqual(results["rounds"][2][candidate4.name], 0)
         self.assertEqual(results["rounds"][2][ron.name], 1)
-        self.assertEqual(len(results["rounds"]), 3)
+        self.assertEqual(results["rounds"][3][candidate1.name], 0)
+        self.assertEqual(results["rounds"][3][candidate2.name], 2)
+        self.assertEqual(results["rounds"][3][candidate3.name], 0)
+        self.assertEqual(results["rounds"][3][candidate4.name], 0)
+        self.assertEqual(results["rounds"][3][ron.name], 1)
+        self.assertEqual(len(results["rounds"]), 4)
         self.assertEqual(results["quota"], 3)
         self.assertEqual(results["spoiledBallots"], 1)
         self.assertEqual(results["totalVotes"], len(voters) - NUM_SPOILED)

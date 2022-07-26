@@ -10,9 +10,7 @@ The repository hosting the code for the [Skule Voting](https://vote.skule.ca) we
   - [Environment Variables](#environment-variables)
   - [Running the development server](#running-the-development-server)
   - [Creating users locally](#creating-users-locally)
-  - [Tests](#tests)
-    - [React Tests](#react)
-  - [Styling the Frontend](#styling-the-frontend)
+  - [TLDR of the above](#tldr-of-the-above)
 - [Working with the Admin Site](#working-with-the-admin-site)
   - [Creating ElectionsSessions with CSV Files](#method-1-using-a-csv-file-recommended)
   - [Creating ElectionSessions Manually](#method-2-manually)
@@ -139,6 +137,33 @@ $ python manage.py createsuperuser
 ```
 
 Once a superuser is created (and the Django dev server is running), you can log in to the admin site at `http://localhost:8000/admin`. Note that creating a superuser does not give it a first or last name, so you should set those from the admin site otherwise some parts of the site may behave weird. Our regular sign up flow also assumes that username and email are the same, so we recommend creating your superuser accordingly.
+
+### TLDR of the above
+If you're on Mac or Linux, copy and paste the following in the top-level `skule_vote` directory:
+
+Start the Django server in terminal 1:
+
+```bash
+conda activate skule_vote
+export SECRET_KEY=<your key>
+export DEBUG=1
+export REACT_APP_DEV_SERVER_URL=http://localhost:8000
+docker-compose -f development/docker-compose.yml up -d
+cd skule_vote/
+python manage.py runserver
+```
+
+Start the React app in terminal 2:
+
+```bash
+cd skule_vote/frontend/ui
+yarn start
+```
+
+Assuming you are using all default ports:
+- Access the Django admin site at [http://127.0.0.1:8000](http://127.0.0.1:8000)
+- View the React app at [http://localhost:3000](http://localhost:3000)
+- To use the frontend, create a cookie to authenticate yourself at [http://localhost:8000/api/bypasscookie](http://localhost:8000/api/bypasscookie)
 
 ## Working with the Admin Site
 

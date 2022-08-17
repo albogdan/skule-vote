@@ -91,7 +91,7 @@ where you can substitube `DEBUG=1` for any environment variable you desire.
 
 Before the development server can be ran, the database must be running. This project is configured to use [PostgreSQL](https://www.postgresql.org/).
 
-You may install Postgres on your machine if you wish, but we recommend running it locally using docker. A docker-compose service is available in [development/docker-compose.yml](what-is-this). To run the database:
+You may install Postgres on your machine if you wish, but we recommend running it locally using docker. A docker-compose service is available in `development/docker-compose.yml`. To run the database:
 
 ```bash
 $ docker-compose -f development/docker-compose.yml up -d

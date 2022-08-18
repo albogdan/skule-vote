@@ -10,9 +10,7 @@ The repository hosting the code for the [Skule Voting](https://vote.skule.ca) we
   - [Environment Variables](#environment-variables)
   - [Running the development server](#running-the-development-server)
   - [Creating users locally](#creating-users-locally)
-  - [Tests](#tests)
-    - [React Tests](#react)
-  - [Styling the Frontend](#styling-the-frontend)
+  - [TLDR of the above](#tldr-of-the-above)
 - [Working with the Admin Site](#working-with-the-admin-site)
   - [Creating ElectionsSessions with CSV Files](#method-1-using-a-csv-file-recommended)
   - [Creating ElectionSessions Manually](#method-2-manually)
@@ -74,7 +72,7 @@ In order to run the django and react development servers locally (or run tests),
 | DB_USER                      |                                   | postgres       | User on the postgres database. Must have permissions to create and modify tables.                                                                           |
 | DB_PASSWORD                  |                                   |                | Password for the postgres user.                                                                                                                             |
 | DB_PORT                      |                                   | 5432           | Port the postgres server is open on.                                                                                                                        |
-| DB_NAME                      |                                   | hackathon_site | Postgres database name.                                                                                                                                     |
+| DB_NAME                      |                                   | skule_vote     | Postgres database name.                                                                                                                                     |
 | **REACT_APP_DEV_SERVER_URL** | http://localhost:8000             |                | Path to the django development server, used by React. Update the port if you aren't using the default 8000.                                                 |
 | CONNECT_TO_UOFT              |                                   | 0              | If set, tries to obtain voter information by connecting to the UofT endpoint. Disabled by default to allow for testing, but must be enabled for production. |
 | UOFT_SECRET_KEY              |                                   | 0              | Used to verify the integrity of voter data sent by UofT. Only used when `CONNECT_TO_UOFT == 1`                                                              |
@@ -93,7 +91,7 @@ where you can substitube `DEBUG=1` for any environment variable you desire.
 
 Before the development server can be ran, the database must be running. This project is configured to use [PostgreSQL](https://www.postgresql.org/).
 
-You may install Postgres on your machine if you wish, but we recommend running it locally using docker. A docker-compose service is available in [development/docker-compose.yml](/home/graham/ieee/hackathon-template/README.md). To run the database:
+You may install Postgres on your machine if you wish, but we recommend running it locally using docker. A docker-compose service is available in `development/docker-compose.yml`. To run the database:
 
 ```bash
 $ docker-compose -f development/docker-compose.yml up -d
@@ -120,7 +118,7 @@ $ python manage.py migrate
 
 #### Run the development server
 
-Finally, you can run the development server, by default on port 8000. From above, you should already be in the top-level `hackathon_site` directory:
+Finally, you can run the development server, by default on port 8000. From above, you should already be in the top-level `skule_vote` directory:
 
 ```bash
 $ python manage.py runserver
@@ -140,22 +138,32 @@ $ python manage.py createsuperuser
 
 Once a superuser is created (and the Django dev server is running), you can log in to the admin site at `http://localhost:8000/admin`. Note that creating a superuser does not give it a first or last name, so you should set those from the admin site otherwise some parts of the site may behave weird. Our regular sign up flow also assumes that username and email are the same, so we recommend creating your superuser accordingly.
 
-### Tests
+### TLDR of the above
+If you're on Mac or Linux, copy and paste the following in the top-level `skule_vote` directory:
 
-#### React
-
-React tests are handled by [Jest](https://jestjs.io/). To run the full suite of React tests:
+Start the Django server in terminal 1:
 
 ```bash
-$ cd hackathon_site/dashboard/frontend
-$ yarn test
+conda activate skule_vote
+export SECRET_KEY=<your key>
+export DEBUG=1
+export REACT_APP_DEV_SERVER_URL=http://localhost:8000
+docker-compose -f development/docker-compose.yml up -d
+cd skule_vote/
+python manage.py runserver
 ```
 
-### Styling the Frontend
+Start the React app in terminal 2:
 
-The UI app uses [MUI](https://mui.com/) for styling and components. There is no usage of CSS or SCSS as we use a mixture of MUI's [Palette](https://mui.com/material-ui/customization/palette/#main-content) and MUI's [styled()](https://mui.com/material-ui/customization/palette/#main-content). Global colors, fonts, and dark mode configuration are set using Palette in `App.js` using MUI's `createTheme` while general component styling is done with styled().
+```bash
+cd skule_vote/frontend/ui
+yarn start
+```
 
-To edit the globally-set colors, font-sizes, and font-families (which we don't recommend unless EngSoc has rebranded), simply edit the `createTheme` object in `App.js`. The colors for `primary` and `secondary` are part of EngSoc's official colour scheme.
+Assuming you are using all default ports:
+- Access the Django admin site at [http://127.0.0.1:8000](http://127.0.0.1:8000)
+- View the React app at [http://localhost:3000](http://localhost:3000)
+- To use the frontend, create a cookie to authenticate yourself at [http://localhost:8000/api/bypasscookie](http://localhost:8000/api/bypasscookie)
 
 ## Working with the Admin Site
 

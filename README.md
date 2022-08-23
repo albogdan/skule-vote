@@ -150,6 +150,7 @@ export DEBUG=1
 export REACT_APP_DEV_SERVER_URL=http://localhost:8000
 docker-compose -f development/docker-compose.yml up -d
 cd skule_vote/
+python manage.py migrate
 python manage.py runserver
 ```
 

@@ -174,9 +174,19 @@ Additionally, if you go to the admin site and click on `Election Sessions` on th
 
 **Developer Note**: If you wish to change the CSV templates in any way, make sure to regenerate the ZIP file and place it in the `skule_vote/backend/static/backend` directory.
 
-### Setting up an Election Session
+## Notes on Committing Backend Changes
 
-#### Method 1: Using a CSV File (Recommended)
+To run all unit tests, run `python manage.py test`. You can learn more about writing and running unit tests in [Django documentation](https://docs.djangoproject.com/en/3.2/topics/testing/overview/).
+
+All python code is formatted using [Black](https://github.com/psf/black). To format your code, simply run `black .` in the project root. To format a specific file, run `black FILE.py`.
+
+**You can only merge PRs if all unit tests are passing and your code is fully formatted with Black.**
+
+If you have changed a model, you need to run `python manage.py makemigrations` to generate the required migrations to translate that change to the DB. Otherwise, tests will fail and the website will not work.
+
+## Setting up an Election Session
+
+### Method 1: Using a CSV File (Recommended)
 
 To use this method, when you go to the `admin` site and add an `ElectionSession` you must add an `ElectionSession` with a `name`, `start_date` and `end_date`, and CSV files for each section of `election`, `candidate` and `eligibility`. These CSV files have certain constraints that must be obeyed. The constraints are as follows:
 
@@ -197,11 +207,11 @@ To use this method, when you go to the `admin` site and add an `ElectionSession`
 
 **Note**: once an ElectionSession has started you _cannot_ edit it to change its `name`, `start_date`, or upload any new CSV files. Any changes required for `Elections`, `Candidates` and `Eligibilities` must be made manually. You _can_ change the `ElectionSession's` `end_date` once it has started, also manually.
 
-#### Method 2: Manually
+### Method 2: Manually
 
 To use this method, when you go to the `admin` site and add an `ElectionSession` you must add an `ElectionSession` with only a `name`, `start_date` and `end_date`. You will then go and manually create each of `Election`, `Candidate` and `Eligibility`. Note that `Candidate` and `Eligibility` require an `Election` to connect to, so `Elections` should be created first.
 
-### Notes on the RON/No Candidate
+## Notes on the RON/No Candidate
 
 The `RON/No Candidate` is created by default on the creation of each `Election`. It is also deleted by cascade on deletion of any `Election`, which includes manual `Election` deletion or as a cascade from deleting an `ElectionSession`. We describe it as the `RON/No Candidate` since it can take the form of a `RON Candidate` in the case where there are two or more other `Candidates`, or the `No Candidate` in the case of a single other `Candidate`.
 

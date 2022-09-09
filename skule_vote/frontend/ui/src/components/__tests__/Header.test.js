@@ -58,7 +58,7 @@ describe("<Header />", () => {
     );
     expect(getByText("Vote").closest("a")).toHaveAttribute(
       "href",
-      "https://portal.engineering.utoronto.ca/weblogin/sites/apsc/vote.asp"
+      "https://portal.engineering.utoronto.ca/weblogin/sites/voting/vote.aspx"
     );
   });
 

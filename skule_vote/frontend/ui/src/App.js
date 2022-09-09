@@ -50,7 +50,7 @@ const AppBody = styled("div")(({ theme }) => ({
 }));
 
 export const UOFT_LOGIN =
-  "https://portal.engineering.utoronto.ca/weblogin/sites/apsc/vote.asp";
+  "https://portal.engineering.utoronto.ca/weblogin/sites/voting/vote.aspx";
 
 const App = () => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");

@@ -83,7 +83,7 @@ def _create_verified_voter(query_dict, verify_hash=True):
             + settings.UOFT_SECRET_KEY
         )
         encoded_check_string = check_string.encode(encoding="utf-8")
-        h = hashlib.md5()
+        h = hashlib.sha256()
         h.update(encoded_check_string)
         check_hash = h.hexdigest()
 
